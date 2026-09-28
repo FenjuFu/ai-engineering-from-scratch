@@ -7,17 +7,13 @@
 **Stage:** 2 of 4
 **Time:** ~2 hours
 
-## What you build
+## Separate ingestion order from timeline order
 
-Turn incident events into a timeline with evidence-backed claims. This stage implements `Timeline` in `stage2.go`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
-
-Sort a copy by elapsed seconds and then ID to make tied timestamps deterministic. Reject a negative incident horizon and events beyond it. Never reorder the caller-owned slice: other evaluators may retain ingestion order as evidence.
+Logs can arrive out of order. A timeline orders the observed events without claiming that time order proves causality. Copy the input so another consumer can still inspect arrival order. Use event ID as the tie-breaker when two events share a second.
 
 ## Work through one case
 
-event b at 5, event a at 1 -> a then b. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+Suppose b arrives at second 35, a at second 0 and c at second 35. Sorting yields a, b, c. With a horizon of 30, the operation fails instead of dropping b and c. A dropped event could be the observation that contradicts the draft explanation.
 
 ```figure
 pj-postmortem-writer-2
@@ -39,16 +35,22 @@ python3 scripts/project_test.py postmortem-writer --stage 2 --path /tmp/postmort
 
 The stage checks Ordered, Tied, NoMutation, Bound, Empty. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
 
-## Check yourself
+## Implementation hints
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Validate the horizon and every event time first. Copy the slice, then sort with second as the primary key and ID as the secondary key. Check both the output order and the unchanged input in your tests.
 
-## Going further
+Start with one valid record, then add the rejection case before optimizing. Keep source data unchanged on failure so the caller can diagnose what happened. Use the smallest function that expresses the boundary; an extra framework would hide the mechanism you are learning.
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+## Check your understanding
 
-## Sources and scope
+What happens to the same three records with a horizon of exactly 35? Add a tied timestamp in a different arrival position and prove that the final packet is identical.
 
-[Official reference](https://sre.google/workbook/postmortem-culture/). Build a deterministic incident report pipeline with strict event ingestion, stable ordering, source-bound claims and reproducible text output. Causal conclusions require supplied evidence and remain labeled as claims rather than inferred facts.
+Write your prediction before running the test. If the result surprises you, trace the input through validation, state construction and output. A passing reference implementation is a comparison tool; your own workspace must pass the cumulative grader to establish completion.
+
+## Use it with your own data
+
+`--events FILE --review FILE --out DIRECTORY` produces index.html, packet.json and packet.txt. Run the supplied files with `--events ../examples/events.jsonl --review ../examples/review.json --out /tmp/incident-packet`. With no arguments, the CLI prints a small original fixture. Evidence checks establish source provenance; causal judgment and reviewer identity remain human responsibilities.
+
+## Sources
+
+[Google SRE postmortem practice](https://sre.google/workbook/postmortem-culture/).
