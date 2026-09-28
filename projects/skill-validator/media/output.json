@@ -1,0 +1,16 @@
+{
+  "title": "SKILL.md Validator and Loader / actual output",
+  "recordedAt": "2026-09-28T16:27:44Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/skill-validator/solution",
+      "exitCode": 0,
+      "output": "DISCOVERY code-review: Check every changed line\nACTIVATED code-review: Check every changed line\n\nRead the diff. Cite line numbers.\nBUDGET Err(Limit)\n",
+      "durationMs": 664
+    }
+  ]
+}
