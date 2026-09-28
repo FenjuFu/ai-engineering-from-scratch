@@ -1,60 +1,39 @@
 # Score words and repository paths
 
-> Award two points for each matched keyword and three for each matched file path. Return score reasons alongside the score. Support star within one path segment and double-star across segments, escape regular expression punctuation, and reject absolute or parent-traversing file paths. Resolve tied scores by priority and then id so ranking is reproducible.
-
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
+**Stage 2 of 4.** Typescript. Plan about 2 hours.
 
 Award two points for each matched keyword and three for each matched file path. Return score reasons alongside the score. Support star within one path segment and double-star across segments, escape regular expression punctuation, and reject absolute or parent-traversing file paths. Resolve tied scores by priority and then id so ranking is reproducible.
 
 The boundary for this stage is `matchPath, rank`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
-
-Small pure scoring functions are easy to inspect in a terminal and reuse in a web UI. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
-
 ```figure
 pj-skill-router-2
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+## Worked Orchard case
 
-## Build
+Before coding, review [TypeScript object types](https://www.typescriptlang.org/docs/handbook/2/objects.html) and [Tool schema design](../../../../../phases/13-tools-and-protocols/05-tool-schema-design/docs/en.md). Complete [stage 1](../../01-catalog/docs/en.md) first.
 
-Implement `matchPath, rank` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
+Repeated evidence must not inflate a match. The Orchard request repeats the same changed path, but it should earn its path contribution only once. Keywords contribute two points and distinct matched paths contribute three.
 
-Review plus a matching TypeScript file scores five, and each contribution is named.
+```text
+keywords release,replicas -> 4 points
+files deploy/orchard.yaml repeated twice -> 3 points
+score=7, not 10
+```
 
-## Verify
+## Build and inspect
+
+Canonicalize separators and deduplicate before scoring. Keep reasons aligned with the exact evidence counted.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-python3 scripts/project_test.py skill-router --init learning-artifacts/skill-router
 python3 scripts/project_test.py skill-router --stage 2 --path learning-artifacts/skill-router
 ```
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-```bash
-python3 scripts/project_test.py skill-router --path learning-artifacts/skill-router
-node learning-artifacts/skill-router/main.ts --demo
-```
+## Investigate next
 
-## What you see
-
-Review plus a matching TypeScript file scores five, and each contribution is named.
-
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
-
-## Ship it
-
-Keep your implementation and one input you invented under `learning-artifacts/skill-router/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+Should two different path rules matching one file count as two independent observations?
