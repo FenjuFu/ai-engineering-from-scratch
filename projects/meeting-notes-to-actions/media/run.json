@@ -1,0 +1,48 @@
+{
+  "title": "Meeting Notes to Actions / initialize and test",
+  "recordedAt": "2026-09-28T16:27:59Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "meeting-notes-to-actions",
+        "--init",
+        "my-meeting-notes-to-actions"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-meeting-notes-to-actions\n  created  main.py\n  created  STAGE.md\n  kept     STAGE.md\n  kept     STAGE.md\nnext: python3 scripts/project_test.py meeting-notes-to-actions --stage 1 --path /privatemy-meeting-notes-to-actions\n",
+      "durationMs": 54
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "meeting-notes-to-actions",
+        "--stage",
+        "1",
+        "--path",
+        "my-meeting-notes-to-actions"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Meeting Notes to Actions: grading learner\n  FAIL stage 1: Parse explicit action records with line provenance (5 tests)\n       not implemented yet: parse_notes\n",
+      "durationMs": 110
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "meeting-notes-to-actions",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Meeting Notes to Actions: grading solution\n  PASS stage 1: Parse explicit action records with line provenance (5 tests)\n  PASS stage 2: Validate owners and calendar dates (9 tests)\n  PASS stage 3: Deduplicate exact commitments without losing citations (5 tests)\n  PASS stage 4: Publish an escaped HTML checklist and summary (7 tests)\n",
+      "durationMs": 270
+    }
+  ]
+}
