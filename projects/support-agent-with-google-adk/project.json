@@ -1,0 +1,149 @@
+{
+  "id": "support-agent-with-google-adk",
+  "title": "Support Agent With Google ADK",
+  "level": 3,
+  "levelName": "Engineer",
+  "tagline": "Build ticket contracts, routing and handoff rules, then run real ADK specialist agents with deterministic local models.",
+  "summary": "Build ticket contracts, routing and handoff rules, then run real ADK specialist agents with deterministic local models.",
+  "hours": 8,
+  "languages": [
+    "Python"
+  ],
+  "status": "ready",
+  "source": "core",
+  "author": {
+    "name": "AI Engineering from Scratch",
+    "github": "rohitg00"
+  },
+  "youWillBuild": "Build ticket contracts, routing and handoff rules, then run real ADK specialist agents with deterministic local models.",
+  "usefulFor": [
+    "Inspect the local mechanism before integrating it into a larger agent."
+  ],
+  "skills": [
+    "Validate and redact support tickets",
+    "Route tickets and enforce specialist capabilities",
+    "Record allowed handoff state transitions",
+    "Run two actual ADK agents with a session handoff"
+  ],
+  "prerequisites": [],
+  "figures": true,
+  "overviewFigure": "pj-support-agent-with-google-adk-1",
+  "languageWhy": {
+    "Python": "Stdlib data structures, explicit algorithms and deterministic local tests."
+  },
+  "demo": {
+    "command": [
+      "python3",
+      "demo.py"
+    ],
+    "cwd": "solution"
+  },
+  "stages": [
+    {
+      "id": "01-intake",
+      "title": "Validate and redact support tickets",
+      "summary": "The fixture replaces an email with [email] and an API-key value with [redacted].",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "starter",
+      "figure": "pj-support-agent-with-google-adk-1",
+      "concepts": [
+        "validate",
+        "and",
+        "redact",
+        "support"
+      ]
+    },
+    {
+      "id": "02-routing",
+      "title": "Route tickets and enforce specialist capabilities",
+      "summary": "A refund/password tie goes to human, and billing cannot read an account.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "core",
+      "figure": "pj-support-agent-with-google-adk-2",
+      "concepts": [
+        "route",
+        "tickets",
+        "and",
+        "enforce"
+      ]
+    },
+    {
+      "id": "03-handoff",
+      "title": "Record allowed handoff state transitions",
+      "summary": "A received ticket becomes routed before it can become answered or escalated.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "core",
+      "figure": "pj-support-agent-with-google-adk-3",
+      "concepts": [
+        "record",
+        "allowed",
+        "handoff",
+        "state"
+      ]
+    },
+    {
+      "id": "04-adk-adapter",
+      "title": "Run two actual ADK agents with a session handoff",
+      "summary": "The real ADK run emits triage and specialist events, with route and response in session state.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "stretch",
+      "figure": "pj-support-agent-with-google-adk-4",
+      "concepts": [
+        "run",
+        "two",
+        "actual",
+        "adk"
+      ],
+      "runners": [
+        {
+          "language": "python"
+        },
+        {
+          "language": "python",
+          "optional": true,
+          "requires": [
+            "python:google.adk"
+          ],
+          "argv": [
+            "{python}",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "{stage}/tests-framework",
+            "-p",
+            "test_framework.py"
+          ]
+        }
+      ]
+    }
+  ],
+  "demos": [
+    {
+      "gif": "media/run.gif",
+      "poster": "media/run.png",
+      "title": "Initialize and grade",
+      "caption": "Recorded starter failure followed by all reference-solution stages passing. Reference passes do not earn learner certificates."
+    },
+    {
+      "gif": "media/output.gif",
+      "poster": "media/output.png",
+      "title": "Inspect the output",
+      "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
+    },
+    {
+      "gif": "media/framework.gif",
+      "poster": "media/framework.png",
+      "title": "Verify the real SDK",
+      "caption": "Actual optional SDK tests with installed dependencies and deterministic local models. No live cloud or model provider calls."
+    }
+  ]
+}

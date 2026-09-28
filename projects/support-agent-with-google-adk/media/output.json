@@ -1,0 +1,16 @@
+{
+  "title": "Support Agent With Google ADK / actual output",
+  "recordedAt": "2026-09-28T16:19:39Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/support-agent-with-google-adk/solution",
+      "exitCode": 0,
+      "output": "{\n  \"ticket_id\": \"T-1\",\n  \"state\": \"answered\",\n  \"route\": \"billing\",\n  \"history\": [\n    {\n      \"event\": \"classify\",\n      \"state\": \"routed\"\n    },\n    {\n      \"event\": \"respond\",\n      \"state\": \"answered\"\n    }\n  ]\n}\n",
+      "durationMs": 26
+    }
+  ]
+}

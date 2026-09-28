@@ -1,0 +1,48 @@
+{
+  "title": "Support Agent With Google ADK / initialize and test",
+  "recordedAt": "2026-09-28T16:19:39Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "support-agent-with-google-adk",
+        "--init",
+        "my-support-agent-with-google-adk"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-support-agent-with-google-adk\n  created  intake.py\n  created  routing.py\n  created  handoff.py\n  created  adk_adapter.py\nnext: python3 scripts/project_test.py support-agent-with-google-adk --stage 1 --path /privatemy-support-agent-with-google-adk\n",
+      "durationMs": 59
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "support-agent-with-google-adk",
+        "--stage",
+        "1",
+        "--path",
+        "my-support-agent-with-google-adk"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Support Agent With Google ADK: grading learner\n  FAIL stage 1: Validate and redact support tickets (5 tests)\n       not implemented yet: Stage 1: implement ticket\n",
+      "durationMs": 102
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "support-agent-with-google-adk",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Support Agent With Google ADK: grading solution\n  PASS stage 1: Validate and redact support tickets (5 tests)\n  PASS stage 2: Route tickets and enforce specialist capabilities (5 tests)\n  PASS stage 3: Record allowed handoff state transitions (5 tests)\n  PASS stage 4: Run two actual ADK agents with a session handoff (5 tests)\n",
+      "durationMs": 258
+    }
+  ]
+}
