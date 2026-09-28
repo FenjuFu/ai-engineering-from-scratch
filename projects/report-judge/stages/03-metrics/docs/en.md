@@ -1,56 +1,46 @@
 # Report precision coverage and source recall
 
-> A report citing one of two expected sources has recall 0.5, even with perfect precision.
+**Stage 3 of 4.** Python. Plan about 2 hours.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 3 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Implement `metrics.py`: `score_report`. This artifact is stage 3 of Report Judge. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Keep metrics separate before combining them. Precision measures published support, source recall measures expected evidence selection, and fact coverage measures whether key phrases appear. An empty report has zero precision, preventing abstention from looking perfectly accurate.
 
 ```figure
 pj-report-judge-3
 ```
 
-## Follow the mechanism
-
-Keep metrics separate before combining them. Precision measures published support, source recall measures expected evidence selection, and fact coverage measures whether key phrases appear. An empty report has zero precision, preventing abstention from looking perfectly accurate.
-
-## Build it
-
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Implementation boundary
 
 ```python
 def score_report(text,evidence,expected_sources=(),facts=()):
     raise NotImplementedError("Implement the stage contract")
 ```
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Primary reference: [Reference 1](https://www.rfc-editor.org/rfc/rfc8259).
 
-## Run it
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py report-judge --init my-report-judge
-python3 scripts/project_test.py report-judge --stage 3 --path my-report-judge
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 2](../../02-support/docs/en.md) first.
+
+An empty report has no evidence and scores zero. Recall and fact coverage require labels; without labels they are unavailable, rather than automatically perfect. Only supported claims earn source recall or coverage.
+
+```text
+empty claims -> score 0, state no_evidence
+3 lexical matches, no reference labels -> recall null, coverage null
+score is computed only from available metrics
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+## Build and inspect
 
-## What you should see
+Track supported claims once and derive all supported-evidence metrics from that collection. Do not let a dangling citation inflate source recall.
 
-A report citing one of two expected sources has recall 0.5, even with perfect precision. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Inspect the boundary
+```bash
+python3 scripts/project_test.py report-judge --stage 3 --path learning-artifacts/report-judge
+```
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Use it
+## Investigate next
 
-After all stages pass, run `python3 projects/report-judge/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
-
-## Primary references
-
-- [Reference 1](https://www.rfc-editor.org/rfc/rfc8259)
+Why can a 100 lexical-match score coexist with unavailable recall?
