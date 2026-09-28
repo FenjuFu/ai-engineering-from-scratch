@@ -1,56 +1,52 @@
 # Compare paired revisions with bootstrap intervals
 
-> Uniform +1 improvements yield mean delta 1 and interval [1, 1].
+**Stage 4 of 4.** Python. Plan about 2 hours.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Implement `compare.py`: `compare`. This artifact is stage 4 of Report Judge. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Pair scores by question id, then resample the differences. Pairing controls for the fact that some questions are harder. The interval is descriptive for the supplied split; a tiny dataset does not become reliable because you draw many bootstrap samples. Promotion also rejects any per-question regression.
 
 ```figure
 pj-report-judge-4
 ```
 
-## Follow the mechanism
-
-Pair scores by question id, then resample the differences. Pairing controls for the fact that some questions are harder. The interval is descriptive for the supplied split; a tiny dataset does not become reliable because you draw many bootstrap samples. Promotion also rejects any per-question regression.
-
-## Build it
-
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Implementation boundary
 
 ```python
 def compare(baseline,candidate,seed=7,samples=2000):
     raise NotImplementedError("Implement the stage contract")
 ```
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Primary reference: [Reference 1](https://www.rfc-editor.org/rfc/rfc8259).
 
-## Run it
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py report-judge --init my-report-judge
-python3 scripts/project_test.py report-judge --stage 4 --path my-report-judge
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 3](../../03-metrics/docs/en.md) first.
+
+Compare the same questions before and after a report change. A gain on easy questions can hide one damaging regression; preserve per-question deltas beside the bootstrap interval.
+
+```text
+baseline: q1=80,q2=70,q3=90
+candidate: q1=85,q2=75,q3=60
+deltas: +5,+5,-30; q3 remains a regression
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+## Build and inspect
 
-## What you should see
+Resample paired deltas with a deterministic seed. The interval describes this labeled sample, not factual accuracy on every future report.
 
-Uniform +1 improvements yield mean delta 1 and interval [1, 1]. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Inspect the boundary
+```bash
+python3 scripts/project_test.py report-judge --stage 4 --path learning-artifacts/report-judge
+```
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
 
-## Use it
+```bash
+python3 learning-artifacts/report-judge/cli.py projects/report-judge/examples/claims.json --out evidence-audit.json --html evidence-audit.html
+```
 
-After all stages pass, run `python3 projects/report-judge/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
+The judge provides conservative lexical evidence checks. Order, numbers and negation expose some false matches; paraphrases can still be rejected and other false matches remain. Missing recall/coverage labels are null. No automated score proves truth.
 
-## Primary references
+## Investigate next
 
-- [Reference 1](https://www.rfc-editor.org/rfc/rfc8259)
+Would adding a second copy of q1 create independent evidence?
