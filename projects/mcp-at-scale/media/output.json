@@ -1,0 +1,16 @@
+{
+  "title": "MCP Server With 250 Tools / actual output",
+  "recordedAt": "2026-09-28T16:19:36Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/mcp-at-scale/solution",
+      "exitCode": 0,
+      "output": "{\n  \"tools\": 250,\n  \"pages\": 8\n}\n{\n  \"tools\": [\n    {\n      \"name\": \"pods_count\",\n      \"description\": \"count pods in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    },\n    {\n      \"name\": \"agents_count\",\n      \"description\": \"count agents in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    },\n    {\n      \"name\": \"alerts_count\",\n      \"description\": \"count alerts in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    }\n  ],\n  \"characters\": 518,\n  \"catalog_size\": 250\n}\n",
+      "durationMs": 29
+    }
+  ]
+}

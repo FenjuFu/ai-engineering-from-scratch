@@ -1,0 +1,138 @@
+{
+  "id": "mcp-at-scale",
+  "title": "MCP Server With 250 Tools",
+  "level": 4,
+  "levelName": "Systems",
+  "tagline": "Build a paginated tool catalog, bounded discovery and a real JSON-RPC stdio server, then call it from a typed client.",
+  "summary": "Build a paginated tool catalog, bounded discovery and a real JSON-RPC stdio server, then call it from a typed client.",
+  "hours": 10,
+  "languages": [
+    "Python",
+    "TypeScript"
+  ],
+  "status": "ready",
+  "source": "core",
+  "author": {
+    "name": "AI Engineering from Scratch",
+    "github": "rohitg00"
+  },
+  "youWillBuild": "Build a paginated tool catalog, bounded discovery and a real JSON-RPC stdio server, then call it from a typed client.",
+  "usefulFor": [
+    "Inspect the local mechanism before integrating it into a larger agent."
+  ],
+  "skills": [
+    "Build a catalog of 250 read-only tools",
+    "Select tools under an explicit context budget",
+    "Implement initialized JSON-RPC over stdio",
+    "Audit catalog coverage through protocol pages"
+  ],
+  "prerequisites": [],
+  "figures": true,
+  "overviewFigure": "pj-mcp-at-scale-1",
+  "languageWhy": {
+    "Python": "Stdlib data structures, explicit algorithms and deterministic local tests.",
+    "TypeScript": "Typed wire messages and real subprocess integration."
+  },
+  "demo": {
+    "command": [
+      "python3",
+      "demo.py"
+    ],
+    "cwd": "solution"
+  },
+  "stages": [
+    {
+      "id": "01-registry",
+      "title": "Build a catalog of 250 read-only tools",
+      "summary": "The generated catalog contains exactly 250 unique tools.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "starter",
+      "figure": "pj-mcp-at-scale-1",
+      "concepts": [
+        "build",
+        "a",
+        "catalog",
+        "of"
+      ]
+    },
+    {
+      "id": "02-discovery",
+      "title": "Select tools under an explicit context budget",
+      "summary": "The query pods count selects pods_count first and never exceeds the serialized budget.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "core",
+      "figure": "pj-mcp-at-scale-2",
+      "concepts": [
+        "select",
+        "tools",
+        "under",
+        "an"
+      ]
+    },
+    {
+      "id": "03-protocol",
+      "title": "Implement initialized JSON-RPC over stdio",
+      "summary": "A call before initialization returns -32002; an initialized tools/list returns 32 tools and a cursor.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "core",
+      "figure": "pj-mcp-at-scale-3",
+      "concepts": [
+        "implement",
+        "initialized",
+        "json-rpc",
+        "over"
+      ]
+    },
+    {
+      "id": "04-audit",
+      "title": "Audit catalog coverage through protocol pages",
+      "summary": "An exhaustive traversal returns 250 unique names across 8 pages.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "stretch",
+      "figure": "pj-mcp-at-scale-4",
+      "concepts": [
+        "audit",
+        "catalog",
+        "coverage",
+        "through"
+      ]
+    },
+    {
+      "id": "05-typed-client",
+      "title": "Exercise the real wire with a typed client",
+      "summary": "Spawn the Python server and verify every serialized response from TypeScript.",
+      "language": "typescript",
+      "languageWhy": "Node streams and explicit TypeScript interfaces make the process boundary visible.",
+      "hours": 2,
+      "difficulty": "stretch",
+      "figure": "pj-mcp-at-scale-5",
+      "concepts": [
+        "stdio",
+        "correlation",
+        "timeouts"
+      ]
+    }
+  ],
+  "demos": [
+    {
+      "gif": "media/run.gif",
+      "poster": "media/run.png",
+      "title": "Initialize and grade",
+      "caption": "Recorded starter failure followed by all reference-solution stages passing. Reference passes do not earn learner certificates."
+    },
+    {
+      "gif": "media/output.gif",
+      "poster": "media/output.png",
+      "title": "Inspect the output",
+      "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
+    }
+  ]
+}
