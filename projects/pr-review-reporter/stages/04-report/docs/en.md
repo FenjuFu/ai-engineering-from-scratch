@@ -1,60 +1,54 @@
 # Publish a local escaped report
 
-> Render a self-contained report with source locations, quoted evidence, severity and message. Escape source text as carefully as prose: a diff can contain executable HTML. Keep external publication outside the tool. The CLI writes review.html locally and prints a machine-readable summary for automation.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python, TypeScript
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Render a self-contained report with source locations, quoted evidence, severity and message. Escape source text as carefully as prose: a diff can contain executable HTML. Keep external publication outside the tool. The CLI writes review.html locally and prints a machine-readable summary for automation.
 
 The boundary for this stage is `escapeHTML, render`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-TypeScript joins verified data to HTML while escaping every untrusted string. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+The CLI reads a supplied patch, validates candidates, merges duplicates and writes matching locations into review.json, review.html and review.sarif. The diff SHA-256 binds the report to the exact patch bytes.
 
 ```figure
 pj-pr-review-reporter-4
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `escapeHTML, render` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-Open review.html to inspect the anchored finding. The source quote renders as text even when it contains HTML.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Treat source snippets as untrusted HTML. Use an argument array for Git mode and keep all outputs local; a review artifact should be inspectable before any public posting.
 
-```bash
-python3 scripts/project_test.py pr-review-reporter --init learning-artifacts/pr-review-reporter
-python3 scripts/project_test.py pr-review-reporter --stage 4 --path learning-artifacts/pr-review-reporter
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py pr-review-reporter --init learning-artifacts/pr-review-reporter`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py pr-review-reporter --path learning-artifacts/pr-review-reporter
-node learning-artifacts/pr-review-reporter/main.ts --demo
+python3 scripts/project_test.py pr-review-reporter --stage 4 --path learning-artifacts/pr-review-reporter --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-Open review.html to inspect the anchored finding. The source quote renders as text even when it contains HTML.
+```bash
+cd learning-artifacts/pr-review-reporter
+node cli.ts --diff samples/change.diff --output review.json --html review.html --sarif review.sarif
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Create an independent held-out patch with a quoted filename and disabled TLS. Verify its SARIF region.startLine against git diff, then change the patch and observe the fingerprint change.
 
-Keep your implementation and one input you invented under `learning-artifacts/pr-review-reporter/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+Four lexical detectors are narrow review candidates, not an exploit verdict. Binary and combined diffs are outside scope. Quoted Git paths are decoded before validating traversal and anchoring. No remote PR comment is posted.
+
+
+## References
+
+[Git diff format](https://git-scm.com/docs/diff-format)
+[Python subprocess and JSON](https://docs.python.org/3/library/json.html)
