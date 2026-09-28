@@ -1,0 +1,20 @@
+{
+  "title": "Real SDK / deterministic local model",
+  "recordedAt": "2026-09-28T16:31:13Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "typed-workflow-agent-with-mastra",
+        "--solution",
+        "--optional",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Typed Workflow Agent with Mastra: grading solution\n  PASS stage 1: Define runtime contracts for typed steps (6 tests)\n  PASS stage 2: Validate tool plans and approval requirements (6 tests)\n  PASS stage 3: Suspend, resume and bound retries (6 tests)\n  PASS stage 4: Compare the scratch runtime with Mastra (11 tests)\n",
+      "durationMs": 1673
+    }
+  ]
+}

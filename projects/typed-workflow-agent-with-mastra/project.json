@@ -1,0 +1,175 @@
+{
+  "id": "typed-workflow-agent-with-mastra",
+  "title": "Typed Workflow Agent with Mastra",
+  "level": 3,
+  "levelName": "Engineer",
+  "tagline": "Build a typed ticket workflow with runtime contracts, approval suspension and retry budgets, then run the same domain operations through a real optional Mastra adapter.",
+  "summary": "Build a typed ticket workflow with runtime contracts, approval suspension and retry budgets, then run the same domain operations through a real optional Mastra adapter.",
+  "hours": 8,
+  "languages": [
+    "TypeScript"
+  ],
+  "status": "ready",
+  "source": "core",
+  "author": {
+    "name": "AI Engineering from Scratch",
+    "github": "rohitg00"
+  },
+  "skills": [
+    "Define runtime contracts for typed steps",
+    "Validate tool plans and approval requirements",
+    "Suspend, resume and bound retries",
+    "Compare the scratch runtime with Mastra"
+  ],
+  "prerequisites": [],
+  "youWillBuild": "Build a typed ticket workflow with runtime contracts, approval suspension and retry budgets, then run the same domain operations through a real optional Mastra adapter.",
+  "usefulFor": [
+    "A deterministic baseline you can inspect before connecting a model",
+    "A reusable local artifact with tested failure behavior"
+  ],
+  "demo": {
+    "command": [
+      "node",
+      "main.ts",
+      "--demo"
+    ],
+    "cwd": "solution"
+  },
+  "stages": [
+    {
+      "id": "01-contracts",
+      "title": "Define runtime contracts for typed steps",
+      "summary": "Start with a ticket id and message. Validate unknown input before classification. Classify explicit mutation verbs as write intent and route other requests to lookup. This deterministic classifier is a baseline with obvious limits: natural-language intent cannot be secured by a word list. The later approval gate is attached to the selected tool, not confidence in the wording.",
+      "hours": 2,
+      "language": "typescript",
+      "languageWhy": "TypeScript discriminated unions make workflow states and tool names visible to the compiler.",
+      "concepts": [
+        "parseTicket",
+        "classify"
+      ],
+      "difficulty": "starter",
+      "runner": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "{tests}/stage.test.ts"
+      ],
+      "requires": [
+        "node"
+      ],
+      "timeout": 90,
+      "figure": "pj-typed-workflow-agent-with-mastra-1"
+    },
+    {
+      "id": "02-plan",
+      "title": "Validate tool plans and approval requirements",
+      "summary": "Construct a plan with lookup for read intent and update for write intent. Revalidate plans at execution because checkpoints are serialized data. Require the approval flag to equal the presence of an update action. An attacker cannot turn a saved write checkpoint into an automatically executable read by changing one boolean.",
+      "hours": 2,
+      "language": "typescript",
+      "languageWhy": "A typed Plan exposes both action shape and the approval bit that must match it.",
+      "concepts": [
+        "makePlan",
+        "validatePlan"
+      ],
+      "difficulty": "core",
+      "runner": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "{tests}/stage.test.ts"
+      ],
+      "requires": [
+        "node"
+      ],
+      "timeout": 90,
+      "figure": "pj-typed-workflow-agent-with-mastra-2"
+    },
+    {
+      "id": "03-runtime",
+      "title": "Suspend, resume and bound retries",
+      "summary": "Execute each action with a per-action attempt limit and a shared call budget. Count failed calls against the total. Suspend before any mutation when approval is absent, returning a copy of the plan as the checkpoint. Resume by passing the checkpoint with explicit approval. Empty tool output is a failure, not a successful answer. The in-memory runner has no crash recovery during an action; real side effects need idempotency keys.",
+      "hours": 2,
+      "language": "typescript",
+      "languageWhy": "Async functions keep tool adapters injectable while result unions preserve terminal states.",
+      "concepts": [
+        "executePlan",
+        "runTicket"
+      ],
+      "difficulty": "core",
+      "runner": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "{tests}/stage.test.ts"
+      ],
+      "requires": [
+        "node"
+      ],
+      "timeout": 90,
+      "figure": "pj-typed-workflow-agent-with-mastra-3"
+    },
+    {
+      "id": "04-framework-boundary",
+      "title": "Compare the scratch runtime with Mastra",
+      "summary": "Keep the baseline dependency-free, then build optional-mastra/adapter.ts in your workspace. Define Zod schemas for three real Mastra steps, compose them with then and commit, and execute with createRun/start. Instructor-owned optional tests compare business results with the scratch workflow using deterministic injected tools and no API keys.",
+      "hours": 2,
+      "language": "typescript",
+      "languageWhy": "The optional adapter uses real createStep and createWorkflow imports after the contracts are understood.",
+      "concepts": [
+        "runTicket",
+        "executePlan"
+      ],
+      "difficulty": "core",
+      "requires": [
+        "node"
+      ],
+      "timeout": 90,
+      "figure": "pj-typed-workflow-agent-with-mastra-4",
+      "runners": [
+        {
+          "language": "typescript",
+          "argv": [
+            "node",
+            "--experimental-strip-types",
+            "--test",
+            "{tests}/stage.test.ts"
+          ]
+        },
+        {
+          "language": "typescript",
+          "optional": true,
+          "requires": [
+            "node:@mastra/core",
+            "node:zod"
+          ],
+          "argv": [
+            "node",
+            "--experimental-strip-types",
+            "--test",
+            "{stage}/tests-framework/adapter.test.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "demos": [
+    {
+      "gif": "media/run.gif",
+      "poster": "media/run.png",
+      "title": "Initialize and grade",
+      "caption": "Recorded starter failure followed by all reference-solution stages passing. Reference passes do not earn learner certificates."
+    },
+    {
+      "gif": "media/output.gif",
+      "poster": "media/output.png",
+      "title": "Inspect the output",
+      "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
+    },
+    {
+      "gif": "media/framework.gif",
+      "poster": "media/framework.png",
+      "title": "Verify the real SDK",
+      "caption": "Actual optional SDK tests with installed dependencies and deterministic local models. No live cloud or model provider calls."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "title": "Typed Workflow Agent with Mastra / initialize and test",
+  "recordedAt": "2026-09-28T16:15:48Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "typed-workflow-agent-with-mastra",
+        "--init",
+        "my-typed-workflow-agent-with-mastra"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-typed-workflow-agent-with-mastra\n  created  main.ts\n  created  package.json\n  created  stage-1.md\n  created  stage-2.md\n  created  stage-3.md\n  created  stage-4.md\nnext: python3 scripts/project_test.py typed-workflow-agent-with-mastra --stage 1 --path /privatemy-typed-workflow-agent-with-mastra\n",
+      "durationMs": 58
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "typed-workflow-agent-with-mastra",
+        "--stage",
+        "1",
+        "--path",
+        "my-typed-workflow-agent-with-mastra"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Typed Workflow Agent with Mastra: grading learner\n  FAIL stage 1: Define runtime contracts for typed steps (6 tests)\n       tests failed; rerun with --verbose\n",
+      "durationMs": 279
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "typed-workflow-agent-with-mastra",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Typed Workflow Agent with Mastra: grading solution\n  PASS stage 1: Define runtime contracts for typed steps (6 tests)\n  PASS stage 2: Validate tool plans and approval requirements (6 tests)\n  PASS stage 3: Suspend, resume and bound retries (6 tests)\n  PASS stage 4: Compare the scratch runtime with Mastra (6 tests)\n",
+      "durationMs": 958
+    }
+  ]
+}
