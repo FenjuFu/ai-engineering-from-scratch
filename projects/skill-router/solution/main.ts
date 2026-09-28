@@ -54,12 +54,12 @@ export function rank(skills: Skill[], query: string, files: string[] = []) {
   const q = new Set(tokens(query));
   return skills
     .map((skill) => {
-      const words = skill.keywords.filter((w) =>
-        tokens(w).some((t) => q.has(t)),
-      );
-      const paths = files.filter((f) =>
-        skill.paths.some((p) => matchPath(f, p)),
-      );
+      const words = [
+        ...new Set(skill.keywords.map((w) => w.normalize("NFC").toLowerCase())),
+      ].filter((w) => tokens(w).some((t) => q.has(t)));
+      const paths = [
+        ...new Set(files.map((f) => f.replaceAll("\\", "/"))),
+      ].filter((f) => skill.paths.some((p) => matchPath(f, p)));
       const score = words.length * 2 + paths.length * 3;
       return {
         skill,
@@ -111,6 +111,7 @@ export function route(
   allowed: string[],
   margin = 1,
 ) {
+  if (!Number.isFinite(margin) || margin < 0) throw new Error("invalid margin");
   const ranked = rank(skills, query, files);
   if (!ranked.length) return { status: "no-match", ranked };
   if (ranked[1] && ranked[0].score - ranked[1].score < margin)

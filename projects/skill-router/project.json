@@ -21,17 +21,25 @@
     "Resolve dependencies before execution",
     "Abstain on ambiguous or blocked requests"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Route a request to a skill using explainable keyword scores, path rules, permission gates, and dependency ordering.",
+  "prerequisites": [
+    {
+      "title": "Tool schema design",
+      "path": "phases/13-tools-and-protocols/05-tool-schema-design"
+    },
+    {
+      "title": "Verification gates",
+      "path": "phases/14-agent-engineering/38-verification-gates"
+    }
+  ],
+  "youWillBuild": "A routing debugger showing why the wrong skill activated and how to fix a rule.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "A routing debugger showing why the wrong skill activated and how to fix a rule.",
+    "SKILL.md provides standard name and description; routing.json is this project's documented local extension."
   ],
   "demo": {
     "command": [
       "node",
-      "main.ts",
-      "--demo"
+      "demo.ts"
     ],
     "cwd": "solution"
   },

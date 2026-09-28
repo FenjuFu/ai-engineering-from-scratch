@@ -1,60 +1,39 @@
 # Parse a typed skill catalog
 
-> A skill manifest declares an id, description, keywords, path patterns, priority, dependencies and permissions. Validate arrays and numbers at runtime rather than trusting a JSON cast. Tokenization normalizes punctuation and case and removes repeated words, so repeating a prompt cannot inflate its score.
-
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 1 of 4
-**Time:** ~2 hours
-
-## What you build
+**Stage 1 of 4.** Typescript. Plan about 2 hours.
 
 A skill manifest declares an id, description, keywords, path patterns, priority, dependencies and permissions. Validate arrays and numbers at runtime rather than trusting a JSON cast. Tokenization normalizes punctuation and case and removes repeated words, so repeating a prompt cannot inflate its score.
 
 The boundary for this stage is `parseSkill, tokens`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
-
-TypeScript makes permission and dependency declarations visible before routing. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
-
 ```figure
 pj-skill-router-1
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+## Worked Orchard case
 
-## Build
+Before coding, review [TypeScript object types](https://www.typescriptlang.org/docs/handbook/2/objects.html) and [Tool schema design](../../../../../phases/13-tools-and-protocols/05-tool-schema-design/docs/en.md).
 
-Implement `parseSkill, tokens` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
+Discover a skill from its SKILL.md name and description, then read routing.json as a local routing extension. The directory name must match the skill name. Routing metadata is not part of the portable skill format.
 
-A skill with a path-shaped id fails immediately; repeated query words contribute once.
+```text
+skills/release-review/SKILL.md -> name release-review
+routing.json -> keywords,paths,priority,requires,permissions
+```
 
-## Verify
+## Build and inspect
+
+Validate the merged record with parseSkill. Refuse symlinked or oversized discovery files before parsing them.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
 python3 scripts/project_test.py skill-router --init learning-artifacts/skill-router
 python3 scripts/project_test.py skill-router --stage 1 --path learning-artifacts/skill-router
 ```
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-```bash
-python3 scripts/project_test.py skill-router --path learning-artifacts/skill-router
-node learning-artifacts/skill-router/main.ts --demo
-```
+## Investigate next
 
-## What you see
-
-A skill with a path-shaped id fails immediately; repeated query words contribute once.
-
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
-
-## Ship it
-
-Keep your implementation and one input you invented under `learning-artifacts/skill-router/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+What should happen when directory release-review declares name publish?
