@@ -1,0 +1,16 @@
+{
+  "title": "Tiny Coding Agent / actual output",
+  "recordedAt": "2026-09-28T16:27:58Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/tiny-coding-agent/solution",
+      "exitCode": 0,
+      "output": "{\n  \"state\": \"completed\",\n  \"trace\": [\n    {\n      \"tool\": \"test\",\n      \"result\": {\n        \"state\": \"failed\",\n        \"passed\": false,\n        \"tests\": 1,\n        \"output\": \"F\\n======================================================================\\nFAIL: test_add (test_calc.Addition.test_add)\\n----------------------------------------------------------------------\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/sm/xdl0smbd691_f1nqt5d5r5vm0000gn/T/tmplqezacux/tests/test_calc.py\\\", line 4, in test_add\\n    def test_add(self):self.assertEqual(add(2,3),5)\\n                       ~~~~~~~~~~~~~~~~^^^^^^^^^^^^\\nAssertionError: -1 != 5\\n\\n----------------------------------------------------------------------\\nRan 1 test in 0.000s\\n\\nFAILED (failures=1)\\n\"\n      }\n    },\n    {\n      \"tool\": \"patch\",\n      \"result\": {\n        \"path\": \"calc.py\",\n        \"replacements\": 1\n      }\n    },\n    {\n      \"tool\": \"test\",\n      \"result\": {\n        \"state\": \"passed\",\n        \"passed\": true,\n        \"tests\": 1,\n        \"output\": \".\\n----------------------------------------------------------------------\\nRan 1 test in 0.000s\\n\\nOK\\n\"\n      }\n    }\n  ]\n}\n",
+      "durationMs": 121
+    }
+  ]
+}
