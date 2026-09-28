@@ -7,6 +7,17 @@ Run its tests through scripts/project_test.py.
 
 import re
 
+ROUTES = {
+    "billing": {"invoice", "refund", "payment"},
+    "access": {"password", "login", "account"},
+    "platform": {"outage", "latency", "error"},
+}
+TOOLS = {
+    "billing": {"read_invoice"},
+    "access": {"read_account"},
+    "platform": {"read_status"},
+}
+
 
 def route(text):
     raise NotImplementedError("Stage 2: implement route")

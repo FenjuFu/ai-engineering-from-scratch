@@ -1,56 +1,67 @@
-# Route tickets and enforce specialist capabilities
+# Route and authorize as separate decisions
 
-> A refund/password tie goes to human, and billing cannot read an account.
+> invoice refund selects billing and can use read_invoice. invoice login ties billing and access, so it escalates. A billing route requesting read_account is rejected even though that tool is valid for another specialist.
 
 **Type:** Build
-**Languages:** Python
 **Stage:** 2 of 4
-**Time:** ~2 hours
+**Time:** About 2 hours
 
-## What you build
+## The useful boundary
 
-Implement `routing.py`: `route`, `authorize`. This artifact is stage 2 of Support Agent With Google ADK. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Count distinct domain words for billing, access and platform. Choose a route only when one domain has a unique positive score. Unknown topics and ties go to human review. Then check the selected specialist against a read-capability allowlist. A domain label never grants access to every tool.
 
 ```figure
 pj-support-agent-with-google-adk-2
 ```
 
-## Follow the mechanism
+## Work the example
 
-Score specialist labels by their domain vocabulary and escalate ambiguous ties to a human. Routing and capability authorization are separate decisions: a billing ticket does not authorize a password operation. Tool checks remain deterministic even when a model proposes the route.
+invoice refund selects billing and can use read_invoice. invoice login ties billing and access, so it escalates. A billing route requesting read_account is rejected even though that tool is valid for another specialist.
 
-## Build it
+Write the returned fields and the expected side-effect count before coding. Keep a second input that should fail so the successful example cannot become a hard-coded answer.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Build the contract
 
-```python
-def route(text):
-    raise NotImplementedError("Implement the stage contract")
-```
+Implement `route(text), authorize(specialist, tool) in routing.py` in your learner workspace. Preserve the exported names and continue using earlier stages rather than duplicating their policies.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+The router is a transparent keyword baseline, not a semantic model. The capability check is deterministic and independent of classification confidence. The composed workflow calls it before selecting support evidence or constructing an agent graph.
 
-## Run it
+The starter supplies these original policy inputs. Keep them separate from the scoring algorithm so a later policy change does not require rewriting the classifier.
+
+| Specialist | Distinct lowercase words | Allowed capability |
+| --- | --- | --- |
+| billing | invoice, refund, payment | read_invoice |
+| access | password, login, account | read_account |
+| platform | outage, latency, error | read_status |
+
+`route` returns one specialist name or `human`. `authorize` returns a boolean; an unknown specialist or capability returns false. Compare whole word tokens, so `payment` matches but `repayment` does not.
+
+## Hints
+
+Use a set of words so repeating invoice twenty times does not dominate the score. Test unknown tool names and human as a specialist. Keep ties explicit rather than choosing alphabetically.
+
+## Verify your work
 
 ```bash
 python3 scripts/project_test.py support-agent-with-google-adk --init my-support-agent-with-google-adk
-python3 scripts/project_test.py support-agent-with-google-adk --stage 2 --path my-support-agent-with-google-adk
+python3 scripts/project_test.py support-agent-with-google-adk --stage 2 --path my-support-agent-with-google-adk --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+Initialize once. Cumulative tests import your workspace and preserve your earlier source. A reference-solution run verifies the teaching implementation and never grants a learner certificate. Optional SDK checks require the dependencies and commands in the project README.
 
-## What you should see
+## Inspect the result
 
-A refund/password tie goes to human, and billing cannot read an account. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Why would using a model to label a request still leave this authorization function necessary? What evidence would you need before adding a write capability?
 
-## Inspect the boundary
+The completed project produces an HTML review page and support.json with the redacted ticket, selected capability, source guidance, reply or escalation and state history.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+```bash
+cd projects/support-agent-with-google-adk/solution
+python3 main.py --ticket fixtures/ticket.json --out support-output
+```
 
-## Use it
+Replace the fixture with a small input from your own workflow. Keep expected outcomes and observed evidence together, then retain a separate set of cases for evaluation. Provider request tests establish serialization and control flow; they do not establish model quality.
 
-After all stages pass, run `python3 projects/support-agent-with-google-adk/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
+## Primary reference
 
-## Primary references
-
-- [Reference 1](https://google.github.io/adk-docs/agents/multi-agents/)
+[Official API documentation](https://google.github.io/adk-docs/). The implementation, policy choices and examples are original.
