@@ -1,59 +1,49 @@
 # Drive the actual Strands loop with a local model
 
-> The framework produces one recorded JSON plan in one model call, then the independent validator checks it.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~2 hours
+## What changes
 
-## What you build
+The real Strands Agent consumes streaming events from an injected Model subclass. This exercises the framework loop without credentials or cloud calls. The model still only proposes a plan; parse and scope-check its result with the earlier validator. A separate Bedrock constructor is explicit and is not invoked by offline demos or tests.
 
-Implement `strands_adapter.py`: `parse_model_plan`, `run_strands`, `bedrock_agent`. This artifact is stage 4 of Cloud Agent With AWS Strands. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+## Work through one concrete case
+
+The optional Strands Agent emits a JSON plan through its real streaming Model interface. That proposed plan then passes through the same scope validator, retry wrapper and bounded executor used by cli.py.
 
 ```figure
 pj-cloud-agent-with-aws-strands-4
 ```
 
-## Follow the mechanism
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-The real Strands Agent consumes streaming events from an injected Model subclass. This exercises the framework loop without credentials or cloud calls. The model still only proposes a plan; parse and scope-check its result with the earlier validator. A separate Bedrock constructor is explicit and is not invoked by offline demos or tests.
+## Implement the contract
 
-## Build it
+Implement `strands_adapter.py`: `parse_model_plan`, `run_strands`, `bedrock_agent`. This artifact is stage 4 of Cloud Agent With AWS Strands. It consumes explicit inputs and returns an inspectable result that the next stage can use.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-```python
-def parse_model_plan(text,scope):
-    raise NotImplementedError("Implement the stage contract")
-```
+Keep three modes explicit: pure offline core, installed-SDK local-model comparison, and opt-in AWS reads. An installed SDK passing a fake-model test is useful integration evidence but says nothing about IAM or Bedrock availability.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+## Verify and inspect
 
-## Run it
+From the repository root, initialize once with `python3 scripts/project_test.py cloud-agent-with-aws-strands --init learning-artifacts/cloud-agent-with-aws-strands`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py cloud-agent-with-aws-strands --init my-cloud-agent-with-aws-strands
-python3 scripts/project_test.py cloud-agent-with-aws-strands --stage 4 --path my-cloud-agent-with-aws-strands
+python3 scripts/project_test.py cloud-agent-with-aws-strands --stage 4 --path learning-artifacts/cloud-agent-with-aws-strands --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-## What you should see
+```bash
+cd learning-artifacts/cloud-agent-with-aws-strands
+python3 cli.py samples/input.json --output incident.json
+```
 
-The framework produces one recorded JSON plan in one model call, then the independent validator checks it. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+## Investigate the failure boundary
 
-## Inspect the boundary
+Run the sample through cli.py and inspect cached=true on the repeated metrics read. Then run --optional --strict with the pinned SDK to exercise framework events without sending cloud requests.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
-
-## Use it
-
-After all stages pass, run `python3 projects/cloud-agent-with-aws-strands/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
-
-## Primary references
-
-- [Reference 1](https://strandsagents.com/docs/user-guide/concepts/model-providers/custom_model_provider/)
+Default mode reads the supplied recording. --mode aws is an opt-in AWS CLI adapter for ECS services, CloudWatch CPU and bounded log reads; it requires caller configuration, credentials and AWS permissions. No deployment or live verification is implied.
 
 ## Verify the actual framework
 
@@ -67,3 +57,7 @@ python3 -m venv .venv
 ```
 
 Use `--path my-cloud-agent-with-aws-strands` instead of `--solution` to grade your implementation. Missing dependencies produce a skip in optional mode and a failure in strict optional mode. The verified SDK version is `strands-agents==1.57.1`; all model replies are local fixtures.
+
+## References
+
+[Reference 1](https://strandsagents.com/docs/user-guide/concepts/model-providers/custom_model_provider/)
