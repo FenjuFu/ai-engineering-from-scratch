@@ -1,58 +1,38 @@
 # Track budgets and terminal state
 
-> Wrap the tools in a session that owns its root, request count and closed state.
-
-**Type:** Build
-**Languages:** Rust
-**Stage:** 3 of 4
-**Time:** ~2 hours
-
-## What you build
+**Stage 3 of 4.** Rust. Plan about 2 hours.
 
 Wrap the tools in a session that owns its root, request count and closed state. Every parsed request, including rejected commands, consumes one action slot. Quit is terminal. A request beyond the budget emits a terminal error. Distinguish parsing rejection from an execution error so callers can repair a command without confusing it with a missing file.
-
-## Why Rust
-
-Rust makes ownership of the backend, file handles and action state explicit. Return `Result` for invalid inputs and system-call errors, then preserve the failure at the CLI boundary. The implementation uses the standard library and compiles with `rustc --edition 2021`; no package installation is required.
-
-## Predict
-
-Choose an accepted input and a rejected input before changing code. Write down the exact output or error you expect. Identify the first side effect and the checks that must run before it.
-
-## Interactive lab
 
 ```figure
 pj-rust-agent-shell-3
 ```
 
-Advance through the contract, state transition and observable result. An invalid input must stop before the transition. Explain which piece of state prevents the next action after a failure.
+## Worked Orchard case
 
-## Build
+Before coding, review [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md). Complete [stage 2](../../02-filesystem/docs/en.md) first.
 
-Implement `Session.new, Session.handle` in your workspace `main.rs`. Keep earlier stages working. Read the function signatures and tests first, then implement one boundary at a time. The fixture is a deterministic test backend, and its results do not establish native operating-system behavior.
+The session owns a request budget and terminal state. Invalid requests consume an attempt too. Expose the budget through the executable argument and adapter --limit so callers can reason about bounded work.
 
-The stream distinguishes rejected grammar, failed filesystem actions and terminal session closure.
-
-## Verify
-
-```bash
-python3 scripts/project_test.py rust-agent-shell --init learning-artifacts/rust-agent-shell
-python3 scripts/project_test.py rust-agent-shell --stage 3 --path learning-artifacts/rust-agent-shell --strict
+```text
+limit=2
+request 1: list -> step 1
+request 2: rejected grammar -> step 2
+request 3 -> terminal budget_exhausted
 ```
 
-Initialize only once. The grader compiles tests against the learner path through `PROJECT_WORKSPACE`. Missing functions or intentional starter failures must fail; reference code is never imported as a fallback.
+## Build and inspect
 
-## What you see
+Increment once per received request, before dispatch. Once closed, the session must not read more files.
 
-The stream distinguishes rejected grammar, failed filesystem actions and terminal session closure.
-
-The stage suite covers ordinary input, boundary conditions and rejected behavior. After completing all stages, compile and run the actual program:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-rustc --edition 2021 learning-artifacts/rust-agent-shell/main.rs -o /tmp/rust-agent-shell
-/tmp/rust-agent-shell --demo
+python3 scripts/project_test.py rust-agent-shell --stage 3 --path learning-artifacts/rust-agent-shell
 ```
 
-## Ship it
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-Keep a fixture you wrote and a short explanation of one rejected action in your learner workspace. State whether you tested only the fixture or an optional native adapter. Preserve that distinction in any demonstration or scorecard.
+## Investigate next
+
+How should a client handle output ending before its request id receives an event?
