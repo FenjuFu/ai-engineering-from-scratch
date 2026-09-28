@@ -4,12 +4,12 @@
   "level": 4,
   "levelName": "Systems",
   "tagline": "Choose isolation controls from an explicit capability requirement.",
-  "summary": "Build a policy simulator for four isolation profiles, requirement matching and residual-risk reports. Profiles are modeled fixtures. This project does not start containers or virtual machines and does not provide operating-system isolation.",
+  "summary": "Select a modeled isolation policy, inspect an optional local Docker invocation, and compare requested controls with observed harmless probes.",
   "usefulFor": [
-    "Choose isolation controls from an explicit capability requirement.",
-    "Offline experiments with explicit failure cases and limits"
+    "A sandbox evidence planner mapping requested capabilities to observed runtime probes.",
+    "Default output is a policy simulation."
   ],
-  "youWillBuild": "Build a policy simulator for four isolation profiles, requirement matching and residual-risk reports. Profiles are modeled fixtures. This project does not start containers or virtual machines and does not provide operating-system isolation.",
+  "youWillBuild": "Select a modeled isolation policy, inspect an optional local Docker invocation, and compare requested controls with observed harmless probes.",
   "hours": 8,
   "languages": [
     "Rust"
@@ -26,7 +26,16 @@
     "Select the least costly sufficient profile",
     "Report residual assumptions"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Docker for AI",
+      "path": "phases/00-setup-and-tooling/07-docker-for-ai"
+    },
+    {
+      "title": "Security and secrets audit",
+      "path": "phases/17-infrastructure-and-production/25-security-secrets-audit"
+    }
+  ],
   "inspiredBy": [],
   "demo": {
     "command": [
