@@ -1,71 +1,221 @@
-window.AIFSProjectFigures.register("pj-rust-agent-shell-1", {
-  title: "Parse a deliberately small action language",
-  steps: [
-    { label: "Validate input", detail: "Action, parse_action" },
-    {
-      label: "Apply the boundary",
-      detail:
-        "Define an action enum for help, pwd, list, read, literal search and quit. Unknown commands are rejected, including shell-like instructions. Search separates its pattern and path with a tab so spaces remain valid inside either argument. Parsing never invokes a subprocess and has a 4096-byte input limit. This is a model-agnostic tool loop, not a natural-language model or an operating-system shell.",
+(function () {
+  "use strict";
+  const number = (key, label, value, min = 0, max = 100, step = 1) => ({
+    key,
+    label,
+    type: "range",
+    value,
+    min,
+    max,
+    step,
+  });
+  const text = (key, label, value) => ({ key, label, type: "text", value });
+  const check = (key, label, value) => ({
+    key,
+    label,
+    type: "checkbox",
+    value,
+  });
+  const select = (key, label, value, options) => ({
+    key,
+    label,
+    type: "select",
+    value,
+    options: options.map((x) => ({ value: x, label: x })),
+  });
+  const metric = (label, value) => ({ label, value });
+  const bar = (label, value, max) => ({ label, value, max });
+  const words = (s) =>
+    s
+      .normalize("NFC")
+      .toLowerCase()
+      .match(/[\p{L}\p{N}_]+/gu) || [];
+  const unique = (xs) => [...new Set(xs)];
+  const finiteList = (s) =>
+    s.split(",").map((x) => {
+      const n = Number(x.trim());
+      if (!Number.isFinite(n))
+        throw Error("Use comma-separated finite numbers");
+      return n;
+    });
+
+  const buildLab = (stage) => ({
+    controls: [
+      text("command", "Proposed action", "search Restore\trelease.md"),
+      text(
+        "content",
+        "release.md text",
+        "Orchard release. Restore evidence verified.",
+      ),
+      number("used", "Actions already used", 1, 0, 10),
+      number("limit", "Action limit", 3, 1, 10),
+      number("byteLimit", "File byte budget", 64, 1, 200),
+    ],
+    calculate(v) {
+      const match = v.command.match(
+        /^(help|pwd|quit|list|read|search)(?: (.*))?$/,
+      );
+      let reason = "accepted",
+        result = "";
+      const bytes = new TextEncoder().encode(v.content).length;
+      const args = match?.[2] || "";
+      let file = args,
+        pattern = "";
+      if (match?.[1] === "search") {
+        const p = args.split("\t");
+        pattern = p[0];
+        file = p[1] || "";
+        if (p.length !== 2 || !pattern || !file)
+          reason = "search needs pattern<TAB>path";
+      }
+      if (!match) reason = "unsupported grammar";
+      else if (v.used >= v.limit) reason = "budget exhausted";
+      else if (file.startsWith("/") || file.split("/").includes(".."))
+        reason = "path rejected";
+      else if (["read", "search"].includes(match[1]) && bytes > v.byteLimit)
+        reason = "file budget exceeded";
+      if (reason === "accepted")
+        result =
+          match[1] === "search"
+            ? v.content.includes(pattern)
+              ? "1:" + v.content
+              : "no match"
+            : match[1] === "read"
+              ? v.content
+              : match[1] === "quit"
+                ? "session closed"
+                : match[1];
+      return {
+        summary: reason + (result ? ": " + result : ""),
+        metrics: [
+          metric("Input bytes", new TextEncoder().encode(v.command).length),
+          metric("File bytes", bytes),
+          metric("Next sequence", Math.min(v.used + 1, v.limit)),
+          metric("Path model", "lexical only; runtime also canonicalizes"),
+        ],
+        bars: [
+          bar("Actions used", v.used, v.limit),
+          bar("Action limit", v.limit),
+          bar("File bytes", bytes, v.byteLimit),
+        ],
+        columns: ["Boundary", "Value"],
+        rows: [
+          ["Grammar", match?.[1] || "rejected"],
+          ["Path", file],
+          ["Result", result || reason],
+        ],
+      };
     },
-    {
-      label: "Inspect output",
-      detail:
-        "The parser produces Read for a file with spaces and rejects exec without running anything.",
-    },
-  ],
-  caption: "Reject invalid input before the side effect.",
-});
-window.AIFSProjectFigures.register("pj-rust-agent-shell-2", {
-  title: "Confine file tools to a bounded root",
-  steps: [
-    { label: "Validate input", detail: "contained, read_text, execute" },
-    {
-      label: "Apply the boundary",
-      detail:
-        "Canonicalize the workspace root and requested targets, reject absolute and parent-traversing paths, and verify that symlinks remain inside the root. Limit text reads to 16 KiB, directory results to 100 entries and searches to 50 matching lines. These are application-level constraints for a trusted local workspace; hostile concurrent symlink replacement requires stronger OS primitives or isolation.",
-    },
-    {
-      label: "Inspect output",
-      detail:
-        "A read outside the canonical root is rejected, while a literal search returns one-based source lines.",
-    },
-  ],
-  caption: "Reject invalid input before the side effect.",
-});
-window.AIFSProjectFigures.register("pj-rust-agent-shell-3", {
-  title: "Track budgets and terminal state",
-  steps: [
-    { label: "Validate input", detail: "Session.new, Session.handle" },
-    {
-      label: "Apply the boundary",
-      detail:
-        "Wrap the tools in a session that owns its root, request count and closed state. Every parsed request, including rejected commands, consumes one action slot. Quit is terminal. A request beyond the budget emits a terminal error. Distinguish parsing rejection from an execution error so callers can repair a command without confusing it with a missing file.",
-    },
-    {
-      label: "Inspect output",
-      detail:
-        "The stream distinguishes rejected grammar, failed filesystem actions and terminal session closure.",
-    },
-  ],
-  caption: "Reject invalid input before the side effect.",
-});
-window.AIFSProjectFigures.register("pj-rust-agent-shell-4", {
-  title: "Stream bounded JSON events through real stdin",
-  steps: [
-    {
-      label: "Validate input",
-      detail: "read_bounded, json_string, Event.json, run_loop",
-    },
-    {
-      label: "Apply the boundary",
-      detail:
-        "Read input incrementally with BufRead and cap each line before allocating an unbounded string. Process the last unterminated line at EOF and accept CRLF. Escape control characters in JSON output and flush after each event so a parent agent sees results immediately. The demo compiles the actual binary and feeds the same loop a deterministic script. Interactive mode reads the user terminal until quit, EOF or the action budget.",
-    },
-    {
-      label: "Inspect output",
-      detail:
-        "Compile main.rs, run the binary with a workspace path, and type help. Each input produces one flushed JSON event; quit stops before later input is read.",
-    },
-  ],
-  caption: "Reject invalid input before the side effect.",
-});
+  });
+  window.AIFSProjectFigures.register(
+    "pj-rust-agent-shell-1",
+    Object.assign(
+      {
+        title: "Parse a deliberately small action language",
+        steps: [
+          {
+            label: "Validate input",
+            detail:
+              "The Rust process accepts a deliberately small tool language. Its Python adapter accepts JSONL with caller ids and tool arguments, then translates only known commands. No argument becomes an operating-system shell command.",
+          },
+          {
+            label: "Apply the boundary",
+            detail:
+              '{"id":"evidence","tool":"search","arguments":{"pattern":"Restore","path":"release.md"}}\nwire: search Restore<TAB>release.md',
+          },
+          {
+            label: "Inspect output",
+            detail:
+              "Reject control characters in adapter arguments so a path cannot inject a second command. Distinguish parse rejection from execution failure.",
+          },
+        ],
+        caption:
+          "Why must a literal newline in a caller path be rejected before stdin serialization?",
+      },
+      { lab: buildLab(1) },
+    ),
+  );
+  window.AIFSProjectFigures.register(
+    "pj-rust-agent-shell-2",
+    Object.assign(
+      {
+        title: "Confine file tools to a bounded root",
+        steps: [
+          {
+            label: "Validate input",
+            detail:
+              "Resolve release.md under the workspace root before reading it. A lexical path can look harmless while a symlink targets a file outside the workspace. The result is application-level containment, not a process sandbox.",
+          },
+          {
+            label: "Apply the boundary",
+            detail:
+              "workspace=/work/orchard\nrelease.md -> /work/orchard/release.md -> allowed\nlink.md -> /outside/credentials -> rejected",
+          },
+          {
+            label: "Inspect output",
+            detail:
+              "Canonicalize the root and target, then compare path components. Bound the bytes read as well as the initial metadata length.",
+          },
+        ],
+        caption:
+          "Which race remains if another process replaces a path after canonicalization?",
+      },
+      { lab: buildLab(2) },
+    ),
+  );
+  window.AIFSProjectFigures.register(
+    "pj-rust-agent-shell-3",
+    Object.assign(
+      {
+        title: "Track budgets and terminal state",
+        steps: [
+          {
+            label: "Validate input",
+            detail:
+              "The session owns a request budget and terminal state. Invalid requests consume an attempt too. Expose the budget through the executable argument and adapter --limit so callers can reason about bounded work.",
+          },
+          {
+            label: "Apply the boundary",
+            detail:
+              "limit=2\nrequest 1: list -> step 1\nrequest 2: rejected grammar -> step 2\nrequest 3 -> terminal budget_exhausted",
+          },
+          {
+            label: "Inspect output",
+            detail:
+              "Increment once per received request, before dispatch. Once closed, the session must not read more files.",
+          },
+        ],
+        caption:
+          "How should a client handle output ending before its request id receives an event?",
+      },
+      { lab: buildLab(3) },
+    ),
+  );
+  window.AIFSProjectFigures.register(
+    "pj-rust-agent-shell-4",
+    Object.assign(
+      {
+        title: "Stream bounded JSON events through real stdin",
+        steps: [
+          {
+            label: "Validate input",
+            detail:
+              "A client reads one JSON event at a time and matches it to the request id added by the adapter. Flushing every line allows a UI to display observations without waiting for the process to exit.",
+          },
+          {
+            label: "Apply the boundary",
+            detail:
+              "request evidence -> {request_id:evidence, seq:2, kind:ok}\noutput: 2:Restore evidence: rehearsal completed at 09:20 UTC.",
+          },
+          {
+            label: "Inspect output",
+            detail:
+              "Use BufRead chunks to bound allocation before constructing a command string. JSON-escape tool output rather than concatenating raw file text.",
+          },
+        ],
+        caption: "What happens if a file contains quotes, tabs or a newline?",
+      },
+      { lab: buildLab(4) },
+    ),
+  );
+})();

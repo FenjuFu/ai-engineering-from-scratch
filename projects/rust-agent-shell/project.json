@@ -21,11 +21,20 @@
     "Track budgets and terminal state",
     "Stream bounded JSON events through real stdin"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Build a real stdin/stdout Rust action loop with bounded reads, an explicit command grammar, path containment, and streamed JSON events.",
+  "prerequisites": [
+    {
+      "title": "Data management",
+      "path": "phases/00-setup-and-tooling/09-data-management"
+    },
+    {
+      "title": "Tool schema design",
+      "path": "phases/13-tools-and-protocols/05-tool-schema-design"
+    }
+  ],
+  "youWillBuild": "An inspectable repository-observation process usable by different coding agents.",
   "usefulFor": [
-    "Inspecting boundaries before attaching an agent to local tools",
-    "A small Rust artifact with deterministic adversarial tests"
+    "An inspectable repository-observation process usable by different coding agents.",
+    "JSONL requests use caller ids and explicit tool argument objects."
   ],
   "demo": {
     "command": [

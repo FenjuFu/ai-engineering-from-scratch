@@ -293,9 +293,18 @@ fn main() {
         demo()
     } else {
         let root = args.get(1).map(String::as_str).unwrap_or(".");
-        Session::new(Path::new(root), 50).and_then(|mut session| {
-            run_loop(&mut session, &mut io::stdin().lock(), &mut io::stdout()).map(|_| ())
-        })
+        let limit = args
+            .get(2)
+            .map(|s| {
+                s.parse::<usize>()
+                    .map_err(|_| "invalid action budget".to_string())
+            })
+            .transpose();
+        limit
+            .and_then(|n| Session::new(Path::new(root), n.unwrap_or(50)))
+            .and_then(|mut session| {
+                run_loop(&mut session, &mut io::stdin().lock(), &mut io::stdout()).map(|_| ())
+            })
     };
     if let Err(error) = result {
         eprintln!("error: {}", error);

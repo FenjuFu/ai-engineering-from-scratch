@@ -1,6 +1,11 @@
-import pathlib, subprocess, tempfile
-root = pathlib.Path(__file__).resolve().parent
-with tempfile.TemporaryDirectory(prefix="rust-project-") as directory:
-    binary = pathlib.Path(directory) / "demo"
-    subprocess.run(["rustc", "--edition", "2021", str(root / "main.rs"), "-o", str(binary)], check=True)
-    subprocess.run([str(binary), "--demo"], cwd=root, check=True)
+from pathlib import Path
+import json, subprocess, tempfile, sys, shutil
+
+root = Path(__file__).resolve().parent
+examples = root.parent / "examples"
+args = ["examples/workspace", "examples/requests.jsonl"]
+args = [
+    str(root.parent / value) if value.startswith("examples/") else value
+    for value in args
+]
+subprocess.run([sys.executable, str(root / "client.py"), *args], check=True)
