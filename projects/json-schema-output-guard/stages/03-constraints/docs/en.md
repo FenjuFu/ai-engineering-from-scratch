@@ -1,60 +1,54 @@
 # Reject ambiguous and unsupported contracts
 
-> Add numeric bounds, enum membership, minimum Unicode string length, array bounds, and closed objects. Escape slash and tilde inside property paths. A keyword outside this educational subset is a configuration error, not silent success. This implementation intentionally does not claim complete JSON Schema conformance: references, formats and combinators require additional work.
+Stage 3 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 3 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Add numeric bounds, enum membership, minimum Unicode string length, array bounds, and closed objects. Escape slash and tilde inside property paths. A keyword outside this educational subset is a configuration error, not silent success. This implementation intentionally does not claim complete JSON Schema conformance: references, formats and combinators require additional work.
 
 The boundary for this stage is `validate, guard`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Typed issue objects make error reporting stable across the CLI and retry loop. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+A required key a/b~c is reported at $/a~1b~0c. Escape ~ first, then /; reversing or skipping escapes makes the diagnostic point at the wrong field. A minimum string length counts Unicode code points.
 
 ```figure
 pj-json-schema-output-guard-3
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `validate, guard` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-The guard returns structured issues for invalid output while unsupported schema features throw a configuration error.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Treat unsupported vocabulary as a configuration exception and ordinary value mismatches as Issue[] results. Validate all schema shapes, including minItems and nested properties, before inspecting model data.
 
-```bash
-python3 scripts/project_test.py json-schema-output-guard --init learning-artifacts/json-schema-output-guard
-python3 scripts/project_test.py json-schema-output-guard --stage 3 --path learning-artifacts/json-schema-output-guard
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py json-schema-output-guard --init learning-artifacts/json-schema-output-guard`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py json-schema-output-guard --path learning-artifacts/json-schema-output-guard
-node learning-artifacts/json-schema-output-guard/main.ts --demo
+python3 scripts/project_test.py json-schema-output-guard --stage 3 --path learning-artifacts/json-schema-output-guard --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-The guard returns structured issues for invalid output while unsupported schema features throw a configuration error.
+```bash
+cd learning-artifacts/json-schema-output-guard
+node cli.ts --schema samples/schema.json --attempts samples/attempts.json --output guard.json --html guard.html
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Use an empty array with items containing $ref. Empty input must not bypass schema-vocabulary validation.
 
-Keep your implementation and one input you invented under `learning-artifacts/json-schema-output-guard/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[JSON Schema validation vocabulary](https://json-schema.org/draft/2020-12/json-schema-validation)
+[Node TypeScript execution](https://nodejs.org/api/typescript.html)
