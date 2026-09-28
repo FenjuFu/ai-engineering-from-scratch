@@ -7,17 +7,13 @@
 **Stage:** 4 of 4
 **Time:** ~2 hours
 
-## What you build
+## Publish a packet that exposes unfinished review
 
-Turn incident events into a timeline with evidence-backed claims. This stage implements `Report` in `stage4.go`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
-
-Render the validated timeline and claims with quoted message text and explicit references. Cap the number of claims before constructing the report. An invalid claim prevents publishing the entire packet, keeping partial success from looking like a completed postmortem.
+The text packet, HTML desk and JSON receipt describe the same validated input. The HTML includes source links, physical line locators, reported impact, claim decisions and owned follow-up actions. Pending claims and unassigned work remain visible rather than disappearing from the final report.
 
 ## Work through one case
 
-validated claim + ordered evidence -> one complete packet. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+Run `go run . --events ../examples/events.jsonl --review ../examples/review.json --out /tmp/incident-packet`. Open index.html and follow e2 back to its exact log line. To approve a claim, copy SourceSHA256 from packet.json into sourceSHA256 in the review file, set state to approved and provide a reviewer label, then rebuild.
 
 ```figure
 pj-postmortem-writer-4
@@ -39,16 +35,22 @@ python3 scripts/project_test.py postmortem-writer --stage 4 --path /tmp/postmort
 
 The stage checks Packet, Limit, InvalidAtomic, Escaped, Deterministic. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
 
-## Check yourself
+## Implementation hints
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Call Verify for every claim before producing output, then order the timeline. Reject claim counts above the cap. HTML uses Go templates so a message containing a script tag remains text. Approval identity is a supplied label, not an authenticated signature.
 
-## Going further
+Start with one valid record, then add the rejection case before optimizing. Keep source data unchanged on failure so the caller can diagnose what happened. Use the smallest function that expresses the boundary; an extra framework would hide the mechanism you are learning.
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+## Check your understanding
 
-## Sources and scope
+Change a log byte after approval and confirm the build fails with a source conflict. The integration tests also reject fabricated quotations and missing timestamps. Connect a log exporter to JSONL as an extension; preserve the evidence contract rather than adding invented causal explanations.
 
-[Official reference](https://sre.google/workbook/postmortem-culture/). Build a deterministic incident report pipeline with strict event ingestion, stable ordering, source-bound claims and reproducible text output. Causal conclusions require supplied evidence and remain labeled as claims rather than inferred facts.
+Write your prediction before running the test. If the result surprises you, trace the input through validation, state construction and output. A passing reference implementation is a comparison tool; your own workspace must pass the cumulative grader to establish completion.
+
+## Use it with your own data
+
+`--events FILE --review FILE --out DIRECTORY` produces index.html, packet.json and packet.txt. Run the supplied files with `--events ../examples/events.jsonl --review ../examples/review.json --out /tmp/incident-packet`. With no arguments, the CLI prints a small original fixture. Evidence checks establish source provenance; causal judgment and reviewer identity remain human responsibilities.
+
+## Sources
+
+[Google SRE postmortem practice](https://sre.google/workbook/postmortem-culture/).
