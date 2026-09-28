@@ -1,0 +1,48 @@
+{
+  "title": "Retrieval Evaluation Lab / initialize and test",
+  "recordedAt": "2026-09-28T16:11:21Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "retrieval-evaluation-lab",
+        "--init",
+        "my-retrieval-evaluation-lab"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-retrieval-evaluation-lab\n  created  main.py\n  created  STAGE.md\n  kept     STAGE.md\n  kept     STAGE.md\nnext: python3 scripts/project_test.py retrieval-evaluation-lab --stage 1 --path /privatemy-retrieval-evaluation-lab\n",
+      "durationMs": 57
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "retrieval-evaluation-lab",
+        "--stage",
+        "1",
+        "--path",
+        "my-retrieval-evaluation-lab"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Retrieval Evaluation Lab: grading learner\n  FAIL stage 1: Validate rankings and graded judgments (5 tests)\n       not implemented yet: validate\n",
+      "durationMs": 107
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "retrieval-evaluation-lab",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Retrieval Evaluation Lab: grading solution\n  PASS stage 1: Validate rankings and graded judgments (5 tests)\n  PASS stage 2: Compute precision and recall at k (5 tests)\n  PASS stage 3: Reward useful evidence near the top (5 tests)\n  PASS stage 4: Compare systems query by query (5 tests)\n",
+      "durationMs": 256
+    }
+  ]
+}

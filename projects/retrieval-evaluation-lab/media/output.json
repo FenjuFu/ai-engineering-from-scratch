@@ -1,0 +1,16 @@
+{
+  "title": "Retrieval Evaluation Lab / actual output",
+  "recordedAt": "2026-09-28T16:11:22Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/retrieval-evaluation-lab/solution",
+      "exitCode": 0,
+      "output": "{\n  \"baseline\": {\n    \"queries\": {\n      \"deploy\": {\n        \"precision\": 0.6666666666666666,\n        \"recall\": 1.0,\n        \"rr\": 1.0,\n        \"ndcg\": 0.5897053367440438,\n        \"unjudged\": 0\n      }\n    },\n    \"mean\": {\n      \"precision\": 0.6666666666666666,\n      \"recall\": 1.0,\n      \"rr\": 1.0,\n      \"ndcg\": 0.5897053367440438\n    }\n  },\n  \"candidate\": {\n    \"queries\": {\n      \"deploy\": {\n        \"precision\": 0.6666666666666666,\n        \"recall\": 1.0,\n        \"rr\": 1.0,\n        \"ndcg\": 1.0,\n        \"unjudged\": 0\n      }\n    },\n    \"mean\": {\n      \"precision\": 0.6666666666666666,\n      \"recall\": 1.0,\n      \"rr\": 1.0,\n      \"ndcg\": 1.0\n    }\n  }\n}\n",
+      "durationMs": 27
+    }
+  ]
+}
