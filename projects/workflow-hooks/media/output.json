@@ -1,0 +1,17 @@
+{
+  "title": "Self-Correcting Workflow Hooks / actual output",
+  "recordedAt": "2026-09-28T16:15:35Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/workflow-hooks/solution",
+      "exitCode": 0,
+      "output": "{\n  \"stored\": \"rules.json\",\n  \"rules\": [\n    \"run tests before changing snapshots\"\n  ],\n  \"sources\": [\n    \"c1\",\n    \"c2\"\n  ]\n}\n",
+      "durationMs": 112
+    }
+  ]
+}
