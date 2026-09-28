@@ -1,60 +1,45 @@
 # Protect edits during upgrades
 
-> Before replacing an installation, verify that every tracked file still matches the prior digest and no unmanaged files have appeared. Refuse upgrades when users edited a tracked file or added their own file. The user can move those changes into the source bundle deliberately. Successful repeated installs leave no staging or backup directories behind.
-
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
+**Stage 4 of 4.** Typescript. Plan about 2 hours.
 
 Before replacing an installation, verify that every tracked file still matches the prior digest and no unmanaged files have appeared. Refuse upgrades when users edited a tracked file or added their own file. The user can move those changes into the source bundle deliberately. Successful repeated installs leave no staging or backup directories behind.
 
 The boundary for this stage is `install`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
-
-Digest comparison makes update behavior explicit instead of relying on timestamps. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
-
 ```figure
 pj-skill-installer-4
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+## Worked Orchard case
 
-## Build
+Before coding, review [TypeScript object types](https://www.typescriptlang.org/docs/handbook/2/objects.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md). Complete [stage 3](../../03-install/docs/en.md) first.
 
-Implement `install` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
+An upgrade must preserve local edits. Compare the current files with the previous installed digest and reject modified or unmanaged files. The demo edits the checklist, retries installation, and retains the edit.
 
-A second unchanged install succeeds. Editing SKILL.md makes the next upgrade fail while retaining the edit.
+```text
+installed checklist hash=A
+local edit -> current hash=B
+upgrade -> modified installation; local text remains
+```
 
-## Verify
+## Build and inspect
+
+Read the existing receipt and verify its file list before moving the destination. Restore a moved backup if the final rename fails.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-python3 scripts/project_test.py skill-installer --init learning-artifacts/skill-installer
 python3 scripts/project_test.py skill-installer --stage 4 --path learning-artifacts/skill-installer
 ```
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
 
 ```bash
-python3 scripts/project_test.py skill-installer --path learning-artifacts/skill-installer
-node learning-artifacts/skill-installer/main.ts --demo
+node learning-artifacts/skill-installer/cli.ts inspect projects/skill-installer/examples/orchard-release.json codex
 ```
 
-## What you see
+inspect is a dry run. install needs bundle, agent, root and trusted expected source digest. Supported destination mappings are codex=.agents/skills, claude=.claude/skills and cursor=.cursor/skills. Discovery paths are configured locally; successful installation does not prove a separately running agent activated the skill.
 
-A second unchanged install succeeds. Editing SKILL.md makes the next upgrade fail while retaining the edit.
+## Investigate next
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
-
-## Ship it
-
-Keep your implementation and one input you invented under `learning-artifacts/skill-installer/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+What would a reviewable merge need to show before replacing a locally edited checklist?
