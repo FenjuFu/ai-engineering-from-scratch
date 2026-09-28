@@ -1,60 +1,54 @@
 # Render an inspectable timeline
 
-> Generate a standalone HTML timeline with one row per span, scaled bars and error coloring. Escape span names before inserting them into markup. Include own time, total time, wall time, tokens and error count. Empty traces still produce a readable artifact. The output is a local static report and does not load third-party scripts.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Generate a standalone HTML timeline with one row per span, scaled bars and error coloring. Escape span names before inserting them into markup. Include own time, total time, wall time, tokens and error count. Empty traces still produce a readable artifact. The output is a local static report and does not load third-party scripts.
 
 The boundary for this stage is `render`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-HTML can present the same typed analysis without a build pipeline or chart dependency. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+The supplied baseline and changed trace both have 100 ms wall time. The changed model span spends 200 additional tokens and fails. Looking only at total latency would conceal that regression.
 
 ```figure
 pj-agent-trace-debugger-4
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `render` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-Open trace.html to see the failing model span in red and compare own time with inclusive time.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+The CLI analyzes each input independently, then subtracts matching aggregate metrics. Escape span names before embedding them in HTML, and keep the JSON receipt for automated comparisons.
 
-```bash
-python3 scripts/project_test.py agent-trace-debugger --init learning-artifacts/agent-trace-debugger
-python3 scripts/project_test.py agent-trace-debugger --stage 4 --path learning-artifacts/agent-trace-debugger
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py agent-trace-debugger --init learning-artifacts/agent-trace-debugger`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py agent-trace-debugger --path learning-artifacts/agent-trace-debugger
-node learning-artifacts/agent-trace-debugger/main.ts --demo
+python3 scripts/project_test.py agent-trace-debugger --stage 4 --path learning-artifacts/agent-trace-debugger --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-Open trace.html to see the failing model span in red and compare own time with inclusive time.
+```bash
+cd learning-artifacts/agent-trace-debugger
+node cli.ts --input samples/trace.jsonl --baseline samples/before.jsonl --output trace.html --json trace.json
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Add a span named <script>alert(1)</script>. It must be visible as text while the token/error delta remains numeric.
 
-Keep your implementation and one input you invented under `learning-artifacts/agent-trace-debugger/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+Input is the documented JSONL Span contract, not a native OTLP export. Tokens must be exclusive per-span usage. Cross-machine clocks must be normalized before import.
+
+
+## References
+
+[OpenTelemetry traces concepts](https://opentelemetry.io/docs/concepts/signals/traces/)
+[Node test runner](https://nodejs.org/api/test.html)
