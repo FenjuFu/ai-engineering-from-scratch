@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import re
+import signal
 import stat
 import subprocess
 import sys
@@ -51,16 +52,23 @@ def run_tests(workspace, timeout=5):
         }
     env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONPATH": str(root)}
     try:
-        result = subprocess.run(
+        process = subprocess.Popen(
             [sys.executable, "-B", "-m", "unittest", "discover", "-s", "tests"],
             cwd=root,
             env=env,
             stdin=subprocess.DEVNULL,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=timeout,
+            start_new_session=True,
+        )
+        stdout, stderr = process.communicate(timeout=timeout)
+        result = subprocess.CompletedProcess(
+            process.args, process.returncode, stdout, stderr
         )
     except subprocess.TimeoutExpired:
+        os.killpg(process.pid, signal.SIGKILL)
+        process.communicate()
         return {
             "state": "timeout",
             "passed": False,
@@ -117,3 +125,59 @@ def agent_loop(workspace, actions, max_steps=6):
         "state": "budget_exhausted" if len(actions) >= max_steps else "failed",
         "trace": trace,
     }
+
+
+def drive(workspace, planner, max_steps=6):
+    """Call the planner after every observation. Tests are executable trusted code."""
+    if not isinstance(max_steps, int) or max_steps < 1:
+        raise ValueError("positive step budget required")
+    trace = []
+    for step in range(max_steps):
+        action = planner(tuple(trace))
+        if action is None:
+            return {"state": "failed", "reason": "planner abstained", "trace": trace}
+        result = agent_loop(workspace, [action], 1)
+        for row in result["trace"]:
+            row["action"] = action
+        trace.extend(result["trace"])
+        if result["state"] == "completed":
+            return {"state": "completed", "trace": trace}
+        if any("error" in row for row in result["trace"]):
+            return {"state": "failed", "trace": trace}
+    return {"state": "budget_exhausted", "trace": trace}
+
+
+def proposal_planner(proposals):
+    """Select an exact repair only when its failure marker appears in a test result."""
+
+    def json_key(action):
+        return tuple(action.get(key) for key in ("path", "old", "new"))
+
+    def choose(trace):
+        if not trace or trace[-1]["tool"] == "patch":
+            return {"tool": "test"}
+        output = trace[-1].get("result", {}).get("output", "")
+        used = {
+            json_key(row.get("action", {})) for row in trace if row["tool"] == "patch"
+        }
+        for proposal in proposals:
+            if (
+                proposal["failure_contains"] in output
+                and json_key(
+                    {
+                        "path": proposal["path"],
+                        "old": proposal["old"],
+                        "new": proposal["new"],
+                    }
+                )
+                not in used
+            ):
+                return {
+                    "tool": "patch",
+                    "path": proposal["path"],
+                    "old": proposal["old"],
+                    "new": proposal["new"],
+                }
+        return None
+
+    return choose
