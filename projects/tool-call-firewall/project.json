@@ -6,10 +6,10 @@
   "tagline": "Authorize structured tool requests before they cross a side-effect boundary.",
   "summary": "Build a deny-by-default policy evaluator with bounded arguments, role permissions, single-use approvals and a structured audit log. The artifact is a library gate; applications must place it before every real tool execution.",
   "usefulFor": [
-    "Authorize structured tool requests before they cross a side-effect boundary.",
-    "Offline experiments with explicit failure cases and limits"
+    "An approval receipt proving exactly which operation was authorized and executed.",
+    "The native CLI requires a trusted role from the invoking application."
   ],
-  "youWillBuild": "Build a deny-by-default policy evaluator with bounded arguments, role permissions, single-use approvals and a structured audit log. The artifact is a library gate; applications must place it before every real tool execution.",
+  "youWillBuild": "An approval receipt proving exactly which operation was authorized and executed.",
   "hours": 8,
   "languages": [
     "Rust"
@@ -26,7 +26,16 @@
     "Consume a request-bound approval once",
     "Record bounded audit evidence"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Tool schema design",
+      "path": "phases/13-tools-and-protocols/05-tool-schema-design"
+    },
+    {
+      "title": "Security and secrets audit",
+      "path": "phases/17-infrastructure-and-production/25-security-secrets-audit"
+    }
+  ],
   "inspiredBy": [],
   "demo": {
     "command": [
