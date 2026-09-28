@@ -1,60 +1,54 @@
 # Aggregate independent support
 
-> Group valid findings by file, line and rule. Count one vote per reviewer per group, reject duplicate reviewer identities, and retain every severity vote. A quorum produces consensus; a singleton remains visible as needs-review. A disagreement flag survives consensus so the user can inspect conflicting severity judgments.
+Stage 2 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Group valid findings by file, line and rule. Count one vote per reviewer per group, reject duplicate reviewer identities, and retain every severity vote. A quorum produces consensus; a singleton remains visible as needs-review. A disagreement flag survives consensus so the user can inspect conflicting severity judgments.
 
 The boundary for this stage is `aggregate`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Sets make reviewer identity and per-review deduplication explicit. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+One reviewer repeats a finding five times and a second reviewer reports it once. Support is two distinct reviewer ids, not six reports. Severities[3,2] produce consensus with disagreement=true.
 
 ```figure
 pj-multi-agent-code-review-panel-2
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `aggregate` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-One reviewer repeating a finding stays at one vote; two reviewers with different severity values show consensus and disagreement.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Group by the stable tuple(file,line,rule). Keep severity votes and supporter ids in the output rather than collapsing the decision into one boolean.
 
-```bash
-python3 scripts/project_test.py multi-agent-code-review-panel --init learning-artifacts/multi-agent-code-review-panel
-python3 scripts/project_test.py multi-agent-code-review-panel --stage 2 --path learning-artifacts/multi-agent-code-review-panel
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py multi-agent-code-review-panel --init learning-artifacts/multi-agent-code-review-panel`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py multi-agent-code-review-panel --path learning-artifacts/multi-agent-code-review-panel
-node learning-artifacts/multi-agent-code-review-panel/main.ts --demo
+python3 scripts/project_test.py multi-agent-code-review-panel --stage 2 --path learning-artifacts/multi-agent-code-review-panel --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-One reviewer repeating a finding stays at one vote; two reviewers with different severity values show consensus and disagreement.
+```bash
+cd learning-artifacts/multi-agent-code-review-panel
+node cli.ts --input samples/review.json --output panel.json --html panel.html
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Raise quorum from 2 to3 on the sample. Identify which true finding becomes needs-review and which false positive was already a singleton.
 
-Keep your implementation and one input you invented under `learning-artifacts/multi-agent-code-review-panel/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[AbortController in Node](https://nodejs.org/api/globals.html#class-abortcontroller)
+[Node test runner](https://nodejs.org/api/test.html)
