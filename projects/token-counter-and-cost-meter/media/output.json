@@ -1,0 +1,16 @@
+{
+  "title": "Token Counter and Cost Meter / actual output",
+  "recordedAt": "2026-09-28T16:20:30Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/token-counter-and-cost-meter/solution",
+      "exitCode": 0,
+      "output": "ESTIMATE 6 tokens (4 chars/token fixture)\nRECORDED Usage { input: 100, output: 20, cached: 40 }; COST 260 nano-dollars\nADMISSION Ok(0); spent 1000\nNEXT Err(Limit)\n",
+      "durationMs": 421
+    }
+  ]
+}
