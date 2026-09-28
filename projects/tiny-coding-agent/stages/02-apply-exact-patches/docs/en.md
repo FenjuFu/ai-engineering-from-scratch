@@ -1,20 +1,6 @@
 # Apply exact patches with preconditions
 
-> Replace one exact occurrence and preserve the file on missing or ambiguous matches..
-
-**Type:** Build
-**Languages:** Python
-**Stage:** 2 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `apply_patch` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+**Stage 2 of 4.** Python. Plan about 2 hours.
 
 A patch is an assertion about the current file, not a blind instruction to overwrite it. Require the old text to appear exactly once. If the model guessed stale code or an ambiguous snippet, reject the patch and preserve the file.
 
@@ -24,54 +10,32 @@ Write the replacement to a temporary file in the same directory, preserve the ta
 pj-tiny-coding-agent-2
 ```
 
-## Predict first
+Primary reference: [Primary technical reference](https://docs.python.org/3/library/subprocess.html).
 
-Should an old-text snippet appearing twice modify both copies?
+## Worked Orchard case
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [The agent loop](../../../../../phases/14-agent-engineering/01-the-agent-loop/docs/en.md). Complete [stage 1](../../01-confine-paths/docs/en.md) first.
 
-## Your task
+A patch states exactly what it expects to replace. The broken basket multiplies neither price nor quantity: it returns price + quantity. Replace that expression only when it appears once.
 
-Implement `apply_patch` in `main.py` in your learner workspace. Replace one exact occurrence and preserve the file on missing or ambiguous matches.
-
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
-
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
-
-```bash
-python3 scripts/project_test.py tiny-coding-agent --init my-tiny-coding-agent
-python3 scripts/project_test.py tiny-coding-agent --stage 2 --path my-tiny-coding-agent
+```text
+old: price + quantity
+new: price * quantity
+occurrences=1 -> write; occurrences=0 or 2 -> reject
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
+## Build and inspect
 
-## What you should see
+Count exact matches before opening a temporary output file. Preserve file permissions when replacing the original.
 
-A unique return expression changes once. Ambiguous patches fail without edits.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-cd projects/tiny-coding-agent/solution
-python3 demo.py
+python3 scripts/project_test.py tiny-coding-agent --stage 2 --path learning-artifacts/tiny-coding-agent
 ```
 
-## Debug with evidence
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+## Investigate next
 
-## Check yourself
-
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
-
-## Going further
-
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
-
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/subprocess.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+What should happen when another editor fixes the file after the planner proposes a patch?
