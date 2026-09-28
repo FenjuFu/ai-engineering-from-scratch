@@ -1,0 +1,17 @@
+{
+  "title": "Distributed Eval Farm Coordinator / actual output",
+  "recordedAt": "2026-09-28T16:21:12Z",
+  "records": [
+    {
+      "command": [
+        "go",
+        "run",
+        "."
+      ],
+      "cwd": "projects/distributed-eval-farm/solution",
+      "exitCode": 0,
+      "output": "PARTITIONS [[case-b] [case-c case-a]]\nRECEIPT {Shard:shard-0 Worker:worker-1 Version:1 Until:10 Result:complete Done:true}\nRESULTS [{case-a passed:case-a} {case-b passed:case-b} {case-c passed:case-c}] ERROR <nil>\n",
+      "durationMs": 1376
+    }
+  ]
+}

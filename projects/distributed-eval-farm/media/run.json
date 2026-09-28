@@ -1,0 +1,48 @@
+{
+  "title": "Distributed Eval Farm Coordinator / initialize and test",
+  "recordedAt": "2026-09-28T16:21:10Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "distributed-eval-farm",
+        "--init",
+        "my-distributed-eval-farm"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-distributed-eval-farm\n  created  go.mod\n  created  main.go\n  created  stage1.go\n  created  types.go\n  created  stage2.go\n  created  stage3.go\n  created  stage4.go\nnext: python3 scripts/project_test.py distributed-eval-farm --stage 1 --path /privatemy-distributed-eval-farm\n",
+      "durationMs": 61
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "distributed-eval-farm",
+        "--stage",
+        "1",
+        "--path",
+        "my-distributed-eval-farm"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Distributed Eval Farm Coordinator: grading learner\n  FAIL stage 1: Partition stable case identities (1 tests)\n       not implemented yet: Stage 1: implement Partition\n",
+      "durationMs": 774
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "distributed-eval-farm",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Distributed Eval Farm Coordinator: grading solution\n  PASS stage 1: Partition stable case identities (5 tests)\n  PASS stage 2: Fence each shard lease (5 tests)\n  PASS stage 3: Accept idempotent completion receipts (5 tests)\n  PASS stage 4: Run a bounded local worker pool (5 tests)\n",
+      "durationMs": 2956
+    }
+  ]
+}
