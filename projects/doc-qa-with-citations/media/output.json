@@ -1,0 +1,16 @@
+{
+  "title": "Document QA With Citations and LangChain / actual output",
+  "recordedAt": "2026-09-28T16:19:38Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/doc-qa-with-citations/solution",
+      "exitCode": 0,
+      "output": "{\n  \"answer\": \"Each guest has its own kernel.\",\n  \"citations\": [\n    {\n      \"source\": \"notes\",\n      \"start\": 0,\n      \"end\": 30\n    }\n  ],\n  \"state\": \"answered\"\n}\n",
+      "durationMs": 35
+    }
+  ]
+}

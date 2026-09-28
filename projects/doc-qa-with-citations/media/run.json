@@ -1,0 +1,48 @@
+{
+  "title": "Document QA With Citations and LangChain / initialize and test",
+  "recordedAt": "2026-09-28T16:19:37Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "doc-qa-with-citations",
+        "--init",
+        "my-doc-qa-with-citations"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-doc-qa-with-citations\n  created  documents.py\n  created  retrieval.py\n  created  answer.py\n  created  adapter.py\nnext: python3 scripts/project_test.py doc-qa-with-citations --stage 1 --path /privatemy-doc-qa-with-citations\n",
+      "durationMs": 57
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "doc-qa-with-citations",
+        "--stage",
+        "1",
+        "--path",
+        "my-doc-qa-with-citations"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Document QA With Citations and LangChain: grading learner\n  FAIL stage 1: Load local documents with stable provenance (5 tests)\n       not implemented yet: Stage 1: implement chunk_document\n",
+      "durationMs": 109
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "doc-qa-with-citations",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Document QA With Citations and LangChain: grading solution\n  PASS stage 1: Load local documents with stable provenance (5 tests)\n  PASS stage 2: Rank chunks with an inspectable keyword score (5 tests)\n  PASS stage 3: Accept only answers grounded in retrieved spans (5 tests)\n  PASS stage 4: Use a framework splitter without losing offsets (5 tests)\n",
+      "durationMs": 269
+    }
+  ]
+}
