@@ -1,58 +1,37 @@
 # Confine file tools to a bounded root
 
-> Canonicalize the workspace root and requested targets, reject absolute and parent-traversing paths, and verify that symlinks remain inside the root.
-
-**Type:** Build
-**Languages:** Rust
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
+**Stage 2 of 4.** Rust. Plan about 2 hours.
 
 Canonicalize the workspace root and requested targets, reject absolute and parent-traversing paths, and verify that symlinks remain inside the root. Limit text reads to 16 KiB, directory results to 100 entries and searches to 50 matching lines. These are application-level constraints for a trusted local workspace; hostile concurrent symlink replacement requires stronger OS primitives or isolation.
-
-## Why Rust
-
-Rust makes ownership of the backend, file handles and action state explicit. Return `Result` for invalid inputs and system-call errors, then preserve the failure at the CLI boundary. The implementation uses the standard library and compiles with `rustc --edition 2021`; no package installation is required.
-
-## Predict
-
-Choose an accepted input and a rejected input before changing code. Write down the exact output or error you expect. Identify the first side effect and the checks that must run before it.
-
-## Interactive lab
 
 ```figure
 pj-rust-agent-shell-2
 ```
 
-Advance through the contract, state transition and observable result. An invalid input must stop before the transition. Explain which piece of state prevents the next action after a failure.
+## Worked Orchard case
 
-## Build
+Before coding, review [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md). Complete [stage 1](../../01-grammar/docs/en.md) first.
 
-Implement `contained, read_text, execute` in your workspace `main.rs`. Keep earlier stages working. Read the function signatures and tests first, then implement one boundary at a time. The fixture is a deterministic test backend, and its results do not establish native operating-system behavior.
+Resolve release.md under the workspace root before reading it. A lexical path can look harmless while a symlink targets a file outside the workspace. The result is application-level containment, not a process sandbox.
 
-A read outside the canonical root is rejected, while a literal search returns one-based source lines.
-
-## Verify
-
-```bash
-python3 scripts/project_test.py rust-agent-shell --init learning-artifacts/rust-agent-shell
-python3 scripts/project_test.py rust-agent-shell --stage 2 --path learning-artifacts/rust-agent-shell --strict
+```text
+workspace=/work/orchard
+release.md -> /work/orchard/release.md -> allowed
+link.md -> /outside/credentials -> rejected
 ```
 
-Initialize only once. The grader compiles tests against the learner path through `PROJECT_WORKSPACE`. Missing functions or intentional starter failures must fail; reference code is never imported as a fallback.
+## Build and inspect
 
-## What you see
+Canonicalize the root and target, then compare path components. Bound the bytes read as well as the initial metadata length.
 
-A read outside the canonical root is rejected, while a literal search returns one-based source lines.
-
-The stage suite covers ordinary input, boundary conditions and rejected behavior. After completing all stages, compile and run the actual program:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-rustc --edition 2021 learning-artifacts/rust-agent-shell/main.rs -o /tmp/rust-agent-shell
-/tmp/rust-agent-shell --demo
+python3 scripts/project_test.py rust-agent-shell --stage 2 --path learning-artifacts/rust-agent-shell
 ```
 
-## Ship it
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-Keep a fixture you wrote and a short explanation of one rejected action in your learner workspace. State whether you tested only the fixture or an optional native adapter. Preserve that distinction in any demonstration or scorecard.
+## Investigate next
+
+Which race remains if another process replaces a path after canonicalization?
