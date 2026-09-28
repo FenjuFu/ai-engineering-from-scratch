@@ -1,16 +1,21 @@
 {
-  "title": "MCP Server With 250 Tools / actual output",
-  "recordedAt": "2026-09-28T16:19:36Z",
+  "title": "MCP Tool Discovery Workbench | Actual artifact output",
+  "recordedAt": "2026-09-28T19:23:00Z",
   "records": [
     {
       "command": [
-        "python3",
-        "demo.py"
+        "python3.12",
+        "cli.py",
+        "samples/inventory.json",
+        "--query",
+        "pods count",
+        "--max-chars",
+        "500"
       ],
-      "cwd": "projects/mcp-at-scale/solution",
+      "cwd": "/tmp/aiefs-recorded-artifacts/mcp-at-scale/solution",
       "exitCode": 0,
-      "output": "{\n  \"tools\": 250,\n  \"pages\": 8\n}\n{\n  \"tools\": [\n    {\n      \"name\": \"pods_count\",\n      \"description\": \"count pods in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    },\n    {\n      \"name\": \"agents_count\",\n      \"description\": \"count agents in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    },\n    {\n      \"name\": \"alerts_count\",\n      \"description\": \"count alerts in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    }\n  ],\n  \"characters\": 518,\n  \"catalog_size\": 250\n}\n",
-      "durationMs": 29
+      "output": "{\n  \"tools\": [\n    {\n      \"name\": \"pods_count\",\n      \"description\": \"count pods in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    },\n    {\n      \"name\": \"logs_count\",\n      \"description\": \"count logs in the local fixture inventory\",\n      \"inputSchema\": {\n        \"type\": \"object\",\n        \"properties\": {},\n        \"required\": [],\n        \"additionalProperties\": false\n      }\n    }\n  ],\n  \"characters\": 343,\n  \"catalog_size\": 15,\n  \"schema_version\": 1,\n  \"full_characters\": 2788\n}\n",
+      "durationMs": 59
     }
   ]
 }

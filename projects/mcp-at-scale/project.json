@@ -1,24 +1,21 @@
 {
   "id": "mcp-at-scale",
-  "title": "MCP Server With 250 Tools",
+  "title": "MCP Tool Discovery Workbench",
   "level": 4,
   "levelName": "Systems",
-  "tagline": "Build a paginated tool catalog, bounded discovery and a real JSON-RPC stdio server, then call it from a typed client.",
-  "summary": "Build a paginated tool catalog, bounded discovery and a real JSON-RPC stdio server, then call it from a typed client.",
+  "tagline": "A scoped MCP inventory server that discovers schemas inside a measured context budget.",
+  "summary": "A scoped MCP inventory server that discovers schemas inside a measured context budget. Run python3 cli.py /absolute/inventory.json --serve as a stdio server. tools/call catalog_search takes query, max_chars and k; the response returns selected public schemas and their character count.",
   "hours": 10,
-  "languages": [
-    "Python",
-    "TypeScript"
-  ],
+  "languages": ["Python", "TypeScript"],
   "status": "ready",
   "source": "core",
   "author": {
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Build a paginated tool catalog, bounded discovery and a real JSON-RPC stdio server, then call it from a typed client.",
+  "youWillBuild": "A scoped MCP inventory server that discovers schemas inside a measured context budget.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "Run python3 cli.py /absolute/inventory.json --serve as a stdio server. tools/call catalog_search takes query, max_chars and k; the response returns selected public schemas and their character count."
   ],
   "skills": [
     "Build a catalog of 250 read-only tools",
@@ -26,7 +23,9 @@
     "Implement initialized JSON-RPC over stdio",
     "Audit catalog coverage through protocol pages"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python 3.10+, Node 22.18+, dictionaries, JSON-RPC request ids, stdin/stdout and child processes."
+  ],
   "figures": true,
   "overviewFigure": "pj-mcp-at-scale-1",
   "languageWhy": {
@@ -34,11 +33,16 @@
     "TypeScript": "Typed wire messages and real subprocess integration."
   },
   "demo": {
+    "cwd": "solution",
     "command": [
       "python3",
-      "demo.py"
-    ],
-    "cwd": "solution"
+      "cli.py",
+      "samples/inventory.json",
+      "--query",
+      "pods count",
+      "--max-chars",
+      "500"
+    ]
   },
   "stages": [
     {
@@ -50,12 +54,7 @@
       "hours": 2,
       "difficulty": "starter",
       "figure": "pj-mcp-at-scale-1",
-      "concepts": [
-        "build",
-        "a",
-        "catalog",
-        "of"
-      ]
+      "concepts": ["build", "a", "catalog", "of"]
     },
     {
       "id": "02-discovery",
@@ -66,12 +65,7 @@
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-mcp-at-scale-2",
-      "concepts": [
-        "select",
-        "tools",
-        "under",
-        "an"
-      ]
+      "concepts": ["select", "tools", "under", "an"]
     },
     {
       "id": "03-protocol",
@@ -82,12 +76,7 @@
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-mcp-at-scale-3",
-      "concepts": [
-        "implement",
-        "initialized",
-        "json-rpc",
-        "over"
-      ]
+      "concepts": ["implement", "initialized", "json-rpc", "over"]
     },
     {
       "id": "04-audit",
@@ -98,12 +87,7 @@
       "hours": 2,
       "difficulty": "stretch",
       "figure": "pj-mcp-at-scale-4",
-      "concepts": [
-        "audit",
-        "catalog",
-        "coverage",
-        "through"
-      ]
+      "concepts": ["audit", "catalog", "coverage", "through"]
     },
     {
       "id": "05-typed-client",
@@ -114,10 +98,29 @@
       "hours": 2,
       "difficulty": "stretch",
       "figure": "pj-mcp-at-scale-5",
-      "concepts": [
-        "stdio",
-        "correlation",
-        "timeouts"
+      "concepts": ["stdio", "correlation", "timeouts"],
+      "runners": [
+        {
+          "language": "typescript"
+        },
+        {
+          "language": "python"
+        },
+        {
+          "language": "python",
+          "optional": true,
+          "requires": ["python:mcp"],
+          "argv": [
+            "{python}",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "{stage}/tests-framework",
+            "-p",
+            "test_standard_client.py"
+          ]
+        }
       ]
     }
   ],

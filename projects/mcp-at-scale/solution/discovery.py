@@ -25,11 +25,11 @@ def discover(tools, query, max_chars=1500, k=5):
     used = 0
     for score, name, tool in sorted(ranked, key=lambda r: (-r[0], r[1])):
         public = {key: tool[key] for key in ["name", "description", "inputSchema"]}
-        size = len(json.dumps(public, separators=(",", ":")))
-        if used + size > max_chars:
+        size = len(json.dumps(selected + [public], separators=(",", ":")))
+        if size > max_chars:
             continue
         selected.append(public)
-        used += size
+        used = size
         if len(selected) >= k:
             break
     return {

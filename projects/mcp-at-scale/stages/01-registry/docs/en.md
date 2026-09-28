@@ -1,57 +1,52 @@
 # Build a catalog of 250 read-only tools
 
-> The generated catalog contains exactly 250 unique tools.
+Stage 1 of 5. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 1 of 4
-**Time:** ~2 hours
+## What changes
 
-## What you build
+Create five narrowly scoped read operations for each of 50 resource kinds. The names and schemas are stable; execution reads an injected inventory rather than contacting a cluster. A tool schema defines the exact accepted keys and values, so an unknown argument never reaches a handler by accident.
 
-Implement `registry.py`: `catalog`, `execute`. This artifact is stage 1 of MCP Server With 250 Tools. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+## Work through one concrete case
+
+Fifty resource families times five operations produce 250 teaching tools, but all share one local inventory mechanism. A supplied inventory containing only pods exposes five useful resource tools; the composed server adds catalog_search as the sixth.
 
 ```figure
 pj-mcp-at-scale-1
 ```
 
-## Follow the mechanism
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-Create five narrowly scoped read operations for each of 50 resource kinds. The names and schemas are stable; execution reads an injected inventory rather than contacting a cluster. A tool schema defines the exact accepted keys and values, so an unknown argument never reaches a handler by accident.
+## Implement the contract
 
-## Build it
+Implement `registry.py`: `catalog`, `execute`. This artifact is stage 1 of MCP Server With 250 Tools. It consumes explicit inputs and returns an inspectable result that the next stage can use.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-```python
-def catalog():
-    raise NotImplementedError("Implement the stage contract")
-```
+Keep public name, description and inputSchema separate from internal resource/operation metadata. Validate exact argument keys before consulting inventory.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+## Verify and inspect
 
-## Run it
+From the repository root, initialize once with `python3 scripts/project_test.py mcp-at-scale --init learning-artifacts/mcp-at-scale`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py mcp-at-scale --init my-mcp-at-scale
-python3 scripts/project_test.py mcp-at-scale --stage 1 --path my-mcp-at-scale
+python3 scripts/project_test.py mcp-at-scale --stage 1 --path learning-artifacts/mcp-at-scale --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-## What you should see
+```bash
+cd learning-artifacts/mcp-at-scale
+python3 cli.py samples/inventory.json --query "pods count" --max-chars 500
+```
 
-The generated catalog contains exactly 250 unique tools. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+## Investigate the failure boundary
 
-## Inspect the boundary
+Pass {query:"worker",extra:true} to pods_search. It must fail rather than quietly ignoring an unrecognized instruction.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
 
-## Use it
 
-After all stages pass, run `python3 projects/mcp-at-scale/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
 
-## Primary references
+## References
 
-- [Reference 1](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
-- [Reference 2](https://www.jsonrpc.org/specification)
+[Reference 1](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+[Reference 2](https://www.jsonrpc.org/specification)

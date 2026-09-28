@@ -8,6 +8,8 @@ Run its tests through scripts/project_test.py.
 import json
 import sys
 from registry import catalog, execute
+from discovery import discover
+from rest_adapter import execute_rest
 
 
 def handle(request, state, inventory):
@@ -38,19 +40,19 @@ def handle(request, state, inventory):
     if not isinstance(params, dict):
         return error(-32602, "Invalid params")
     if method == "initialize":
-        if params.get("protocolVersion") != "2025-06-18":
+        if params.get("protocolVersion") not in ["2025-06-18", "2025-11-25"]:
             return error(-32602, "Unsupported protocol version")
         state["negotiated"] = True
         return result(
             {
-                "protocolVersion": "2025-06-18",
+                "protocolVersion": params["protocolVersion"],
                 "capabilities": {"tools": {}},
                 "serverInfo": {"name": "local-inventory", "version": "1.0"},
             }
         )
     if not state.get("initialized"):
         return error(-32002, "Initialize before using tools")
-    tools = catalog()
+    tools = state.get("catalog", catalog())
     if method == "tools/list":
         try:
             offset = int(params.get("cursor", "0"))
@@ -71,7 +73,33 @@ def handle(request, state, inventory):
         if tool is None:
             return error(-32602, "Unknown tool")
         try:
-            value = execute(tool, params.get("arguments", {}), inventory)
+            if tool["name"] == "catalog_search":
+                args = params.get("arguments", {})
+                if (
+                    not isinstance(args, dict)
+                    or set(args) - {"query", "max_chars", "k"}
+                    or not isinstance(args.get("query"), str)
+                    or any(
+                        type(args.get(key, default)) is not int
+                        for key, default in [("max_chars", 1500), ("k", 5)]
+                    )
+                ):
+                    raise ValueError("invalid discovery arguments")
+                value = discover(
+                    [t for t in tools if t["name"] != "catalog_search"],
+                    args["query"],
+                    args.get("max_chars", 1500),
+                    args.get("k", 5),
+                )
+            elif "rest" in tool:
+                value = execute_rest(
+                    tool,
+                    params.get("arguments", {}),
+                    inventory.get("recordings"),
+                    inventory.get("base_url"),
+                )
+            else:
+                value = execute(tool, params.get("arguments", {}), inventory)
         except ValueError as exc:
             return result(
                 {"content": [{"type": "text", "text": str(exc)}], "isError": True}
@@ -82,8 +110,8 @@ def handle(request, state, inventory):
     return error(-32601, "Method not found")
 
 
-def serve(lines, output, inventory):
-    state = {}
+def serve(lines, output, inventory, tools=None):
+    state = {} if tools is None else {"catalog": tools}
     for line in lines:
         try:
             request = json.loads(line)
