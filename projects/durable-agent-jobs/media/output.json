@@ -1,0 +1,17 @@
+{
+  "title": "Durable Agent Jobs / actual output",
+  "recordedAt": "2026-09-28T16:27:56Z",
+  "records": [
+    {
+      "command": [
+        "go",
+        "run",
+        "."
+      ],
+      "cwd": "projects/durable-agent-jobs/solution",
+      "exitCode": 0,
+      "output": "CLAIM {ID:report-1 State:running Version:1 LeaseUntil:10 Attempts:1}\nRECLAIM {ID:report-1 State:queued Version:2 LeaseUntil:0 Attempts:1}\nSTALE FINISH conflict\nRECOVERED [{ID:report-1 State:completed Version:4 LeaseUntil:0 Attempts:2}] ERROR <nil>\n",
+      "durationMs": 729
+    }
+  ]
+}
