@@ -1,60 +1,57 @@
 # Serialize revisioned writes
 
-> Load a versioned event log and reconstruct the latest record for each namespace/id pair. An update must name its expected revision. Serialize writes so two callers racing from revision zero cannot both succeed. Append before mutating the in-memory map. This is a single-process store: append completion is not a power-loss durability guarantee, and multiple server processes require an external lock or database.
+Stage 2 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript, Rust
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Load a versioned event log and reconstruct the latest record for each namespace/id pair. An update must name its expected revision. Serialize writes so two callers racing from revision zero cannot both succeed. Append before mutating the in-memory map. This is a single-process store: append completion is not a power-loss durability guarantee, and multiple server processes require an external lock or database.
 
 The boundary for this stage is `MemoryStore.put, MemoryStore.list`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Promises serialize local writes while JSONL makes the durable history inspectable. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+Two writers in the same process both propose expectedRevision0 for the same id. The serialized queue admits one create and rejects the other; replaying the JSONL log reconstructs revision 1.
 
 ```figure
 pj-memory-server-2
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `MemoryStore.put, MemoryStore.list` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-Two concurrent creates return one success and one revision conflict; reopening recovers the successful record.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Append before mutating the map. On a failed append, the in-memory value must not pretend persistence succeeded. Keep the tail promise usable after a failed operation so later independent writes can proceed.
 
-```bash
-python3 scripts/project_test.py memory-server --init learning-artifacts/memory-server
-python3 scripts/project_test.py memory-server --stage 2 --path learning-artifacts/memory-server
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py memory-server --init learning-artifacts/memory-server`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py memory-server --path learning-artifacts/memory-server
-node learning-artifacts/memory-server/main.ts --demo
+python3 scripts/project_test.py memory-server --stage 2 --path learning-artifacts/memory-server --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-Two concurrent creates return one success and one revision conflict; reopening recovers the successful record.
+```bash
+cd learning-artifacts/memory-server
+node cli.ts --data-dir memory-data --put samples/memory.json
+node cli.ts --data-dir memory-data --query "cache policy"
+node cli.ts --data-dir memory-data --history cache-policy
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Run cli.ts --put twice from separate processes with revision 0. The second run fails. Then use revision 1 and inspect both log entries with --history.
 
-Keep your implementation and one input you invented under `learning-artifacts/memory-server/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[MCP tools specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)
+[Rust standard library](https://doc.rust-lang.org/std/)
+[Node HTTP API](https://nodejs.org/api/http.html)
