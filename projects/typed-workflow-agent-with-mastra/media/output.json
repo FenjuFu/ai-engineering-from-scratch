@@ -1,17 +1,11 @@
 {
-  "title": "Typed Workflow Agent with Mastra / actual output",
-  "recordedAt": "2026-09-28T16:15:48Z",
-  "records": [
-    {
-      "command": [
-        "node",
-        "main.ts",
-        "--demo"
-      ],
-      "cwd": "projects/typed-workflow-agent-with-mastra/solution",
-      "exitCode": 0,
-      "output": "{\n  \"read\": {\n    \"status\": \"complete\",\n    \"result\": {\n      \"ticketId\": \"T-1\",\n      \"answer\": \"Billing policy: receipts are required.\",\n      \"calls\": 1\n    },\n    \"trace\": [\n      {\n        \"step\": \"lookup\",\n        \"status\": \"complete\",\n        \"attempt\": 1\n      }\n    ]\n  },\n  \"paused\": {\n    \"status\": \"suspended\",\n    \"checkpoint\": {\n      \"ticket\": {\n        \"id\": \"T-2\",\n        \"message\": \"Update billing address\"\n      },\n      \"actions\": [\n        {\n          \"tool\": \"update\",\n          \"query\": \"Update billing address\"\n        }\n      ],\n      \"requiresApproval\": true\n    },\n    \"trace\": [\n      {\n        \"step\": \"approval\",\n        \"status\": \"suspended\",\n        \"attempt\": 0\n      }\n    ]\n  },\n  \"resumed\": {\n    \"status\": \"complete\",\n    \"result\": {\n      \"ticketId\": \"T-2\",\n      \"answer\": \"Recorded change: Update billing address\",\n      \"calls\": 1\n    },\n    \"trace\": [\n      {\n        \"step\": \"update\",\n        \"status\": \"complete\",\n        \"attempt\": 1\n      }\n    ]\n  }\n}\n",
-      "durationMs": 101
-    }
-  ]
+  "title": "typed-workflow-agent-with-mastra | Actual application output",
+  "url": "file:///tmp/aiefs-reviewed-apps/workflow/index.html",
+  "actions": [
+    [
+      "js",
+      "window.scrollTo(0,250)"
+    ]
+  ],
+  "kind": "browser capture"
 }

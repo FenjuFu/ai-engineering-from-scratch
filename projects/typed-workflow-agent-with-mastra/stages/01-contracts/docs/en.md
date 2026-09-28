@@ -1,60 +1,57 @@
-# Define runtime contracts for typed steps
+# Validate typed step inputs at runtime
 
-> Start with a ticket id and message. Validate unknown input before classification. Classify explicit mutation verbs as write intent and route other requests to lookup. This deterministic classifier is a baseline with obvious limits: natural-language intent cannot be secured by a word list. The later approval gate is attached to the selected tool, not confidence in the wording.
+> Find the workshop policy produces read intent. Update the workshop label produces write intent. A blank ID fails before a tool is chosen. The word change inside unchanged does not match the mutation-verb word boundary.
 
 **Type:** Build
-**Languages:** TypeScript
 **Stage:** 1 of 4
-**Time:** ~2 hours
+**Time:** About 2 hours
 
-## What you build
+## The useful boundary
 
-Start with a ticket id and message. Validate unknown input before classification. Classify explicit mutation verbs as write intent and route other requests to lookup. This deterministic classifier is a baseline with obvious limits: natural-language intent cannot be secured by a word list. The later approval gate is attached to the selected tool, not confidence in the wording.
-
-The boundary for this stage is `parseTicket, classify`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
-
-## Why this language
-
-TypeScript discriminated unions make workflow states and tool names visible to the compiler. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+A TypeScript type does not validate a JSON file. Require a nonempty ID and message, trim both and reject messages beyond 10000 characters. Then use the explicit mutation verbs update, delete, change and cancel as an educational intent baseline. Keep the classifier's limits visible.
 
 ```figure
 pj-typed-workflow-agent-with-mastra-1
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+## Work the example
 
-## Build
+Find the workshop policy produces read intent. Update the workshop label produces write intent. A blank ID fails before a tool is chosen. The word change inside unchanged does not match the mutation-verb word boundary.
 
-Implement `parseTicket, classify` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
+Write the returned fields and the expected side-effect count before coding. Keep a second input that should fail so the successful example cannot become a hard-coded answer.
 
-Read and write intent become typed values, and malformed tickets fail before a tool is selected.
+## Build the contract
 
-## Verify
+Implement `parseTicket(raw), classify(raw) in main.ts` in your learner workspace. Preserve the exported names and continue using earlier stages rather than duplicating their policies.
+
+The selected tool determines the later approval requirement. A word list cannot authorize real-world actions or reliably infer every natural-language intention. The output is a typed classification with the original validated ticket, intent and topic.
+
+## Hints
+
+Write a table of phrases that expose false positives and false negatives. Test runtime input types separately from classification behavior. Node strips TypeScript annotations; it does not run a static type checker for you.
+
+## Verify your work
 
 ```bash
-python3 scripts/project_test.py typed-workflow-agent-with-mastra --init learning-artifacts/typed-workflow-agent-with-mastra
-python3 scripts/project_test.py typed-workflow-agent-with-mastra --stage 1 --path learning-artifacts/typed-workflow-agent-with-mastra
+python3 scripts/project_test.py typed-workflow-agent-with-mastra --init my-typed-workflow-agent-with-mastra
+python3 scripts/project_test.py typed-workflow-agent-with-mastra --stage 1 --path my-typed-workflow-agent-with-mastra --strict
 ```
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+Initialize once. Cumulative tests import your workspace and preserve your earlier source. A reference-solution run verifies the teaching implementation and never grants a learner certificate. Optional SDK checks require the dependencies and commands in the project README.
+
+## Inspect the result
+
+Which validation belongs at the transport boundary, and which decision belongs in a tool capability check?
+
+The completed project produces a scratch HTML/JSON workflow review and a real Mastra run stored in SQLite with a plan-bound approval document.
 
 ```bash
-python3 scripts/project_test.py typed-workflow-agent-with-mastra --path learning-artifacts/typed-workflow-agent-with-mastra
-node learning-artifacts/typed-workflow-agent-with-mastra/main.ts --demo
+cd projects/typed-workflow-agent-with-mastra/solution
+node --experimental-strip-types cli.ts --ticket fixtures/ticket.json --out workflow-output
 ```
 
-## What you see
+Replace the fixture with a small input from your own workflow. Keep expected outcomes and observed evidence together, then retain a separate set of cases for evaluation. Provider request tests establish serialization and control flow; they do not establish model quality.
 
-Read and write intent become typed values, and malformed tickets fail before a tool is selected.
+## Primary reference
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
-
-## Ship it
-
-Keep your implementation and one input you invented under `learning-artifacts/typed-workflow-agent-with-mastra/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+[Official API documentation](https://mastra.ai/docs/workflows/suspend-and-resume). The implementation, policy choices and examples are original.

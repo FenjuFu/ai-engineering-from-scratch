@@ -1,68 +1,195 @@
-window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-1", {
-  title: "Define runtime contracts for typed steps",
-  steps: [
-    { label: "Input contract", detail: "parseTicket, classify" },
-    {
-      label: "Define runtime contracts for typed steps",
-      detail:
-        "Start with a ticket id and message. Validate unknown input before classification. Classify explicit mutation verbs as write intent and route other requests to lookup. This deterministic classifier is a baseline with obvious limits: natural-language intent cannot be secured by a word list. The later approval gate is attached to the selected tool, not confidence in the wording.",
+(function () {
+  "use strict";
+  const steps = [
+    { label: "Contract", detail: "Validate the input and selected actions." },
+    { label: "State", detail: "Keep waiting distinct from failure." },
+    { label: "Effect", detail: "Invoke tools only after the required gate." },
+  ];
+  window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-1", {
+    title: "Types need runtime validation",
+    steps,
+    caption:
+      "This keyword classifier is an inspectable baseline; it is not an authorization system.",
+    lab: {
+      controls: [
+        { key: "id", label: "Ticket ID", type: "text", value: "workshop-42" },
+        {
+          key: "text",
+          label: "Message",
+          type: "text",
+          value: "Update the workshop equipment label",
+        },
+      ],
+      calculate(v) {
+        const valid = v.id.trim() && v.text.trim() && v.text.length <= 10000;
+        const intent = /\b(update|delete|change|cancel)\b/i.test(v.text)
+          ? "write"
+          : "read";
+        return {
+          summary: valid
+            ? "Validated ticket with " + intent + " intent."
+            : "Reject malformed ticket before planning.",
+          metrics: [
+            { label: "Characters", value: v.text.length },
+            { label: "Intent", value: valid ? intent : "none" },
+          ],
+        };
+      },
     },
-    {
-      label: "Observe the result",
-      detail:
-        "Read and write intent become typed values, and malformed tickets fail before a tool is selected.",
+  });
+  window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-2", {
+    title: "Approval follows the selected tool",
+    steps,
+    caption:
+      "A saved checkpoint cannot disable approval by changing only its flag.",
+    lab: {
+      controls: [
+        {
+          key: "tool",
+          label: "Selected action",
+          type: "select",
+          value: "update",
+          options: [
+            { value: "lookup", label: "lookup" },
+            { value: "update", label: "update" },
+          ],
+        },
+        {
+          key: "required",
+          label: "requiresApproval flag",
+          type: "checkbox",
+          value: true,
+        },
+      ],
+      calculate(v) {
+        const expected = v.tool === "update",
+          valid = expected === v.required;
+        return {
+          summary: valid
+            ? "Plan contract is internally consistent."
+            : "Reject the edited checkpoint.",
+          metrics: [
+            { label: "Expected flag", value: String(expected) },
+            { label: "Stored flag", value: String(v.required) },
+          ],
+          rows: [[v.tool, expected ? "review before effects" : "read-only"]],
+          columns: ["Action", "Policy"],
+        };
+      },
     },
-  ],
-  caption: "Advance to inspect the boundary before the next effect.",
-});
-window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-2", {
-  title: "Validate tool plans and approval requirements",
-  steps: [
-    { label: "Input contract", detail: "makePlan, validatePlan" },
-    {
-      label: "Validate tool plans and approval requirements",
-      detail:
-        "Construct a plan with lookup for read intent and update for write intent. Revalidate plans at execution because checkpoints are serialized data. Require the approval flag to equal the presence of an update action. An attacker cannot turn a saved write checkpoint into an automatically executable read by changing one boolean.",
+  });
+  window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-3", {
+    title: "Budget failed calls as well as successes",
+    steps,
+    caption:
+      "The scratch runtime suspends before mutation. Retrying a real write still needs idempotency.",
+    lab: {
+      controls: [
+        {
+          key: "write",
+          label: "Plan contains update",
+          type: "checkbox",
+          value: true,
+        },
+        {
+          key: "approved",
+          label: "Approval supplied",
+          type: "checkbox",
+          value: false,
+        },
+        {
+          key: "failures",
+          label: "Failures before success",
+          type: "range",
+          value: 1,
+          min: 0,
+          max: 5,
+        },
+        {
+          key: "budget",
+          label: "Shared call budget",
+          type: "range",
+          value: 3,
+          min: 1,
+          max: 5,
+        },
+      ],
+      calculate(v) {
+        const paused = v.write && !v.approved;
+        const calls = paused ? 0 : Math.min(v.failures + 1, 2, v.budget);
+        const ok = !paused && v.failures < 2 && v.failures + 1 <= v.budget;
+        let summary = "Failed after the attempt or call limit.";
+        if (paused) summary = "Suspended before the first tool call.";
+        else if (ok) summary = "Complete with a usable result.";
+        return {
+          summary,
+          metrics: [
+            { label: "Observed calls", value: calls },
+            { label: "Per-action attempts", value: 2 },
+          ],
+          bars: [{ label: "Consumed calls", value: calls, max: v.budget }],
+        };
+      },
     },
-    {
-      label: "Observe the result",
-      detail:
-        "A checkpoint containing update cannot pass validation with requiresApproval set to false.",
+  });
+  window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-4", {
+    title: "Resume the stored plan, not a new request",
+    steps,
+    caption:
+      "The real SDK stores suspension in SQLite. These controls model the approval gate around the restored plan.",
+    lab: {
+      controls: [
+        {
+          key: "approved",
+          label: "Reviewer approved",
+          type: "checkbox",
+          value: false,
+        },
+        {
+          key: "ticket",
+          label: "Ticket ID matches",
+          type: "checkbox",
+          value: true,
+        },
+        {
+          key: "digest",
+          label: "Plan digest matches",
+          type: "checkbox",
+          value: true,
+        },
+        {
+          key: "stored",
+          label: "Run exists in local store",
+          type: "checkbox",
+          value: true,
+        },
+      ],
+      calculate(v) {
+        let status = "success";
+        if (!v.stored) status = "missing run";
+        else if (!v.approved) status = "suspended";
+        else if (!v.ticket || !v.digest) status = "failed";
+        let summary = "Reject recovery or mismatched approval.";
+        if (status === "success")
+          summary = "Resume execute with the original action and query.";
+        else if (status === "suspended")
+          summary = "Keep the pending approval and perform no effect.";
+        return {
+          summary,
+          metrics: [
+            { label: "SDK result", value: status },
+            { label: "Tool calls", value: status === "success" ? 1 : 0 },
+          ],
+          rows: [
+            ["Persistent context", "runId, ticketId, planHash, plan"],
+            [
+              "Reviewer identity",
+              "Must be authenticated by the integrating application",
+            ],
+          ],
+          columns: ["Boundary", "Stored or required data"],
+        };
+      },
     },
-  ],
-  caption: "Advance to inspect the boundary before the next effect.",
-});
-window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-3", {
-  title: "Suspend, resume and bound retries",
-  steps: [
-    { label: "Input contract", detail: "executePlan, runTicket" },
-    {
-      label: "Suspend, resume and bound retries",
-      detail:
-        "Execute each action with a per-action attempt limit and a shared call budget. Count failed calls against the total. Suspend before any mutation when approval is absent, returning a copy of the plan as the checkpoint. Resume by passing the checkpoint with explicit approval. Empty tool output is a failure, not a successful answer. The in-memory runner has no crash recovery during an action; real side effects need idempotency keys.",
-    },
-    {
-      label: "Observe the result",
-      detail:
-        "The demo shows a completed lookup, a suspended update and a completed approved resumption.",
-    },
-  ],
-  caption: "Advance to inspect the boundary before the next effect.",
-});
-window.AIFSProjectFigures.register("pj-typed-workflow-agent-with-mastra-4", {
-  title: "Compare the scratch runtime with Mastra",
-  steps: [
-    { label: "Input contract", detail: "runTicket, executePlan" },
-    {
-      label: "Compare the scratch runtime with Mastra",
-      detail:
-        "Keep the baseline dependency-free, then inspect solution/optional-mastra/adapter.ts. It defines Zod input and output schemas for three real Mastra steps, composes them with then and commit, and executes with createRun/start. Deterministic injected tools let the optional test suite compare returned business results with the scratch workflow without API keys. The stage grader tests the framework-independent boundary; run the separate optional suite to verify the actual installed framework.",
-    },
-    {
-      label: "Observe the result",
-      detail:
-        "Core tests pass offline. For real framework parity, run `cd projects/typed-workflow-agent-with-mastra/solution/optional-mastra && npm install --ignore-scripts --package-lock=false && node --test adapter.test.ts`. The optional package pins Mastra 1.71.0 and Zod 4.3.6; it is the explicit framework comparison extension to the stdlib baseline.",
-    },
-  ],
-  caption: "Advance to inspect the boundary before the next effect.",
-});
+  });
+})();

@@ -3,8 +3,8 @@
   "title": "Typed Workflow Agent with Mastra",
   "level": 3,
   "levelName": "Engineer",
-  "tagline": "Build a typed ticket workflow with runtime contracts, approval suspension and retry budgets, then run the same domain operations through a real optional Mastra adapter.",
-  "summary": "Build a typed ticket workflow with runtime contracts, approval suspension and retry budgets, then run the same domain operations through a real optional Mastra adapter.",
+  "tagline": "Build a typed approval workflow, then preserve and resume real Mastra suspension through a local SQLite store.",
+  "summary": "Build a typed approval workflow, then preserve and resume real Mastra suspension through a local SQLite store.",
   "hours": 8,
   "languages": [
     "TypeScript"
@@ -16,36 +16,40 @@
     "github": "rohitg00"
   },
   "skills": [
-    "Define runtime contracts for typed steps",
-    "Validate tool plans and approval requirements",
-    "Suspend, resume and bound retries",
-    "Compare the scratch runtime with Mastra"
+    "Validate typed step inputs at runtime",
+    "Make the approval invariant explicit in the plan",
+    "Suspend before effects and count failed attempts",
+    "Persist real Mastra approval state and resume it"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Build a typed ticket workflow with runtime contracts, approval suspension and retry budgets, then run the same domain operations through a real optional Mastra adapter.",
+  "prerequisites": [
+    "TypeScript object types, unions and async functions.",
+    "Runtime validation of unknown JSON input.",
+    "An explicit approval decision and a local database file."
+  ],
+  "youWillBuild": "A scratch HTML/JSON workflow review and a real Mastra run stored in SQLite with a plan-bound approval document.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "A scratch HTML/JSON workflow review and a real Mastra run stored in SQLite with a plan-bound approval document."
   ],
   "demo": {
     "command": [
       "node",
-      "main.ts",
-      "--demo"
+      "--experimental-strip-types",
+      "demo.ts"
     ],
     "cwd": "solution"
   },
   "stages": [
     {
       "id": "01-contracts",
-      "title": "Define runtime contracts for typed steps",
-      "summary": "Start with a ticket id and message. Validate unknown input before classification. Classify explicit mutation verbs as write intent and route other requests to lookup. This deterministic classifier is a baseline with obvious limits: natural-language intent cannot be secured by a word list. The later approval gate is attached to the selected tool, not confidence in the wording.",
+      "title": "Validate typed step inputs at runtime",
+      "summary": "Find the workshop policy produces read intent. Update the workshop label produces write intent. A blank ID fails before a tool is chosen. The word change inside unchanged does not match the mutation-verb word boundary.",
       "hours": 2,
       "language": "typescript",
       "languageWhy": "TypeScript discriminated unions make workflow states and tool names visible to the compiler.",
       "concepts": [
-        "parseTicket",
-        "classify"
+        "runtime contracts",
+        "intent baseline",
+        "typed outputs"
       ],
       "difficulty": "starter",
       "runner": [
@@ -62,14 +66,15 @@
     },
     {
       "id": "02-plan",
-      "title": "Validate tool plans and approval requirements",
-      "summary": "Construct a plan with lookup for read intent and update for write intent. Revalidate plans at execution because checkpoints are serialized data. Require the approval flag to equal the presence of an update action. An attacker cannot turn a saved write checkpoint into an automatically executable read by changing one boolean.",
+      "title": "Make the approval invariant explicit in the plan",
+      "summary": "An update action with requiresApproval=false fails. A lookup-only plan with requiresApproval=true also violates the stated representation. One through ten actions are allowed, and every action has a supported tool and nonempty query.",
       "hours": 2,
       "language": "typescript",
       "languageWhy": "A typed Plan exposes both action shape and the approval bit that must match it.",
       "concepts": [
-        "makePlan",
-        "validatePlan"
+        "plan validation",
+        "capability selection",
+        "approval invariant"
       ],
       "difficulty": "core",
       "runner": [
@@ -86,14 +91,15 @@
     },
     {
       "id": "03-runtime",
-      "title": "Suspend, resume and bound retries",
-      "summary": "Execute each action with a per-action attempt limit and a shared call budget. Count failed calls against the total. Suspend before any mutation when approval is absent, returning a copy of the plan as the checkpoint. Resume by passing the checkpoint with explicit approval. Empty tool output is a failure, not a successful answer. The in-memory runner has no crash recovery during an action; real side effects need idempotency keys.",
+      "title": "Suspend before effects and count failed attempts",
+      "summary": "A lookup returning a result completes in one call. A tool returning empty text twice fails after two calls. A write without approval returns a checkpoint and zero calls; resuming that checkpoint with approved=true executes the original query.",
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Async functions keep tool adapters injectable while result unions preserve terminal states.",
       "concepts": [
-        "executePlan",
-        "runTicket"
+        "retry limits",
+        "call budgets",
+        "checkpoint results"
       ],
       "difficulty": "core",
       "runner": [
@@ -110,14 +116,15 @@
     },
     {
       "id": "04-framework-boundary",
-      "title": "Compare the scratch runtime with Mastra",
-      "summary": "Keep the baseline dependency-free, then build optional-mastra/adapter.ts in your workspace. Define Zod schemas for three real Mastra steps, compose them with then and commit, and execute with createRun/start. Instructor-owned optional tests compare business results with the scratch workflow using deterministic injected tools and no API keys.",
+      "title": "Persist real Mastra approval state and resume it",
+      "summary": "Start the authored workshop update and observe status=suspended with zero tool calls. Close the local LibSQL store, create a fresh workflow over the same SQLite file and resume by runId. Matching approval produces success and exactly one observed local tool call in the recovery test; a wrong hash fails with zero calls.",
       "hours": 2,
       "language": "typescript",
       "languageWhy": "The optional adapter uses real createStep and createWorkflow imports after the contracts are understood.",
       "concepts": [
-        "runTicket",
-        "executePlan"
+        "Mastra suspension",
+        "plan-bound approval",
+        "SQLite recovery"
       ],
       "difficulty": "core",
       "requires": [
@@ -140,7 +147,8 @@
           "optional": true,
           "requires": [
             "node:@mastra/core",
-            "node:zod"
+            "node:zod",
+            "node:@mastra/libsql"
           ],
           "argv": [
             "node",

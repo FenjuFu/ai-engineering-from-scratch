@@ -8,3 +8,13 @@ export function createTicketWorkflow(
 ): ReturnType<typeof createWorkflow> {
   throw new Error("Not implemented: createTicketWorkflow");
 }
+
+export function planHash(plan: unknown): string {
+  throw new Error("Implement plan approval identity");
+}
+export async function persistentWorkflow(
+  tool: Tool,
+  url: string,
+): Promise<any> {
+  throw new Error("Implement the persistent local Mastra adapter");
+}
