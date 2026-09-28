@@ -1,57 +1,59 @@
-# Export validated WebVTT captions
+# Export a transcript you can hear and correct
 
-> A 1.234-second offset renders as 00:00:01.234, and malformed cue order is rejected.
+> The fixture CLI pairs the original spoken clip with its supplied reference text and labels the method clearly. Real recognition instead uses --endpoint. After inspecting playback, edit the rows in transcript.json and run --review-file to rerender; the report must match the original audio hash.
 
 **Type:** Build
-**Languages:** Python
 **Stage:** 4 of 4
-**Time:** ~2 hours
+**Time:** About 2 hours
 
-## What you build
+## The useful boundary
 
-Implement `captions.py`: `stamp`, `captions`. This artifact is stage 4 of Voice Note Transcriber Pipeline. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Render segment times as WebVTT at the output boundary. Validate finite, ordered, nonoverlapping cues with nonempty text. Save the original WAV and a JSON report, then build a local review page with embedded audio and buttons that seek to each segment. The captions describe segment boundaries, not inferred word alignment.
 
 ```figure
 pj-voice-note-transcriber-pipeline-4
 ```
 
-## Follow the mechanism
+## Work the example
 
-Convert sample-derived times into millisecond timestamps at the output boundary. Reject overlapping or inverted cues and escape markup in transcription output. A caption file should remain usable without knowing which transcription provider produced its text.
+The fixture CLI pairs the original spoken clip with its supplied reference text and labels the method clearly. Real recognition instead uses --endpoint. After inspecting playback, edit the rows in transcript.json and run --review-file to rerender; the report must match the original audio hash.
 
-## Build it
+Write the returned fields and the expected side-effect count before coding. Keep a second input that should fail so the successful example cannot become a hard-coded answer.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Build the contract
 
-```python
-def stamp(seconds):
-    raise NotImplementedError("Implement the stage contract")
-```
+Implement `stamp, captions in captions.py; export_transcript and the CLI in pipeline.py` in your learner workspace. Preserve the exported names and continue using earlier stages rather than duplicating their policies.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Write audio.wav, captions.vtt, transcript.json and index.html. Reject cues ending beyond the audio duration. Escape transcription text and method labels in HTML. A supplied transcript-file is a hash-bound reference mode and cannot be combined with segmentation. No provider call occurs in reference or review mode.
 
-## Run it
+`export_transcript` returns the same object written to transcript.json: `schema_version=1`, the supplied `method`, `audio_sha256` of the original WAV bytes, `duration_seconds` and the unchanged `rows`. Each row contains start and end in seconds plus text; provider rows can also carry segment hashes and attempt counts. Keep those extra fields when exporting. Compute duration from the decoded sample count divided by the actual sample rate. Embed the WAV as a base64 audio source so playback continues to work when the HTML is opened locally.
+
+## Hints
+
+Open the exported page, play the actual audio and click a cue. Compare the JSON row with its WebVTT timestamp. Change a caption to an HTML-like string in a test and confirm it renders as text.
+
+## Verify your work
 
 ```bash
 python3 scripts/project_test.py voice-note-transcriber-pipeline --init my-voice-note-transcriber-pipeline
-python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 4 --path my-voice-note-transcriber-pipeline
+python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 4 --path my-voice-note-transcriber-pipeline --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+Initialize once. Cumulative tests import your workspace and preserve your earlier source. A reference-solution run verifies the teaching implementation and never grants a learner certificate. Optional SDK checks require the dependencies and commands in the project README.
 
-## What you should see
+## Inspect the result
 
-A 1.234-second offset renders as 00:00:01.234, and malformed cue order is rejected. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Which fields would need updating after trimming the audio? Why is an editable reference transcript a useful integration test without being a speech-recognition benchmark?
 
-## Inspect the boundary
+The completed project produces audio.wav, captions.vtt, transcript.json and an HTML page with embedded playback and cue-seek buttons.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+```bash
+cd projects/voice-note-transcriber-pipeline/solution
+python3 pipeline.py --input fixtures/repair-note.wav --transcript-file fixtures/reference.json --out voice-output
+```
 
-## Use it
+Replace the fixture with a small input from your own workflow. Keep expected outcomes and observed evidence together, then retain a separate set of cases for evaluation. Provider request tests establish serialization and control flow; they do not establish model quality.
 
-After all stages pass, run `python3 projects/voice-note-transcriber-pipeline/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
+## Primary reference
 
-## Primary references
-
-- [Reference 1](https://docs.python.org/3/library/wave.html)
-- [Reference 2](https://www.w3.org/TR/webvtt1/)
+[Official API documentation](https://docs.python.org/3/library/wave.html). The implementation, policy choices and examples are original.
