@@ -3,21 +3,19 @@
   "title": "Cloud Agent With AWS Strands",
   "level": 4,
   "levelName": "Systems",
-  "tagline": "Build a scoped read-only cloud plan and a bounded executor, then run the real Strands agent loop with a local fake model.",
-  "summary": "Build a scoped read-only cloud plan and a bounded executor, then run the real Strands agent loop with a local fake model.",
+  "tagline": "A scoped cloud incident reader with an execution receipt for every cache hit and retry.",
+  "summary": "A scoped cloud incident reader with an execution receipt for every cache hit and retry. Import run(payload, provider). The provider receives only a validated operation and scoped resource. The optional Strands model proposes a plan; it never bypasses the deterministic validator.",
   "hours": 8,
-  "languages": [
-    "Python"
-  ],
+  "languages": ["Python"],
   "status": "ready",
   "source": "core",
   "author": {
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Build a scoped read-only cloud plan and a bounded executor, then run the real Strands agent loop with a local fake model.",
+  "youWillBuild": "A scoped cloud incident reader with an execution receipt for every cache hit and retry.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "Import run(payload, provider). The provider receives only a validated operation and scoped resource. The optional Strands model proposes a plan; it never bypasses the deterministic validator."
   ],
   "skills": [
     "Validate a scoped cloud inspection plan",
@@ -25,18 +23,24 @@
     "Retry transient reads and reuse completed requests",
     "Drive the actual Strands loop with a local model"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python 3.10+",
+    "JSON, sets, exceptions, callbacks and environment configuration. Optional SDK comparisons use requirements-framework.txt."
+  ],
   "figures": true,
   "overviewFigure": "pj-cloud-agent-with-aws-strands-1",
   "languageWhy": {
     "Python": "Stdlib data structures, explicit algorithms and deterministic local tests."
   },
   "demo": {
+    "cwd": "solution",
     "command": [
       "python3",
-      "demo.py"
-    ],
-    "cwd": "solution"
+      "cli.py",
+      "samples/input.json",
+      "--output",
+      "incident.json"
+    ]
   },
   "stages": [
     {
@@ -48,12 +52,7 @@
       "hours": 2,
       "difficulty": "starter",
       "figure": "pj-cloud-agent-with-aws-strands-1",
-      "concepts": [
-        "validate",
-        "a",
-        "scoped",
-        "cloud"
-      ]
+      "concepts": ["validate", "a", "scoped", "cloud"]
     },
     {
       "id": "02-executor",
@@ -64,12 +63,7 @@
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-cloud-agent-with-aws-strands-2",
-      "concepts": [
-        "execute",
-        "reads",
-        "within",
-        "step"
-      ]
+      "concepts": ["execute", "reads", "within", "step"]
     },
     {
       "id": "03-retry",
@@ -80,12 +74,7 @@
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-cloud-agent-with-aws-strands-3",
-      "concepts": [
-        "retry",
-        "transient",
-        "reads",
-        "and"
-      ]
+      "concepts": ["retry", "transient", "reads", "and"]
     },
     {
       "id": "04-strands-adapter",
@@ -96,12 +85,7 @@
       "hours": 2,
       "difficulty": "stretch",
       "figure": "pj-cloud-agent-with-aws-strands-4",
-      "concepts": [
-        "drive",
-        "the",
-        "actual",
-        "strands"
-      ],
+      "concepts": ["drive", "the", "actual", "strands"],
       "runners": [
         {
           "language": "python"
@@ -109,9 +93,7 @@
         {
           "language": "python",
           "optional": true,
-          "requires": [
-            "python:strands"
-          ],
+          "requires": ["python:strands"],
           "argv": [
             "{python}",
             "-m",

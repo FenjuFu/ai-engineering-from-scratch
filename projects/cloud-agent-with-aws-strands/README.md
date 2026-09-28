@@ -1,33 +1,56 @@
 # Cloud Agent With AWS Strands
 
-Build a scoped read-only cloud plan and a bounded executor, then run the real Strands agent loop with a local fake model.
+A scoped cloud incident reader with an execution receipt for every cache hit and retry.
 
-Python standard library. Four cumulative stages and 20 deterministic tests.
+Python 3.10+; JSON, sets, exceptions, callbacks and environment configuration. Optional SDK comparisons use requirements-framework.txt. The core uses standard libraries. The grader checks your selected workspace; it never fills in missing behavior from the reference.
 
-```figure
-pj-cloud-agent-with-aws-strands-1
-```
+## Build and run your version
 
-## Start
+From the repository root, initialize once. A fresh starter fails intentionally.
 
 ```bash
-python3 scripts/project_test.py cloud-agent-with-aws-strands --init my-cloud-agent-with-aws-strands
-python3 scripts/project_test.py cloud-agent-with-aws-strands --stage 1 --path my-cloud-agent-with-aws-strands
+python3 scripts/project_test.py cloud-agent-with-aws-strands --init learning-artifacts/cloud-agent-with-aws-strands
+python3 scripts/project_test.py cloud-agent-with-aws-strands --stage 1 --path learning-artifacts/cloud-agent-with-aws-strands --strict
 ```
 
-1. **Validate a scoped cloud inspection plan**: A delete operation or an out-of-scope resource fails before any provider call.
-2. **Execute reads within step and response budgets**: A zero-step budget performs no provider calls and returns budget_exhausted.
-3. **Retry transient reads and reuse completed requests**: A transient timeout retries, while a permission failure is propagated after one call.
-4. **Drive the actual Strands loop with a local model**: The framework produces one recorded JSON plan in one model call, then the independent validator checks it.
-
-## Reference demo
+Implement each stage, then run the cumulative grader and the supplied input driver:
 
 ```bash
-python3 projects/cloud-agent-with-aws-strands/solution/demo.py
-python3 scripts/project_test.py cloud-agent-with-aws-strands --solution
+python3 scripts/project_test.py cloud-agent-with-aws-strands --all --path learning-artifacts/cloud-agent-with-aws-strands --strict
+cd learning-artifacts/cloud-agent-with-aws-strands
+python3 cli.py samples/input.json --output incident.json
 ```
 
-Each stage lesson explains its mechanism and limits. The demo runs on deterministic local inputs and does not contact a model or a service.
+The driver and offline samples are provided scaffolding. Its imports resolve to your implementation. Public input types and function signatures live in the starter and [API contract](API.md).
+
+## Inspect the reference separately
+
+From the repository root:
+
+```bash
+python3 scripts/project_test.py cloud-agent-with-aws-strands --all --solution --strict
+cd projects/cloud-agent-with-aws-strands/solution
+python3 cli.py samples/input.json --output incident.json
+```
+
+## Observe the change
+
+Three planned reads produce three retained results but only two provider reads because repeated metrics.read uses the request-local cache. The receipt exposes both calls and reuse.
+
+Edit a copy of the sample and rerun the command. Keep the input beside the output so someone else can reproduce the result; the supplied samples are authored teaching data.
+
+## Integration and limits
+
+Import run(payload, provider). The provider receives only a validated operation and scoped resource. The optional Strands model proposes a plan; it never bypasses the deterministic validator.
+
+Default mode reads the supplied recording. --mode aws is an opt-in AWS CLI adapter for ECS services, CloudWatch CPU and bounded log reads; it requires caller configuration, credentials and AWS permissions. No deployment or live verification is implied.
+
+## Stages
+
+1. [Validate a scoped cloud inspection plan](stages/01-plan/docs/en.md)
+2. [Execute reads within step and response budgets](stages/02-executor/docs/en.md)
+3. [Retry transient reads and reuse completed requests](stages/03-retry/docs/en.md)
+4. [Drive the actual Strands loop with a local model](stages/04-strands-adapter/docs/en.md)
 
 ## Optional framework integration
 
@@ -42,4 +65,14 @@ python3 -m venv .venv
 
 The integration was verified against `strands-agents==1.57.1`. The cloud-provider path, where present, remains opt-in and requires your own environment credentials; no cloud deployment is performed.
 
-The default grader runs 20 framework-independent tests. `--optional` adds 5 tests that use the real SDK and a deterministic local model. A missing SDK is reported as SKIP with an install hint; `--optional --strict` fails when the dependency is missing. Passing only the default tests does not claim framework verification.
+The default grader covers the offline core and input integration. `--optional` adds 5 tests that use the real SDK and a deterministic local model. A missing SDK is reported as SKIP with an install hint; `--optional --strict` fails when the dependency is missing. Passing only the default tests does not claim framework verification.
+
+## Primary references
+
+
+
+## Configure the optional AWS reader
+
+Before --mode aws, add an aws object keyed by each scoped service. Every entry needs region and cluster; logs.read also needs log_group, while metrics.read needs explicit ISO start/end timestamps. The adapter issues ECS describe-services, CloudWatch get-metric-statistics for CPUUtilization and Logs filter-log-events with limit 20.
+
+Credentials come from the AWS CLI's environment or configured credential chain. Scope validation does not replace IAM: configure permission for only the intended reads and service resources. Region and time window are caller configuration, not model-supplied executable arguments. Each CLI call has a ten-second timeout; only timeout errors are retried.
