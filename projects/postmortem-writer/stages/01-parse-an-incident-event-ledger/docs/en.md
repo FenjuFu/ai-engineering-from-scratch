@@ -7,17 +7,13 @@
 **Stage:** 1 of 4
 **Time:** ~2 hours
 
-## What you build
+## Ingest evidence with a stable locator
 
-Turn incident events into a timeline with evidence-backed claims. This stage implements `Parse` in `stage1.go`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
-
-Use one tab-separated record per event: stable ID, nonnegative second, event kind and message. Validate the complete batch before returning it; duplicate IDs are conflicts. Tabs inside messages are unsupported by this deliberately small fixture format.
+Start with the small tab-separated ledger: event ID, elapsed second, kind and message. Every later claim depends on those identities. The provided JSONL importer converts explicit records to that contract and remembers the original physical line, including blank lines.
 
 ## Work through one case
 
-e1 tab 12 tab alert tab latency high -> Event at t=12. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+An alert at second 12 is valid even when it is the first event supplied. A second event with the same ID is a conflict. In JSONL, a missing second is rejected instead of silently becoming zero. The importer retains line 2 when a blank first line precedes the event.
 
 ```figure
 pj-postmortem-writer-1
@@ -39,16 +35,22 @@ python3 scripts/project_test.py postmortem-writer --stage 1 --path /tmp/postmort
 
 The stage checks Valid, Negative, Duplicate, Missing, Empty. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
 
-## Check yourself
+## Implementation hints
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Parse the integer before appending. Require all four fields and nonnegative time. Keep a set of IDs and reject the complete batch on duplicates. The JSONL profile rejects unknown fields and embedded record separators so conversion cannot add a fake ledger row.
 
-## Going further
+Start with one valid record, then add the rejection case before optimizing. Keep source data unchanged on failure so the caller can diagnose what happened. Use the smallest function that expresses the boundary; an extra framework would hide the mechanism you are learning.
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+## Check your understanding
 
-## Sources and scope
+Try a malformed record after three valid records. What should the caller receive? Explain why preserving physical line numbers is more useful than numbering only the records that survived parsing.
 
-[Official reference](https://sre.google/workbook/postmortem-culture/). Build a deterministic incident report pipeline with strict event ingestion, stable ordering, source-bound claims and reproducible text output. Causal conclusions require supplied evidence and remain labeled as claims rather than inferred facts.
+Write your prediction before running the test. If the result surprises you, trace the input through validation, state construction and output. A passing reference implementation is a comparison tool; your own workspace must pass the cumulative grader to establish completion.
+
+## Use it with your own data
+
+`--events FILE --review FILE --out DIRECTORY` produces index.html, packet.json and packet.txt. Run the supplied files with `--events ../examples/events.jsonl --review ../examples/review.json --out /tmp/incident-packet`. With no arguments, the CLI prints a small original fixture. Evidence checks establish source provenance; causal judgment and reviewer identity remain human responsibilities.
+
+## Sources
+
+[Google SRE postmortem practice](https://sre.google/workbook/postmortem-culture/).

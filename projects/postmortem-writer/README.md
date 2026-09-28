@@ -1,8 +1,12 @@
 # Incident Postmortem Writer
 
-Build a deterministic incident report pipeline with strict event ingestion, stable ordering, source-bound claims and reproducible text output. Causal conclusions require supplied evidence and remain labeled as claims rather than inferred facts.
+Turn your JSONL incident logs and review decisions into an HTML evidence desk, exact-quote checks, owned actions and a source-bound approval receipt.
 
 Level 2. Four stages, about eight hours. Implementation: Go, standard library only.
+
+## Before you start
+
+Use Go 1.22 or later and Python 3.12 or later for the grader. Be comfortable with functions, structs, slices, maps and returned errors. Complete the [environment setup](../../phases/00-setup-and-tooling/01-dev-environment/docs/en.md) and [data management lesson](../../phases/00-setup-and-tooling/09-data-management/docs/en.md) first if these are unfamiliar.
 
 ## Stages
 
@@ -25,6 +29,10 @@ python3 scripts/project_test.py postmortem-writer --all --solution --strict
 cd projects/postmortem-writer/solution
 go run .
 ```
+
+`--events FILE --review FILE --out DIRECTORY` produces index.html, packet.json and packet.txt. Run the supplied files with `--events ../examples/events.jsonl --review ../examples/review.json --out /tmp/incident-packet`. With no arguments, the CLI prints a small original fixture. Evidence checks establish source provenance; causal judgment and reviewer identity remain human responsibilities.
+
+The CLI and integration adapter are supplied in the learner starter. Implement the four stage functions; the adapter composes those same functions and cannot bypass unfinished work. Read integration.go after the core stages to see file boundaries, receipts and rendering.
 
 The demo exercises the real reference implementation with offline fixtures and terminates. Each stage has at least five distinct tests, including boundaries and rejected inputs. Expected behavior lives in the stage tests; the implementation never reads the held-out test files. The grader preserves your code during initialization and reports incomplete runs honestly when a runtime is missing.
 

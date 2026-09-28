@@ -4,12 +4,12 @@
   "level": 2,
   "levelName": "Builder",
   "tagline": "Turn incident events into a timeline with evidence-backed claims.",
-  "summary": "Build a deterministic incident report pipeline with strict event ingestion, stable ordering, source-bound claims and reproducible text output. Causal conclusions require supplied evidence and remain labeled as claims rather than inferred facts.",
+  "summary": "Turn your JSONL incident logs and review decisions into an HTML evidence desk, exact-quote checks, owned actions and a source-bound approval receipt.",
   "usefulFor": [
-    "Turn incident events into a timeline with evidence-backed claims.",
-    "Offline experiments with explicit failure cases and limits"
+    "Turn your JSONL incident logs and review decisions into an HTML evidence desk, exact-quote checks, owned actions and a source-bound approval receipt.",
+    "Pipe portable JSON receipts into your own review or publishing workflow."
   ],
-  "youWillBuild": "Build a deterministic incident report pipeline with strict event ingestion, stable ordering, source-bound claims and reproducible text output. Causal conclusions require supplied evidence and remain labeled as claims rather than inferred facts.",
+  "youWillBuild": "Turn your JSONL incident logs and review decisions into an HTML evidence desk, exact-quote checks, owned actions and a source-bound approval receipt.",
   "hours": 8,
   "languages": [
     "Go"
@@ -26,7 +26,16 @@
     "Require evidence for each claim",
     "Publish a deterministic incident packet"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Development environment",
+      "path": "phases/00-setup-and-tooling/01-dev-environment"
+    },
+    {
+      "title": "Data management",
+      "path": "phases/00-setup-and-tooling/09-data-management"
+    }
+  ],
   "inspiredBy": [],
   "demo": {
     "command": [
@@ -107,5 +116,7 @@
       "title": "Inspect the output",
       "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
     }
-  ]
+  ],
+  "figures": true,
+  "overviewFigure": "pj-postmortem-writer-1"
 }
