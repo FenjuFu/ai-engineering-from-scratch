@@ -1,77 +1,53 @@
 # Settle actual usage and release unused budget
 
-> Settle each request exactly once with actual cost no greater than its reservation.
+Stage 3 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 3 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `settle` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+## What changes
 
 A reservation is a ceiling, not an invoice. When a request finishes, remove its hold and add actual spending. On cancellation, release the hold with zero spending.
 
 A reported actual cost above the reservation is an accounting violation. Preserve the old ledger and raise an error so the caller can reconcile rather than silently producing a negative balance.
 
+## Work through one concrete case
+
+A70-unit hold with an actual 20-unit receipt releases 50 and moves 20 into spending. A missing receipt preserves the 70-unit hold; a reported 71 triggers reconciliation instead of silently increasing the budget.
+
 ```figure
 pj-agent-budget-planner-3
 ```
 
-## Predict first
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-What happens when a provider reports more tokens than the reserved ceiling?
+## Implement the contract
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Implement `settle` against the stated contract.
 
-## Your task
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-Implement `settle` in `main.py` in your learner workspace. Settle each request exactly once with actual cost no greater than its reservation. Preserve input state on error.
+Store closed request ids so a duplicate receipt cannot spend twice. Read the old state after an exception and prove that it is unchanged.
 
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
+## Verify and inspect
 
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
+From the repository root, initialize once with `python3 scripts/project_test.py agent-budget-planner --init learning-artifacts/agent-budget-planner`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py agent-budget-planner --init my-agent-budget-planner
-python3 scripts/project_test.py agent-budget-planner --stage 3 --path my-agent-budget-planner
+python3 scripts/project_test.py agent-budget-planner --stage 3 --path learning-artifacts/agent-budget-planner --strict
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
-
-## What you should see
-
-A 50-unit reservation settled at 30 releases 20 units for later work.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-cd projects/agent-budget-planner/solution
-python3 demo.py
+cd learning-artifacts/agent-budget-planner
+python3 cli.py samples/input.json --mode execute --output budget.json
 ```
 
-## Debug with evidence
+## Investigate the failure boundary
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+The integration callback throws after doing work. Explain why releasing the reservation would hide an unknown liability.
 
-## Check yourself
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
 
-## Going further
 
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
+## References
 
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/decimal.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+[Primary technical reference](https://docs.python.org/3/library/decimal.html)
