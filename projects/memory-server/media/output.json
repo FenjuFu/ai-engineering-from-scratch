@@ -1,0 +1,17 @@
+{
+  "title": "Persistent Memory Server / actual output",
+  "recordedAt": "2026-09-28T16:27:39Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/memory-server/solution",
+      "exitCode": 0,
+      "output": "{\n  \"transport\": \"actual local HTTP and MCP\",\n  \"response\": {\n    \"jsonrpc\": \"2.0\",\n    \"id\": 1,\n    \"result\": {\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"[{\\\"id\\\":\\\"m1\\\",\\\"namespace\\\":\\\"docs\\\",\\\"text\\\":\\\"Rust computes cosine similarity for memory search\\\",\\\"source\\\":\\\"notes/search.md:1\\\",\\\"revision\\\":1,\\\"score\\\":0.8138089936}]\"\n        }\n      ],\n      \"isError\": false\n    }\n  }\n}\n",
+      "durationMs": 559
+    }
+  ]
+}
