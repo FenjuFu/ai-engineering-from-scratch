@@ -7,17 +7,13 @@
 **Stage:** 3 of 4
 **Time:** ~2 hours
 
-## What you build
+## Distinguish a citation from a conclusion
 
-Turn incident events into a timeline with evidence-backed claims. This stage implements `Verify` in `stage3.go`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
-
-A claim needs nonblank text and at least one distinct known event ID. Reject dangling references and duplicate IDs; do not replace a missing source with a plausible event. This verifies provenance only, so a reviewer still judges whether the claim follows from those events.
+A valid citation points to a distinct known event. That proves the source exists. It does not prove that the event logically establishes a causal claim. The composed review desk also checks exact quotations, keeps claims pending and requires an explicit reviewer and matching source hash for approved records.
 
 ## Work through one case
 
-claim cites e99 but ledger contains e1 -> invalid. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+The claim "An alert followed deployment" cites e1 and e2. Both IDs exist, so provenance passes. The stronger claim "Deployment caused the outage" can cite the same two IDs and still require investigation. A quote saying "database failed" is rejected when the source only says "latency high".
 
 ```figure
 pj-postmortem-writer-3
@@ -39,16 +35,22 @@ python3 scripts/project_test.py postmortem-writer --stage 3 --path /tmp/postmort
 
 The stage checks Supported, Dangling, NoEvidence, Duplicate, Blank. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
 
-## Check yourself
+## Implementation hints
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Build a set of known event IDs and a separate set for evidence IDs within the claim. Reject blank claim text, missing evidence, duplicate citations and dangling references. Never fill in a missing source with a plausible substitute.
 
-## Going further
+Start with one valid record, then add the rejection case before optimizing. Keep source data unchanged on failure so the caller can diagnose what happened. Use the smallest function that expresses the boundary; an extra framework would hide the mechanism you are learning.
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+## Check your understanding
 
-## Sources and scope
+Invent two different claims that cite the same events. Explain which checks your code can perform and which judgment remains with a reviewer. Why must an approved decision become stale when the underlying log changes?
 
-[Official reference](https://sre.google/workbook/postmortem-culture/). Build a deterministic incident report pipeline with strict event ingestion, stable ordering, source-bound claims and reproducible text output. Causal conclusions require supplied evidence and remain labeled as claims rather than inferred facts.
+Write your prediction before running the test. If the result surprises you, trace the input through validation, state construction and output. A passing reference implementation is a comparison tool; your own workspace must pass the cumulative grader to establish completion.
+
+## Use it with your own data
+
+`--events FILE --review FILE --out DIRECTORY` produces index.html, packet.json and packet.txt. Run the supplied files with `--events ../examples/events.jsonl --review ../examples/review.json --out /tmp/incident-packet`. With no arguments, the CLI prints a small original fixture. Evidence checks establish source provenance; causal judgment and reviewer identity remain human responsibilities.
+
+## Sources
+
+[Google SRE postmortem practice](https://sre.google/workbook/postmortem-culture/).
