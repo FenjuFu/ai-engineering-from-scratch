@@ -1,77 +1,53 @@
 # Parse explicit action records with line provenance
 
-> Parse ACTION lines, keep source line numbers, and reject malformed marked lines..
+Stage 1 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 1 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `parse_notes` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+## What changes
 
 Natural meeting prose contains suggestions, decisions, and commitments. Start with an explicit format: ACTION owner | YYYY-MM-DD | task. This conservative parser avoids inventing an owner from nearby names.
 
 Keep the original line number and text on every parsed record. A later reviewer must be able to trace an action to exactly what someone wrote. Non-action lines stay outside the output.
 
+## Work through one concrete case
+
+Line 1 is a decision, line 2 is ACTION Mira |2026-10-01|Update guide, and line 3 says Maybe ask Ravi. Only line 2 becomes an explicit candidate. The separate proposal grammar can recognize "Priya will test login by2026-10-02" after spaces are supplied normally.
+
 ```figure
 pj-meeting-notes-to-actions-1
 ```
 
-## Predict first
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-Should "Maybe ask Priya" become an assigned task without an ACTION marker?
+## Implement the contract
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Implement `parse_notes` against the stated contract.
 
-## Your task
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-Implement `parse_notes` in `main.py` in your learner workspace. Parse ACTION lines, keep source line numbers, and reject malformed marked lines.
+Enumerate original lines before filtering. Split ACTION on only the first two separators so the task body can contain another vertical bar without shifting owner and date.
 
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
+## Verify and inspect
 
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
+From the repository root, initialize once with `python3 scripts/project_test.py meeting-notes-to-actions --init learning-artifacts/meeting-notes-to-actions`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py meeting-notes-to-actions --init my-meeting-notes-to-actions
-python3 scripts/project_test.py meeting-notes-to-actions --stage 1 --path my-meeting-notes-to-actions
+python3 scripts/project_test.py meeting-notes-to-actions --stage 1 --path learning-artifacts/meeting-notes-to-actions --strict
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
-
-## What you should see
-
-Only marked action lines produce records, with one-based line numbers.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-cd projects/meeting-notes-to-actions/solution
-python3 demo.py
+cd learning-artifacts/meeting-notes-to-actions
+python3 cli.py samples/notes.txt --today 2026-09-29 --output actions.json --html actions.html --csv approved.csv
 ```
 
-## Debug with evidence
+## Investigate the failure boundary
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+Move an action down two lines and rerun. The stored citation must move too, while unrelated prose remains unassigned.
 
-## Check yourself
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
 
-## Going further
 
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
+## References
 
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/datetime.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+[Primary technical reference](https://docs.python.org/3/library/datetime.html)

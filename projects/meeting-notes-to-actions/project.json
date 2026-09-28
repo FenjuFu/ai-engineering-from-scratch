@@ -3,16 +3,14 @@
   "title": "Meeting Notes to Actions",
   "level": 2,
   "levelName": "Builder",
-  "tagline": "Extract explicit owners and dates from meeting notes, preserve line citations, and flag incomplete commitments for human review.",
-  "summary": "Extract explicit owners and dates from meeting notes, preserve line citations, and flag incomplete commitments for human review.",
-  "youWillBuild": "A runnable Python command and JSON report. The reference demo runs on deterministic local fixtures; you can feed the same functions your own data.",
+  "tagline": "A source-linked commitment inbox whose export requires an explicit review decision.",
+  "summary": "A source-linked commitment inbox whose export requires an explicit review decision. Use the schema_version1 actions.json receipt with stable action ids and original source lines. CSV columns are id, owner, due and task, and contain approved actions only.",
+  "youWillBuild": "A source-linked commitment inbox whose export requires an explicit review decision.",
   "usefulFor": [
-    "Use this artifact to inspect a real local dataset before connecting a model or an external service."
+    "Use the schema_version1 actions.json receipt with stable action ids and original source lines. CSV columns are id, owner, due and task, and contain approved actions only."
   ],
   "hours": 8,
-  "languages": [
-    "Python"
-  ],
+  "languages": ["Python"],
   "languageWhy": {
     "Python": "The standard library makes parsing, scoring, and failure handling visible without hiding the mechanism behind a framework."
   },
@@ -28,15 +26,27 @@
     "Deduplicate exact commitments without losing citations",
     "Publish an escaped HTML checklist and summary"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python 3.10+",
+    "line-oriented parsing, dictionaries, ISO dates, escaping and JSON files."
+  ],
   "figures": true,
   "overviewFigure": "pj-meeting-notes-to-actions-1",
   "demo": {
+    "cwd": "solution",
     "command": [
       "python3",
-      "demo.py"
-    ],
-    "cwd": "solution"
+      "cli.py",
+      "samples/notes.txt",
+      "--today",
+      "2026-09-29",
+      "--output",
+      "actions.json",
+      "--html",
+      "actions.html",
+      "--csv",
+      "approved.csv"
+    ]
   },
   "stages": [
     {
@@ -47,10 +57,7 @@
       "difficulty": "starter",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "conservative extraction",
-        "provenance"
-      ],
+      "concepts": ["conservative extraction", "provenance"],
       "figure": "pj-meeting-notes-to-actions-1"
     },
     {
@@ -61,10 +68,7 @@
       "difficulty": "core",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "date validation",
-        "uncertainty"
-      ],
+      "concepts": ["date validation", "uncertainty"],
       "figure": "pj-meeting-notes-to-actions-2"
     },
     {
@@ -75,10 +79,7 @@
       "difficulty": "core",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "deduplication",
-        "stable identity"
-      ],
+      "concepts": ["deduplication", "stable identity"],
       "figure": "pj-meeting-notes-to-actions-3"
     },
     {
@@ -89,11 +90,7 @@
       "difficulty": "stretch",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "HTML escaping",
-        "review queues",
-        "artifact publishing"
-      ],
+      "concepts": ["HTML escaping", "review queues", "artifact publishing"],
       "figure": "pj-meeting-notes-to-actions-4"
     }
   ],
