@@ -16,5 +16,5 @@ def handle(request, state, inventory):
     raise NotImplementedError("Stage 3: implement handle")
 
 
-def serve(lines, output, inventory):
+def serve(lines, output, inventory, tools=None):
     raise NotImplementedError("Stage 3: implement serve")
