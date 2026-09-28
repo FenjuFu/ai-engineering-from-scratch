@@ -98,3 +98,31 @@ Stage 2 passes 11 Python tests, and all preceding stages still pass. Every retur
 
 - Return a window of the neighbouring sentence as context, while still citing the exact span.
 - Replace the pronoun penalty with a small model that rewrites the sentence to stand alone, and store both versions.
+
+## Worked Orchard case
+
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 1](../../01-search-the-corpus/docs/en.md) first.
+
+The Orchard policy sentence is evidence only if its stored span reproduces the exact document text. Offsets belong to the normalized document body, not to the file header or rendered HTML.
+
+```text
+source: "Old rule. New rule."
+second span=[10,19)
+source[10:19]="New rule."
+```
+
+## Build and inspect
+
+Find boundaries on the original string and trim by moving offsets. Never rewrite a snippet after computing its span.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
+
+```bash
+python3 scripts/project_test.py research-report-agent --stage 2 --path learning-artifacts/research-report-agent
+```
+
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
+
+## Investigate next
+
+What happens to an old snippet when the source text is edited before its start offset?
