@@ -1,15 +1,14 @@
-import json
-from main import *
+from pathlib import Path
+import json, subprocess, tempfile, sys, shutil
 
-cases = [
-    {"id": "a", "prompt": "Return JSON", "checks": [{"kind": "json"}]},
-    {
-        "id": "b",
-        "prompt": "Include source",
-        "checks": [{"kind": "contains", "value": "source:"}],
-    },
-]
-report = compare(
-    cases, {"a": "{}", "b": "uncited"}, {"a": "not json", "b": "source: notes.md"}
-)
-print(json.dumps({"comparison": report, "gate": release_gate(report)}, indent=2))
+root = Path(__file__).resolve().parent
+examples = root.parent / "examples"
+from cli import run
+
+cases = json.loads((examples / "cases.json").read_text())
+baseline = json.loads((examples / "baseline.json").read_text())
+for revision in ["candidate", "regressed"]:
+    result = run(
+        cases, baseline, json.loads((examples / (revision + ".json")).read_text())
+    )
+    print(json.dumps({"revision": revision, **result}, indent=2))

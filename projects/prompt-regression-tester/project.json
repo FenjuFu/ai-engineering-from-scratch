@@ -5,9 +5,10 @@
   "levelName": "Starter",
   "tagline": "Compare prompt revisions on recorded responses with explicit checks, paired regressions, and a reproducible release gate.",
   "summary": "Compare prompt revisions on recorded responses with explicit checks, paired regressions, and a reproducible release gate.",
-  "youWillBuild": "A runnable Python command and JSON report. The reference demo runs on deterministic local fixtures; you can feed the same functions your own data.",
+  "youWillBuild": "A prompt-change review kit that identifies exactly which user commitments broke.",
   "usefulFor": [
-    "Use this artifact to inspect a real local dataset before connecting a model or an external service."
+    "A prompt-change review kit that identifies exactly which user commitments broke.",
+    "The supplied recordings are authored fixtures."
   ],
   "hours": 8,
   "languages": [
@@ -28,7 +29,16 @@
     "Compare the same cases across revisions",
     "Gate releases on explicit tolerances"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Structured outputs",
+      "path": "phases/11-llm-engineering/03-structured-outputs"
+    },
+    {
+      "title": "Model evaluation",
+      "path": "phases/02-ml-fundamentals/09-model-evaluation"
+    }
+  ],
   "figures": true,
   "overviewFigure": "pj-prompt-regression-tester-1",
   "demo": {
