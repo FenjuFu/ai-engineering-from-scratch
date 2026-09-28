@@ -32,9 +32,11 @@ export function safePath(name: string): boolean {
 }
 export function validate(bundle: Bundle): Bundle {
   if (
-    !/^[a-z][a-z0-9-]{0,63}$/.test(bundle.name) ||
+    !/^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/.test(bundle.name) ||
+    bundle.name.includes("--") ||
     typeof bundle.description !== "string" ||
-    !bundle.description.trim()
+    !bundle.description.trim() ||
+    [...bundle.description].length > 1024
   )
     throw new Error("invalid metadata");
   if (!bundle.files || !Object.hasOwn(bundle.files, "SKILL.md"))

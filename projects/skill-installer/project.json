@@ -21,17 +21,25 @@
     "Install atomically within a root",
     "Protect edits during upgrades"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Validate local skill bundles, translate agent metadata, verify content digests, and atomically install without overwriting learner edits.",
+  "prerequisites": [
+    {
+      "title": "Data management",
+      "path": "phases/00-setup-and-tooling/09-data-management"
+    },
+    {
+      "title": "Security and secrets audit",
+      "path": "phases/17-infrastructure-and-production/25-security-secrets-audit"
+    }
+  ],
+  "youWillBuild": "A cross-agent upgrade tool promising a reviewable diff and no lost local edits.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "A cross-agent upgrade tool promising a reviewable diff and no lost local edits.",
+    "inspect is a dry run."
   ],
   "demo": {
     "command": [
       "node",
-      "main.ts",
-      "--demo"
+      "demo.ts"
     ],
     "cwd": "solution"
   },
