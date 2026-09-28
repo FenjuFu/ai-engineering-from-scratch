@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node site/build.js",
+  "buildCommand": "node site/build.js && node site/build-projects.js --strict",
   "outputDirectory": "site",
   "framework": null,
   "installCommand": "echo skip",
@@ -43,6 +43,12 @@
     },
     {
       "source": "/certification-data.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/projects-data.js",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
       ]
