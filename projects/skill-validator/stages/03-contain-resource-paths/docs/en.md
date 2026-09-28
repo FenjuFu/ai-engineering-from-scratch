@@ -1,54 +1,45 @@
 # Contain resource paths
 
-> references/check.md -> canonical file inside the skill root
-
-**Type:** Build
-**Languages:** Rust
-**Stage:** 3 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Validate skill metadata and load only the context the task needs. This stage implements `reference_path` in `stage3.rs`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
+**Stage 3 of 4.** Rust. Plan about 2 hours.
 
 Resolve resource names relative to a skill root. Reject absolute paths, parent components and Windows separators before joining, then canonicalize existing paths so a symlink cannot escape. Canonicalization checks the current filesystem; a production adversarial loader needs descriptor-relative opens to close later replacement races.
-
-## Work through one case
-
-references/check.md -> canonical file inside the skill root. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
 
 ```figure
 pj-skill-validator-3
 ```
 
-## Your task
+## Implementation boundary
 
 ```rust
 pub fn reference_path(root: &std::path::Path, resource: &str) -> Result<std::path::PathBuf, Error>
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Primary reference: [Official reference](https://agentskills.io/specification).
 
-## Run the tests
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py skill-validator --stage 3 --path /tmp/skill-validator-work
+Before coding, review [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md). Complete [stage 2](../../02-validate-names-and-descriptions/docs/en.md) first.
+
+Resource lookup is relative to the skill folder. Resolve references/restore.md and verify its canonical path stays within that folder; reject parent traversal before reading anything.
+
+```text
+resource references/restore.md -> contained file
+resource ../private.md -> invalid component
+symlink outside root -> escapes root
 ```
 
-The stage checks parent, absolute, windows, existing, missing. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+## Build and inspect
 
-## Check yourself
+Validate path components before joining, then canonicalize. This educational loader does not close adversarial path-replacement races.
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Going further
+```bash
+python3 scripts/project_test.py skill-validator --stage 3 --path learning-artifacts/skill-validator
+```
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Sources and scope
+## Investigate next
 
-[Official reference](https://agentskills.io/specification). Build a bounded Agent Skills loader with a deliberately small frontmatter grammar, strict metadata validation, safe reference paths, and progressive disclosure. The supported YAML subset is explicit; unsupported forms fail instead of being guessed.
+Why is starts_with on raw path text insufficient for containment?
