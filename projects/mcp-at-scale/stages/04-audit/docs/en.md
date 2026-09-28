@@ -1,57 +1,52 @@
 # Audit catalog coverage through protocol pages
 
-> An exhaustive traversal returns 250 unique names across 8 pages.
+Stage 4 of 5. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~2 hours
+## What changes
 
-## What you build
+Treat pagination as a client-visible contract. Traverse every page through the handler and track duplicate names across page boundaries. A finite page guard catches accidental cursor loops. This audit validates the protocol inventory, while the final typed client will exercise the separate operating-system process boundary.
 
-Implement `audit.py`: `audit_catalog`. This artifact is stage 4 of MCP Server With 250 Tools. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+## Work through one concrete case
+
+A32-tool page size over 250 tools requires eight pages: seven full pages and a final 26. Keep seen names across pages so repeating page 1 with a new cursor cannot masquerade as coverage.
 
 ```figure
 pj-mcp-at-scale-4
 ```
 
-## Follow the mechanism
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-Treat pagination as a client-visible contract. Traverse every page through the handler and track duplicate names across page boundaries. A finite page guard catches accidental cursor loops. This audit validates the protocol inventory, while the final typed client will exercise the separate operating-system process boundary.
+## Implement the contract
 
-## Build it
+Implement `audit.py`: `audit_catalog`. This artifact is stage 4 of MCP Server With 250 Tools. It consumes explicit inputs and returns an inspectable result that the next stage can use.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-```python
-def audit_catalog(inventory=None):
-    raise NotImplementedError("Implement the stage contract")
-```
+Drive pagination through handle rather than calling catalog directly. An audit of internal arrays cannot detect a cursor bug in the transport layer.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+## Verify and inspect
 
-## Run it
+From the repository root, initialize once with `python3 scripts/project_test.py mcp-at-scale --init learning-artifacts/mcp-at-scale`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py mcp-at-scale --init my-mcp-at-scale
-python3 scripts/project_test.py mcp-at-scale --stage 4 --path my-mcp-at-scale
+python3 scripts/project_test.py mcp-at-scale --stage 4 --path learning-artifacts/mcp-at-scale --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-## What you should see
+```bash
+cd learning-artifacts/mcp-at-scale
+python3 cli.py samples/inventory.json --query "pods count" --max-chars 500
+```
 
-An exhaustive traversal returns 250 unique names across 8 pages. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+## Investigate the failure boundary
 
-## Inspect the boundary
+Deliberately return the same cursor twice in a test double. Bound the page loop and surface the repeated page instead of continuing indefinitely.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
 
-## Use it
 
-After all stages pass, run `python3 projects/mcp-at-scale/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
 
-## Primary references
+## References
 
-- [Reference 1](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
-- [Reference 2](https://www.jsonrpc.org/specification)
+[Reference 1](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+[Reference 2](https://www.jsonrpc.org/specification)
