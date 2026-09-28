@@ -1,0 +1,17 @@
+{
+  "title": "PR Review Reporter / actual output",
+  "recordedAt": "2026-09-28T16:14:44Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/pr-review-reporter/solution",
+      "exitCode": 0,
+      "output": "{\n  \"addedLines\": 1,\n  \"findings\": [\n    {\n      \"file\": \"src/run.ts\",\n      \"line\": 2,\n      \"text\": \"eval(input);\",\n      \"quote\": \"eval(input);\",\n      \"rule\": \"dynamic-eval\",\n      \"severity\": \"high\",\n      \"message\": \"Untrusted input can execute code.\"\n    }\n  ],\n  \"report\": \"review.html\"\n}\n",
+      "durationMs": 135
+    }
+  ]
+}
