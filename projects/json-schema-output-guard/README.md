@@ -1,17 +1,49 @@
 # JSON Schema Output Guard
 
-Validate model output at the JSON boundary, return precise paths, and retry only under a bounded repair budget.
+A schema preflight and bounded-repair receipt for model output contracts.
 
-Build the four stages in order. The core runs without model credentials or package installation. Node 22.18+ is required; Python 3 and Rust are additionally required where listed below.
+Node 22.18+ and Python 3 for the grader; TypeScript unions, recursive functions, JSON and async callbacks. The core uses standard libraries. The grader checks your selected workspace; it never fills in missing behavior from the reference.
+
+## Build and run your version
+
+From the repository root, initialize once. A fresh starter fails intentionally.
 
 ```bash
 python3 scripts/project_test.py json-schema-output-guard --init learning-artifacts/json-schema-output-guard
-python3 scripts/project_test.py json-schema-output-guard --path learning-artifacts/json-schema-output-guard
-cd projects/json-schema-output-guard/solution
-node main.ts --demo
+python3 scripts/project_test.py json-schema-output-guard --stage 1 --path learning-artifacts/json-schema-output-guard --strict
 ```
 
-The `starter` intentionally fails. `solution` contains the runnable reference; stage tests always import the chosen workspace. Tests exercise the documented subset, not every behavior of an external standard.
+Implement each stage, then run the cumulative grader and the supplied input driver:
+
+```bash
+python3 scripts/project_test.py json-schema-output-guard --all --path learning-artifacts/json-schema-output-guard --strict
+cd learning-artifacts/json-schema-output-guard
+node cli.ts --schema samples/schema.json --attempts samples/attempts.json --output guard.json --html guard.html
+```
+
+The driver and offline samples are provided scaffolding. Its imports resolve to your implementation. Public input types and function signatures live in the starter and [API contract](API.md).
+
+## Inspect the reference separately
+
+From the repository root:
+
+```bash
+python3 scripts/project_test.py json-schema-output-guard --all --solution --strict
+cd projects/json-schema-output-guard/solution
+node cli.ts --schema samples/schema.json --attempts samples/attempts.json --output guard.json --html guard.html
+```
+
+## Observe the change
+
+Attempt 1 rejects confidence 1.5 at $/confidence. Attempt 2 accepts confidence 0.8. An unsupported keyword in an absent optional property now fails during schema preflight.
+
+Edit a copy of the sample and rerun the command. Keep the input beside the output so someone else can reproduce the result; the supplied samples are authored teaching data.
+
+## Integration and limits
+
+Call guard(raw,schema) at the application boundary, or repair(generate,schema,maxAttempts) where generate receives structured Issue[] and a one-based attempt number.
+
+This is an explicit JSON Schema subset. $ref, format and combinators are rejected. Schema acceptance does not establish whether an answer is factually correct. Recorded repair is not a live model call.
 
 ## Stages
 
@@ -20,9 +52,8 @@ The `starter` intentionally fails. `solution` contains the runnable reference; s
 3. [Reject ambiguous and unsupported contracts](stages/03-constraints/docs/en.md)
 4. [Repair with a finite budget](stages/04-bounded-repair/docs/en.md)
 
-## Primary sources
 
-- [JSON Schema validation vocabulary](https://json-schema.org/draft/2020-12/json-schema-validation)
-- [Node TypeScript execution](https://nodejs.org/api/typescript.html)
+## Primary references
 
-Source references checked 2026-09-28. Implementations and fixtures are original. No live provider calls are part of the baseline.
+[JSON Schema validation vocabulary](https://json-schema.org/draft/2020-12/json-schema-validation)
+[Node TypeScript execution](https://nodejs.org/api/typescript.html)

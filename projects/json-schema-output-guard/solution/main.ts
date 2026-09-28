@@ -42,6 +42,75 @@ const supported = new Set([
   "maximum",
   "enum",
 ]);
+export function checkSchema(schema: Schema, depth = 0): void {
+  if (
+    depth > 32 ||
+    !schema ||
+    typeof schema !== "object" ||
+    Array.isArray(schema)
+  )
+    throw new Error("invalid or excessively deep schema");
+  for (const key of Object.keys(schema))
+    if (!supported.has(key))
+      throw new Error(`unsupported schema keyword: ${key}`);
+  if (
+    schema.type !== undefined &&
+    ![
+      "object",
+      "array",
+      "string",
+      "number",
+      "integer",
+      "boolean",
+      "null",
+    ].includes(schema.type)
+  )
+    throw new Error("unsupported schema type");
+  for (const key of [
+    "minimum",
+    "maximum",
+    "minLength",
+    "minItems",
+    "maxItems",
+  ] as const) {
+    const n = schema[key];
+    if (
+      n !== undefined &&
+      (!Number.isFinite(n) ||
+        (["minLength", "minItems", "maxItems"].includes(key) &&
+          (!Number.isInteger(n) || n < 0)))
+    )
+      throw new Error(`invalid schema ${key}`);
+  }
+  if (
+    schema.required !== undefined &&
+    (!Array.isArray(schema.required) ||
+      schema.required.some((k) => typeof k !== "string") ||
+      new Set(schema.required).size !== schema.required.length)
+  )
+    throw new Error("invalid required keys");
+  if (
+    schema.additionalProperties !== undefined &&
+    typeof schema.additionalProperties !== "boolean"
+  )
+    throw new Error("invalid additionalProperties");
+  if (
+    schema.enum !== undefined &&
+    (!Array.isArray(schema.enum) || !schema.enum.length)
+  )
+    throw new Error("nonempty enum required");
+  if (schema.properties !== undefined) {
+    if (
+      !schema.properties ||
+      typeof schema.properties !== "object" ||
+      Array.isArray(schema.properties)
+    )
+      throw new Error("invalid properties");
+    for (const child of Object.values(schema.properties))
+      checkSchema(child, depth + 1);
+  }
+  if (schema.items !== undefined) checkSchema(schema.items, depth + 1);
+}
 export function parseJSON(raw: string): unknown {
   if (Buffer.byteLength(raw) > 100_000) throw new Error("output too large");
   return JSON.parse(raw);
@@ -52,6 +121,7 @@ export function validate(
   pointer = "$",
   depth = 0,
 ): Issue[] {
+  if (depth === 0) checkSchema(schema);
   if (depth > 32) return [{ path: pointer, message: "depth limit" }];
   for (const key of Object.keys(schema))
     if (!supported.has(key))
@@ -102,7 +172,10 @@ export function validate(
     const props = schema.properties ?? {};
     for (const key of schema.required ?? [])
       if (!Object.hasOwn(obj, key))
-        issues.push({ path: `${pointer}/${key}`, message: "required" });
+        issues.push({
+          path: `${pointer}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`,
+          message: "required",
+        });
     for (const [key, v] of Object.entries(obj)) {
       const child = `${pointer}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`;
       if (Object.hasOwn(props, key))
@@ -117,6 +190,7 @@ export function guard(
   raw: string,
   schema: Schema,
 ): { ok: boolean; value?: unknown; issues: Issue[] } {
+  checkSchema(schema);
   let value: unknown;
   try {
     value = parseJSON(raw);
@@ -136,6 +210,7 @@ export async function repair(
 ) {
   if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 10)
     throw new Error("attempt budget must be 1..10");
+  checkSchema(schema);
   let issues: Issue[] = [];
   const trace: { attempt: number; accepted: boolean; issues: Issue[] }[] = [];
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {

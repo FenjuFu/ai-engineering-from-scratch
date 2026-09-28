@@ -3,12 +3,10 @@
   "title": "JSON Schema Output Guard",
   "level": 1,
   "levelName": "Starter",
-  "tagline": "Validate model output at the JSON boundary, return precise paths, and retry only under a bounded repair budget.",
-  "summary": "Validate model output at the JSON boundary, return precise paths, and retry only under a bounded repair budget.",
+  "tagline": "A schema preflight and bounded-repair receipt for model output contracts.",
+  "summary": "A schema preflight and bounded-repair receipt for model output contracts. Call guard(raw,schema) at the application boundary, or repair(generate,schema,maxAttempts) where generate receives structured Issue[] and a one-based attempt number.",
   "hours": 8,
-  "languages": [
-    "TypeScript"
-  ],
+  "languages": ["TypeScript"],
   "status": "ready",
   "source": "core",
   "author": {
@@ -21,19 +19,28 @@
     "Reject ambiguous and unsupported contracts",
     "Repair with a finite budget"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Validate model output at the JSON boundary, return precise paths, and retry only under a bounded repair budget.",
+  "prerequisites": [
+    "Node 22.18+ and Python 3 for the grader",
+    "TypeScript unions, recursive functions, JSON and async callbacks."
+  ],
+  "youWillBuild": "A schema preflight and bounded-repair receipt for model output contracts.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "Call guard(raw,schema) at the application boundary, or repair(generate,schema,maxAttempts) where generate receives structured Issue[] and a one-based attempt number."
   ],
   "demo": {
+    "cwd": "solution",
     "command": [
       "node",
-      "main.ts",
-      "--demo"
-    ],
-    "cwd": "solution"
+      "cli.ts",
+      "--schema",
+      "samples/schema.json",
+      "--attempts",
+      "samples/attempts.json",
+      "--output",
+      "guard.json",
+      "--html",
+      "guard.html"
+    ]
   },
   "stages": [
     {
@@ -43,9 +50,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "TypeScript keeps unknown data separate from typed application values.",
-      "concepts": [
-        "parseJSON"
-      ],
+      "concepts": ["parseJSON"],
       "difficulty": "starter",
       "runner": [
         "node",
@@ -53,9 +58,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-json-schema-output-guard-1"
     },
@@ -66,9 +69,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Recursive union types describe the schema subset without importing a validator.",
-      "concepts": [
-        "validate"
-      ],
+      "concepts": ["validate"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -76,9 +77,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-json-schema-output-guard-2"
     },
@@ -89,10 +88,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Typed issue objects make error reporting stable across the CLI and retry loop.",
-      "concepts": [
-        "validate",
-        "guard"
-      ],
+      "concepts": ["validate", "guard"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -100,9 +96,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-json-schema-output-guard-3"
     },
@@ -113,19 +107,16 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Async function types allow deterministic fake generation and a later provider adapter.",
-      "concepts": [
-        "repair"
-      ],
+      "concepts": ["repair"],
       "difficulty": "core",
       "runner": [
         "node",
         "--experimental-strip-types",
         "--test",
-        "{tests}/stage.test.ts"
+        "{tests}/stage.test.ts",
+        "{tests}/integration.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-json-schema-output-guard-4"
     }
