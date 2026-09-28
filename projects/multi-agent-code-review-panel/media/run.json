@@ -1,0 +1,48 @@
+{
+  "title": "Multi-Agent Code Review Panel / initialize and test",
+  "recordedAt": "2026-09-28T16:27:35Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "multi-agent-code-review-panel",
+        "--init",
+        "my-multi-agent-code-review-panel"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-multi-agent-code-review-panel\n  created  main.ts\n  created  package.json\n  created  stage-1.md\n  created  stage-2.md\n  created  stage-3.md\n  created  stage-4.md\nnext: python3 scripts/project_test.py multi-agent-code-review-panel --stage 1 --path /privatemy-multi-agent-code-review-panel\n",
+      "durationMs": 58
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "multi-agent-code-review-panel",
+        "--stage",
+        "1",
+        "--path",
+        "my-multi-agent-code-review-panel"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Multi-Agent Code Review Panel: grading learner\n  FAIL stage 1: Validate reviewer evidence (6 tests)\n       tests failed; rerun with --verbose\n",
+      "durationMs": 287
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "multi-agent-code-review-panel",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Multi-Agent Code Review Panel: grading solution\n  PASS stage 1: Validate reviewer evidence (6 tests)\n  PASS stage 2: Aggregate independent support (6 tests)\n  PASS stage 3: Reserve costs and enforce deadlines (7 tests)\n  PASS stage 4: Measure panel precision and recall (6 tests)\n",
+      "durationMs": 959
+    }
+  ]
+}

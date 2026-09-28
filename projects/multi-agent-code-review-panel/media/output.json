@@ -1,0 +1,17 @@
+{
+  "title": "Multi-Agent Code Review Panel / actual output",
+  "recordedAt": "2026-09-28T16:27:36Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/multi-agent-code-review-panel/solution",
+      "exitCode": 0,
+      "output": "{\n  \"spent\": 2,\n  \"trace\": [\n    {\n      \"reviewer\": \"syntax-rules\",\n      \"status\": \"complete\",\n      \"cost\": 1\n    },\n    {\n      \"reviewer\": \"security-checklist\",\n      \"status\": \"complete\",\n      \"cost\": 1\n    },\n    {\n      \"reviewer\": \"extra-reviewer\",\n      \"status\": \"budget-skipped\",\n      \"cost\": 0\n    }\n  ],\n  \"reviews\": [\n    {\n      \"reviewer\": \"syntax-rules\",\n      \"findings\": [\n        {\n          \"file\": \"src/run.ts\",\n          \"line\": 2,\n          \"quote\": \"eval(raw)\",\n          \"rule\": \"eval\",\n          \"severity\": 3\n        }\n      ]\n    },\n    {\n      \"reviewer\": \"security-checklist\",\n      \"findings\": [\n        {\n          \"file\": \"src/run.ts\",\n          \"line\": 2,\n          \"quote\": \"eval(raw)\",\n          \"rule\": \"eval\",\n          \"severity\": 2\n        }\n      ]\n    }\n  ],\n  \"findings\": [\n    {\n      \"finding\": {\n        \"file\": \"src/run.ts\",\n        \"line\": 2,\n        \"quote\": \"eval(raw)\",\n        \"rule\": \"eval\",\n        \"severity\": 3\n      },\n      \"supporters\": [\n        \"syntax-rules\",\n        \"security-checklist\"\n      ],\n      \"severities\": [\n        3,\n        2\n      ],\n      \"status\": \"consensus\",\n      \"disagreement\": true\n    }\n  ],\n  \"rejected\": 0\n}\n",
+      "durationMs": 103
+    }
+  ]
+}
