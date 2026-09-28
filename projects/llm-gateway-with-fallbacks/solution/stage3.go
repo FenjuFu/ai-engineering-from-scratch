@@ -8,12 +8,14 @@ import (
 )
 
 func Attempt(ctx context.Context, client *http.Client, endpoint, payload string, maxBytes int64) (Reply, error) {
-	if client == nil || maxBytes < 1 || maxBytes > 16*1024*1024 {
+	if client == nil || maxBytes < 1 || maxBytes > 16*1024*1024 || len(payload) > MaxRequestBytes {
 		return Reply{}, ErrInvalid
 	}
 	if _, e := Endpoints([]string{endpoint}); e != nil {
 		return Reply{}, e
 	}
+	ctx, cancel := context.WithTimeout(ctx, DefaultTimeout)
+	defer cancel()
 	req, e := http.NewRequestWithContext(ctx, "POST", endpoint, strings.NewReader(payload))
 	if e != nil {
 		return Reply{}, e

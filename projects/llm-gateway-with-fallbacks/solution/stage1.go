@@ -10,7 +10,7 @@ func Endpoints(values []string) ([]string, error) {
 	seen := map[string]bool{}
 	for _, raw := range values {
 		u, e := url.Parse(raw)
-		if e != nil || u.Hostname() == "" || u.User != nil || u.Fragment != "" {
+		if e != nil || u.Hostname() == "" || u.User != nil || u.Fragment != "" || u.RawQuery != "" {
 			return nil, ErrInvalid
 		}
 		local := u.Hostname() == "localhost" || u.Hostname() == "127.0.0.1" || u.Hostname() == "::1"

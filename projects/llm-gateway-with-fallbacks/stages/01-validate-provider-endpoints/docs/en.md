@@ -1,54 +1,50 @@
 # Validate provider endpoints
 
-> https://provider.test/v1 -> accepted; remote http -> invalid
+> Treat the provider list as trusted configuration.
 
 **Type:** Build
 **Languages:** Go
 **Stage:** 1 of 4
+**Prerequisites:** Go structs, slices, errors and basic HTTP requests. Read [structured outputs](../../../../../phases/11-llm-engineering/03-structured-outputs/docs/en.md) for strict JSON contracts.
 **Time:** ~2 hours
 
 ## What you build
 
-Route a bounded request through providers with explicit failure semantics. This stage implements `Endpoints` in `stage1.go`. The finished behavior feeds the next stage through a typed contract.
+Implement `Endpoints(values)` before opening a connection. Allow HTTPS, plus HTTP on exactly `localhost`, `127.0.0.1` or `::1` for local services. Reject userinfo, fragments, queries, line breaks, missing hosts and other schemes. Remove exact duplicates while preserving provider order.
 
-## Why it matters
+The CLI configuration contains provider names, URLs, optional model overrides and credential environment-variable names. It never accepts a credential value. Rejecting query strings keeps bearer keys out of endpoint URLs and traces; this small gateway does not support query-based API versions.
 
-Allow HTTPS endpoints and explicit loopback HTTP fixtures, reject embedded credentials and fragments, and deduplicate providers without changing order. Remote plaintext HTTP is rejected. The path and query are preserved; authentication belongs in headers controlled by the caller.
+## Worked example
 
-## Work through one case
+Input order is primary `https://primary.example/v1/chat/completions`, primary again, then `http://127.0.0.1:11434/v1/chat/completions`. The validated list has two entries in that order. A primary failure can therefore reach the local fallback.
 
-https://provider.test/v1 -> accepted; remote http -> invalid. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+Change the final host to `local-model.example` while keeping HTTP. Reject the entire list. The word “local” in a hostname does not prove a loopback connection. A URL containing `user:password@host` is rejected before a request can be sent.
 
 ```figure
 pj-llm-gateway-with-fallbacks-1
 ```
 
-## Your task
+## Implement the contract
 
 ```go
-func Endpoints(values []string)([]string,error)
+func Endpoints(values []string) ([]string, error)
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Parse with `net/url`, inspect `Hostname`, and maintain a separate seen set. Do not sort endpoints: order is the fallback policy. The server accepts configuration from the operator, never from incoming JSON request fields.
 
-## Run the tests
+## Run your work
+
+From the repository root, initialize once; the grader preserves existing workspace files:
 
 ```bash
-python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 1 --path /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --init /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 1 --path /tmp/llm-gateway-with-fallbacks-work --strict
 ```
 
-The stage checks Https, Local, Plaintext, Credentials, Dedup. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+Your implementation belongs in `stage1.go` in that workspace. Provided adapters call those learner functions; they do not import the reference solution. Stage tests include cases separate from the Orchard demonstration.
 
-## Check yourself
+## Inspect and extend
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Use the controls to add a duplicate or change a URL scheme. Why must `https://a.example?api_key=...` fail? Endpoint validation does not establish that a configured HTTPS service is trustworthy; the operator owns that selection.
 
-## Going further
-
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/net/http). Build an HTTP gateway library with endpoint validation, response limits, retry classification and a total-attempt budget. Offline tests inject a real net/http transport interface, while applications can use the standard HTTP client for live endpoints.
+[Go standard-library reference](https://pkg.go.dev/context). The runnable core uses only Go's standard library. External model calls are optional and do not run during ordinary grading.
