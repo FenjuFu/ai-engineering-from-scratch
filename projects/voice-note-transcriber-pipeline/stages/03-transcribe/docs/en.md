@@ -1,57 +1,57 @@
-# Call an injected transcriber with bounded retries
+# Send real WAV bytes through a recognizer boundary
 
-> A provider timeout followed by success records attempts=2 and the segment audio hash.
+> A provider timeout followed by success records attempts=2. Each output row retains start, end, text and the SHA256 of the exact encoded segment. A second segment cannot overlap the previous one, and fractional sample indices are invalid.
 
 **Type:** Build
-**Languages:** Python
 **Stage:** 3 of 4
-**Time:** ~2 hours
+**Time:** About 2 hours
 
-## What you build
+## The useful boundary
 
-Implement `transcribe.py`: `transcribe`. This artifact is stage 3 of Voice Note Transcriber Pipeline. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Encode each selected span as a complete WAV before calling the provider. The real HTTP adapter sends multipart form data with model and file fields to an explicitly configured audio/transcriptions endpoint. It parses the returned text and rejects an empty or malformed result. Endpoint selection is the explicit upload boundary.
 
 ```figure
 pj-voice-note-transcriber-pipeline-3
 ```
 
-## Follow the mechanism
+## Work the example
 
-The pipeline sends real audio bytes to a provider function. Tests inject a deterministic transcript and label it as a fixture; no speech recognition is claimed. Retry only transient timeouts and retain an audio hash so a response can be tied back to the exact segment that produced it.
+A provider timeout followed by success records attempts=2. Each output row retains start, end, text and the SHA256 of the exact encoded segment. A second segment cannot overlap the previous one, and fractional sample indices are invalid.
 
-## Build it
+Write the returned fields and the expected side-effect count before coding. Keep a second input that should fail so the successful example cannot become a hard-coded answer.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Build the contract
 
-```python
-def transcribe(samples,rate,spans,provider,retries=1):
-    raise NotImplementedError("Implement the stage contract")
-```
+Implement `transcribe(...) in transcribe.py; http_recognizer(endpoint, model, api_key, timeout) in provider.py` in your learner workspace. Preserve the exported names and continue using earlier stages rather than duplicating their policies.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Allow zero through five retries, retry only TimeoutError, and count attempts. The adapter checks HTTP(S), a WAV signature, a 20 MB upload bound, a 1 MB response bound and a timeout of at most 120 seconds. TRANSCRIPTION_API_KEY supplies optional authentication. Controlled transport tests verify real multipart serialization; they do not measure recognition accuracy.
 
-## Run it
+## Hints
+
+Capture the outgoing request in a test and confirm it contains the WAV bytes rather than a filename string. Return a distinct held-out sentence from the test endpoint. Keep source hashes next to text so a reviewed transcript can be related to its actual audio.
+
+## Verify your work
 
 ```bash
 python3 scripts/project_test.py voice-note-transcriber-pipeline --init my-voice-note-transcriber-pipeline
-python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 3 --path my-voice-note-transcriber-pipeline
+python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 3 --path my-voice-note-transcriber-pipeline --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+Initialize once. Cumulative tests import your workspace and preserve your earlier source. A reference-solution run verifies the teaching implementation and never grants a learner certificate. Optional SDK checks require the dependencies and commands in the project README.
 
-## What you should see
+## Inspect the result
 
-A provider timeout followed by success records attempts=2 and the segment audio hash. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Why should an authentication error fail immediately instead of consuming the timeout retry budget? What does the audio hash establish, and what does it not establish?
 
-## Inspect the boundary
+The completed project produces audio.wav, captions.vtt, transcript.json and an HTML page with embedded playback and cue-seek buttons.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+```bash
+cd projects/voice-note-transcriber-pipeline/solution
+python3 pipeline.py --input fixtures/repair-note.wav --transcript-file fixtures/reference.json --out voice-output
+```
 
-## Use it
+Replace the fixture with a small input from your own workflow. Keep expected outcomes and observed evidence together, then retain a separate set of cases for evaluation. Provider request tests establish serialization and control flow; they do not establish model quality.
 
-After all stages pass, run `python3 projects/voice-note-transcriber-pipeline/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
+## Primary reference
 
-## Primary references
-
-- [Reference 1](https://docs.python.org/3/library/wave.html)
-- [Reference 2](https://www.w3.org/TR/webvtt1/)
+[Official API documentation](https://docs.python.org/3/library/wave.html). The implementation, policy choices and examples are original.
