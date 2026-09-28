@@ -1,0 +1,17 @@
+{
+  "title": "Changelog Writer From Git / actual output",
+  "recordedAt": "2026-09-28T16:20:40Z",
+  "records": [
+    {
+      "command": [
+        "go",
+        "run",
+        "."
+      ],
+      "cwd": "projects/changelog-writer-from-git/solution",
+      "exitCode": 0,
+      "output": "# v0.2.0\n\n## Breaking changes\n- replace legacy wire format (aaa1111)\n\n## Features\n- cache evidence (abc1234)\n\n## Fixes\n- preserve citation offsets (def5678)\nRESULT <nil>\n",
+      "durationMs": 329
+    }
+  ]
+}
