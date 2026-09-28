@@ -7,17 +7,13 @@
 **Stage:** 1 of 4
 **Time:** ~2 hours
 
-## What you build
+## Read records without losing the evidence
 
-Turn conventional commit records into a stable release note. This stage implements `ParseLog` in `stage1.go`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
-
-Consume one hash and subject per tab-separated line, rejecting duplicate hashes, malformed hexadecimal IDs and empty subjects. The format corresponds to a documented git log pretty format. Treat the subject as data and never execute it.
+A Git commit has a hash, a subject and a body. The first exercise deliberately starts with hash-tab-subject records so you can learn the parsing boundary before the provided Git adapter handles NUL-delimited bodies. Never split a full commit body on newlines and pretend each line is a new commit.
 
 ## Work through one case
 
-git log --format=%h%x09%s -> hash and subject. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+The two records `abc1234\tfeat: cache` and `abc1234\tfix: cache` conflict even though their subjects differ. Build a set of accepted hashes. Check the second hash before appending its record; return a conflict with no partial result.
 
 ```figure
 pj-changelog-writer-from-git-1
@@ -39,16 +35,22 @@ python3 scripts/project_test.py changelog-writer-from-git --stage 1 --path /tmp/
 
 The stage checks Valid, Duplicate, BadHash, NoSubject, Empty. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
 
-## Check yourself
+## Implementation hints
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Use SplitN with a limit of two so the first separator defines the boundary. Validate every hash character, then reject an empty subject. The integration adapter retains body text separately and caps exports at 4 MiB.
 
-## Going further
+Start with one valid record, then add the rejection case before optimizing. Keep source data unchanged on failure so the caller can diagnose what happened. Use the smallest function that expresses the boundary; an extra framework would hide the mechanism you are learning.
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+## Check your understanding
 
-## Sources and scope
+Why can a commit body contain a newline while a subject export cannot? Construct a truncated NUL export and explain why the adapter refuses it.
 
-[Official reference](https://git-scm.com/docs/pretty-formats). Build a parser for a bounded Git export, conventional-commit classification, deterministic grouping and Markdown release notes. Demo input is recorded locally, and a separate export command can read a real repository without modifying it.
+Write your prediction before running the test. If the result surprises you, trace the input through validation, state construction and output. A passing reference implementation is a comparison tool; your own workspace must pass the cumulative grader to establish completion.
+
+## Use it with your own data
+
+`--repo PATH --from REV --to REV` reads an immutable Git range. Alternatively, `--input FILE` accepts `git log --format=%H%x00%s%x00%b%x00 FROM..TO` output. Add `--output release.md --receipt release.json` for reusable artifacts. No argument means an original two-commit fixture. The supported repository profile uses SHA-1 commit IDs; SHA-256 repositories require a hash-format extension.
+
+## Sources
+
+[Git pretty formats](https://git-scm.com/docs/pretty-formats).

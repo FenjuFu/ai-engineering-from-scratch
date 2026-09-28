@@ -4,12 +4,12 @@
   "level": 2,
   "levelName": "Builder",
   "tagline": "Turn conventional commit records into a stable release note.",
-  "summary": "Build a parser for a bounded Git export, conventional-commit classification, deterministic grouping and Markdown release notes. Demo input is recorded locally, and a separate export command can read a real repository without modifying it.",
+  "summary": "Read a real Git revision range, preserve migration footers and revert references, then export reproducible Markdown with a source receipt.",
   "usefulFor": [
-    "Turn conventional commit records into a stable release note.",
-    "Offline experiments with explicit failure cases and limits"
+    "Read a real Git revision range, preserve migration footers and revert references, then export reproducible Markdown with a source receipt.",
+    "Pipe portable JSON receipts into your own review or publishing workflow."
   ],
-  "youWillBuild": "Build a parser for a bounded Git export, conventional-commit classification, deterministic grouping and Markdown release notes. Demo input is recorded locally, and a separate export command can read a real repository without modifying it.",
+  "youWillBuild": "Read a real Git revision range, preserve migration footers and revert references, then export reproducible Markdown with a source receipt.",
   "hours": 8,
   "languages": [
     "Go"
@@ -26,7 +26,16 @@
     "Group commits with stable ordering",
     "Render bounded release notes"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Development environment",
+      "path": "phases/00-setup-and-tooling/01-dev-environment"
+    },
+    {
+      "title": "Data management",
+      "path": "phases/00-setup-and-tooling/09-data-management"
+    }
+  ],
   "inspiredBy": [],
   "demo": {
     "command": [
@@ -107,5 +116,7 @@
       "title": "Inspect the output",
       "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
     }
-  ]
+  ],
+  "figures": true,
+  "overviewFigure": "pj-changelog-writer-from-git-1"
 }
