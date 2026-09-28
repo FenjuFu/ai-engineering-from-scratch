@@ -1,60 +1,54 @@
 # Measure panel precision and recall
 
-> Evaluate unique finding ids against an expected set. Precision measures how many predicted findings are expected; recall measures how much of the expected set was found. Deduplicate both sets so repeated reviewers cannot inflate the metric. Zero predictions produce precision zero rather than a misleading perfect score. Try held-out inputs before adjusting quorum.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Evaluate unique finding ids against an expected set. Precision measures how many predicted findings are expected; recall measures how much of the expected set was found. Deduplicate both sets so repeated reviewers cannot inflate the metric. Zero predictions produce precision zero rather than a misleading perfect score. Try held-out inputs before adjusting quorum.
 
 The boundary for this stage is `evaluate`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Small pure metrics let deterministic fixtures establish a baseline before model integrations. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+The broad local reviewer predicts three findings with two true positives, so precision=2/3. Quorum retains the two expected findings: precision=1 and recall=1 on this sample. A budget of1 leaves no consensus and recall 0.
 
 ```figure
 pj-multi-agent-code-review-panel-4
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `evaluate` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-False positives reduce precision while missed expected findings reduce recall; quorum is a tradeoff to measure.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Compare individual and combined predictions against the same expected set. Deduplicate both sets and retain the source fingerprint; metrics from a different snapshot are not comparable evidence.
 
-```bash
-python3 scripts/project_test.py multi-agent-code-review-panel --init learning-artifacts/multi-agent-code-review-panel
-python3 scripts/project_test.py multi-agent-code-review-panel --stage 4 --path learning-artifacts/multi-agent-code-review-panel
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py multi-agent-code-review-panel --init learning-artifacts/multi-agent-code-review-panel`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py multi-agent-code-review-panel --path learning-artifacts/multi-agent-code-review-panel
-node learning-artifacts/multi-agent-code-review-panel/main.ts --demo
+python3 scripts/project_test.py multi-agent-code-review-panel --stage 4 --path learning-artifacts/multi-agent-code-review-panel --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-False positives reduce precision while missed expected findings reduce recall; quorum is a tradeoff to measure.
+```bash
+cd learning-artifacts/multi-agent-code-review-panel
+node cli.ts --input samples/review.json --output panel.json --html panel.html
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Hold out a case found by only one reviewer. Measure whether quorum loses that true positive before presenting agreement as an improvement.
 
-Keep your implementation and one input you invented under `learning-artifacts/multi-agent-code-review-panel/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+Local reviewers are distinct static heuristics, not independent LLMs. Consensus measures support, not truth. External callbacks must honor AbortSignal; timeout cannot undo a remote side effect.
+
+
+## References
+
+[AbortController in Node](https://nodejs.org/api/globals.html#class-abortcontroller)
+[Node test runner](https://nodejs.org/api/test.html)
