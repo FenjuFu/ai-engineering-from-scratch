@@ -1,56 +1,50 @@
 # Send one bounded HTTP request
 
-> read limit 2, body long -> response rejected
+> Bound one request in both bytes and time.
 
 **Type:** Build
 **Languages:** Go
 **Stage:** 3 of 4
+**Prerequisites:** Stages 1 and 2. Understand Go contexts and `io.Reader` ownership.
 **Time:** ~2 hours
 
 ## What you build
 
-Route a bounded request through providers with explicit failure semantics. This stage implements `Attempt` in `stage3.go`. The finished behavior feeds the next stage through a typed contract.
+Implement `Attempt(ctx, client, endpoint, payload, maxBytes)`. Send a JSON POST using a copy of the caller's HTTP client, disable redirects, and always close the response body. Refuse nil clients, request bodies over one MiB and response limits outside 1 through 16 MiB.
 
-## Why it matters
+Add a five-second context deadline even when the caller passes `context.Background()`. An earlier caller deadline still wins. The standard HTTP transport observes cancellation while connecting and reading the body.
 
-Use net/http with the caller context, a JSON POST body and a response byte ceiling. Read at most limit plus one byte so oversized responses are detected without unbounded allocation. Always close the response body, including error paths.
+## Worked example
 
-Reject a nil client. Copy its configuration for this call and refuse automatic redirects: otherwise an allowed HTTPS endpoint could redirect the request to a forbidden plaintext destination. Return the original 3xx response for the terminal-status classifier, preserving the caller's client configuration.
+With response limit 5 and body `0123456789`, read at most six bytes. Seeing six establishes overflow, so return `ErrLimit` without retaining the entire response. With exactly five bytes, return the body and status.
 
-## Work through one case
-
-read limit 2, body long -> response rejected. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+A 307 response contains a `Location` header. Return that response for terminal classification; do not send another request to the new host. The original client's `CheckRedirect` field remains unchanged after the call.
 
 ```figure
 pj-llm-gateway-with-fallbacks-3
 ```
 
-## Your task
+## Implement the contract
 
 ```go
-func Attempt(ctx context.Context,client *http.Client,endpoint,payload string,maxBytes int64)(Reply,error)
+func Attempt(ctx context.Context, client *http.Client, endpoint, payload string, maxBytes int64) (Reply, error)
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Use `io.LimitReader(body, maxBytes+1)` so exact-fit and overflow remain distinguishable. A timeout on each request alone is insufficient for the final route: stage 4 also shares one deadline across all attempts. A custom `RoundTripper` must honor context cancellation just as the standard transport does.
 
-## Run the tests
+## Run your work
+
+From the repository root, initialize once; the grader preserves existing workspace files:
 
 ```bash
-python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 3 --path /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --init /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 3 --path /tmp/llm-gateway-with-fallbacks-work --strict
 ```
 
-The stage checks Body, Limit, Status, InvalidBudget, RequestShape. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+Your implementation belongs in `stage3.go` in that workspace. Provided adapters call those learner functions; they do not import the reference solution. Stage tests include cases separate from the Orchard demonstration.
 
-## Check yourself
+## Inspect and extend
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Test an exactly full body, a body one byte too large, and a redirect to another local test server. The redirected server's request count must remain zero. After implementing all stages, run the actual loopback demo with `go run .` in your workspace.
 
-## Going further
-
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/net/http). Build an HTTP gateway library with endpoint validation, response limits, retry classification and a total-attempt budget. Offline tests inject a real net/http transport interface, while applications can use the standard HTTP client for live endpoints.
+[Go standard-library reference](https://pkg.go.dev/context). The runnable core uses only Go's standard library. External model calls are optional and do not run during ordinary grading.
