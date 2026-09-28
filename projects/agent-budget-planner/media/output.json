@@ -1,0 +1,16 @@
+{
+  "title": "Agent Budget Planner / actual output",
+  "recordedAt": "2026-09-28T16:11:23Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/agent-budget-planner/solution",
+      "exitCode": 0,
+      "output": "{\n  \"ledger\": {\n    \"limit\": 100,\n    \"spent\": 100,\n    \"holds\": {},\n    \"closed\": [\n      \"search\",\n      \"write\"\n    ]\n  },\n  \"events\": [\n    {\n      \"id\": \"search\",\n      \"state\": \"completed\",\n      \"cost\": 20,\n      \"elapsed_ms\": 40\n    },\n    {\n      \"id\": \"write\",\n      \"state\": \"completed\",\n      \"cost\": 80,\n      \"elapsed_ms\": 160\n    },\n    {\n      \"id\": \"retry\",\n      \"state\": \"rejected\",\n      \"reason\": \"budget exceeded\"\n    },\n    {\n      \"id\": \"slow\",\n      \"state\": \"rejected\",\n      \"reason\": \"deadline\"\n    }\n  ],\n  \"elapsed_ms\": 160\n}\n",
+      "durationMs": 27
+    }
+  ]
+}
