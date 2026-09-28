@@ -25,22 +25,29 @@ Projects are scoped learning artifacts, not claims of production completeness. E
 | [Dataset Split Auditor](dataset-split-auditor/) | 1 | Python | 4 | ~8h |
 | [JSON Schema Output Guard](json-schema-output-guard/) | 1 | TypeScript | 4 | ~8h |
 | [Prompt Regression Tester](prompt-regression-tester/) | 1 | Python | 4 | ~8h |
-| [SKILL.md Validator and Loader](skill-validator/) | 1 | Rust | 4 | ~8h |
 | [Semantic Notes Search](semantic-notes-search/) | 1 | Python | 4 | ~8h |
+| [SKILL.md Validator and Loader](skill-validator/) | 1 | Rust | 4 | ~8h |
 | [Tiny Coding Agent](tiny-coding-agent/) | 1 | Python | 4 | ~8h |
 | [Token Counter and Cost Meter](token-counter-and-cost-meter/) | 1 | Rust | 4 | ~8h |
+| [Calendar Focus Planner](calendar-focus-planner/) | 2 | TypeScript | 4 | ~8h |
 | [Changelog Writer From Git](changelog-writer-from-git/) | 2 | Go | 4 | ~8h |
+| [CSV Question Workbench](csv-sql-question-workbench/) | 2 | Python | 4 | ~8h |
+| [Document Extraction Review Desk](document-extraction-desk/) | 2 | Python | 4 | ~8h |
 | [Document QA With Citations and LangChain](doc-qa-with-citations/) | 2 | Python | 4 | ~8h |
+| [Feedback Theme Board](feedback-theme-board/) | 2 | TypeScript | 4 | ~8h |
+| [Inbox Triage Desk](inbox-triage-desk/) | 2 | Python | 4 | ~8h |
 | [Incident Postmortem Writer](postmortem-writer/) | 2 | Go | 4 | ~8h |
 | [Local Model Evaluation Harness](local-model-eval-harness/) | 2 | Python | 4 | ~8h |
 | [Meeting Notes to Actions](meeting-notes-to-actions/) | 2 | Python | 4 | ~8h |
 | [PR Review Reporter](pr-review-reporter/) | 2 | Python, TypeScript | 4 | ~8h |
-| [Research Report Agent](research-report-agent/) | 2 | Rust, Python, TypeScript | 7 | ~14h |
+| [Research Report Agent](research-report-agent/) | 2 | Rust, Python, TypeScript | 7 | ~20h |
 | [Retrieval Evaluation Lab](retrieval-evaluation-lab/) | 2 | Python | 4 | ~8h |
 | [Skill Router](skill-router/) | 2 | TypeScript | 4 | ~8h |
+| [Source-Grounded Study Coach](source-grounded-study-coach/) | 2 | TypeScript | 4 | ~8h |
 | [Agent Budget Planner](agent-budget-planner/) | 3 | Python | 4 | ~8h |
 | [Agent Trace Debugger](agent-trace-debugger/) | 3 | TypeScript | 4 | ~8h |
 | [Cross-Agent Skill Installer](skill-installer/) | 3 | TypeScript | 4 | ~8h |
+| [Harness Bench](harness-bench/) | 3 | Go | 4 | ~8h |
 | [LLM Gateway With Fallbacks](llm-gateway-with-fallbacks/) | 3 | Go | 4 | ~8h |
 | [Multi-Agent Code Review Panel](multi-agent-code-review-panel/) | 3 | TypeScript | 4 | ~8h |
 | [Persistent Memory Server](memory-server/) | 3 | TypeScript, Rust | 4 | ~8h |
@@ -50,24 +57,25 @@ Projects are scoped learning artifacts, not claims of production completeness. E
 | [Skill Supply-Chain Scanner](skill-scanner/) | 3 | Rust | 4 | ~8h |
 | [Support Agent With Google ADK](support-agent-with-google-adk/) | 3 | Python | 4 | ~8h |
 | [Typed Workflow Agent with Mastra](typed-workflow-agent-with-mastra/) | 3 | TypeScript | 4 | ~8h |
+| [Visual Evidence Library](visual-evidence-library/) | 3 | Python | 4 | ~8h |
 | [Voice Note Transcriber Pipeline](voice-note-transcriber-pipeline/) | 3 | Python | 4 | ~8h |
+| [Web Change Brief](web-change-brief/) | 3 | Go | 4 | ~8h |
 | [Cloud Agent With AWS Strands](cloud-agent-with-aws-strands/) | 4 | Python | 4 | ~8h |
 | [Desktop Control Backend](desktop-control/) | 4 | Rust | 4 | ~8h |
 | [Durable Agent Jobs](durable-agent-jobs/) | 4 | Go | 4 | ~8h |
-| [MCP Server With 250 Tools](mcp-at-scale/) | 4 | Python, TypeScript | 5 | ~10h |
+| [MCP Tool Discovery Workbench](mcp-at-scale/) | 4 | Python, TypeScript | 5 | ~10h |
 | [Sandbox Policy Planner](sandbox-ladder/) | 4 | Rust | 4 | ~8h |
 | [Streaming Agent Shell in Rust](rust-agent-shell/) | 4 | Rust | 4 | ~8h |
 | [Tool Call Firewall](tool-call-firewall/) | 4 | Rust | 4 | ~8h |
 | [Browser Agent](browser-agent/) | 5 | TypeScript, Python | 4 | ~8h |
 | [Distributed Eval Farm Coordinator](distributed-eval-farm/) | 5 | Go | 4 | ~8h |
-| [Harness Bench](harness-bench/) | 5 | Go | 4 | ~8h |
 | [Self-Improving Skill Loop](self-improving-skill-loop/) | 5 | Python | 4 | ~8h |
 
 ## Research Report Agent pilot
 
 The pilot has seven stages and three languages. Rust implements BM25 search behind newline-delimited JSON. Python extracts exact Unicode source spans, plans facets, writes cited claims, verifies evidence, applies budgets, and computes evaluation metrics. TypeScript validates the report contract and renders an interactive HTML report with hover/focus citations and an expandable run trace.
 
-Its core grader runs 81 tests, including native Rust and TypeScript tests. The public evaluation fixture scores 87.5/100 on the checked implementation. The score is a reproducible teaching baseline, not a claim of unseen production accuracy. The demo recordings show starter initialization/failure, passing reference tests, and real browser inspection of report evidence.
+Its core grader includes native Rust and TypeScript tests, plus a prompt-injection and cache-boundary regression suite. Evaluation receipts include the supplied dataset and explicit scoring components; their scores describe that fixture, not unseen production accuracy. The demo recordings show starter initialization/failure, passing reference tests, and real browser inspection of report evidence.
 
 ## Completion and community submissions
 

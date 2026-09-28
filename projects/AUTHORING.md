@@ -65,7 +65,26 @@ A learner is eligible only when every declared stage ran and passed at least one
 
 ## Documentation, figures, and demos
 
-Every lesson explains what you build, why it matters, a worked example, exact function contracts, test commands, failure cases, and extensions. Include a registered mechanism in a `figure` fence. Use an original SVG figure provider at `site/figures/projects/<id>.js`, calling `window.AIFSProjectFigures.register('pj-<id>-1', {title, steps: [{label, detail}], caption})`. Each figure should explain the stage's specific mechanism and state transitions.
+Every lesson explains what you build, why it matters, a worked example, exact function contracts, test commands, failure cases, and extensions. Include a registered mechanism in a `figure` fence. Use an original SVG figure provider at `site/figures/projects/<id>.js`, calling `window.AIFSProjectFigures.register('pj-<id>-1', {title, steps: [{label, detail}], caption})`. Each figure should explain the stage's specific mechanism and state transitions. Give learners editable inputs and computed intermediate values; a row of boxes that only changes its highlighted label is not enough.
+
+Add a `lab` to the registration for a calculated mechanism:
+
+```javascript
+lab: {
+  controls: [
+    {key: 'events', label: 'Completed events', type: 'range', value: 3, min: 0, max: 10, step: 1}
+  ],
+  calculate(values, stepIndex) {
+    return {
+      summary: values.events + ' receipts remain available for inspection.',
+      metrics: [{label: 'Receipts', value: values.events}],
+      bars: [{label: 'Completed events', value: values.events, max: 10}]
+    };
+  }
+}
+```
+
+Controls support `range`, `number`, `text`, `select` and `checkbox`. Select options contain `value` and `label`. Calculations may also return `columns` and `rows` for an evidence table. The shared runtime validates finite numeric inputs, escapes displayed text, preserves focus and offers reset. Use domain-specific calculations that agree with the taught contract. Existing custom SVG providers can call `window.AIFSProjectFigures.mountLab(host, lab)` without replacing their animation.
 
 Optional stage `figure` identifies a registered mechanism. The builder also extracts figures from documentation and emits `figures` and `figureScripts`. Unknown figure IDs fail a ready build. Demo metadata uses an argv `command` and project-relative `cwd`, commonly `solution`. Optional `path`, `poster`, or `video` fields refer to files inside the project. Demos terminate and show real output. Path traversal and symlink escapes are rejected.
 
@@ -73,7 +92,11 @@ Optional stage `figure` identifies a registered mechanism. The builder also extr
 
 Write at least five meaningful tests per stage: ordinary inputs, boundaries, malformed inputs, and a failure or adversarial case. Keep a held-out case separate from the demonstration fixtures. Test observable contracts, not copies of the reference algorithm. All advertised languages must exercise real implementation code. Cite current official specifications and documentation for protocols, with original lesson prose and original code.
 
-Run the solution with `--all --solution --strict`, initialize a fresh workspace, and confirm its first stage fails clearly. Run `node site/test_projects_data.js` and `node site/build-projects.js` before review. Generated `site/projects-data.js` is not committed. Community submissions retain their author credit and are reviewed through a pull request.
+Require a documented command that accepts the learner's own input and composes the taught functions. A hardcoded demo alone does not establish a reusable tool. Name the output schema, integration command and scope of any live adapter. Confirm that one exported artifact can be consumed by its intended next step, including approval or progress files downloaded from an HTML interface.
+
+Stage tests must depend only on behavior already taught or explicitly supplied scaffolding. Keep function signatures precise in starters, explain every hidden prerequisite and show one complete worked input through its intermediate values. A beginner should be able to locate a failure without guessing the intended return shape.
+
+Run the solution with `--all --solution --strict`, initialize a fresh workspace, and confirm its first stage fails clearly. Run `node --test site/test_projects_data.js site/test_project_certificates.js` and `node site/build-projects.js --strict` before review. Inspect the served page in Chromium at desktop and mobile widths, in both themes. Check that controls change calculated output and that recordings match the current commands. HTML output recordings should show the actual generated interface and its evidence interactions. Generated `site/projects-data.js` is not committed. Community submissions retain their author credit and are reviewed through a pull request.
 
 ## Optional framework comparisons
 
