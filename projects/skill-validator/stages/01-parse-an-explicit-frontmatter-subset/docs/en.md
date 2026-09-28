@@ -1,54 +1,46 @@
 # Parse an explicit frontmatter subset
 
-> description: Check: every line -> one complete description
+**Stage 1 of 4.** Rust. Plan about 2 hours.
 
-**Type:** Build
-**Languages:** Rust
-**Stage:** 1 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Validate skill metadata and load only the context the task needs. This stage implements `parse` in `stage1.rs`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
-
-Split only a leading --- block. Accept unquoted single-line key/value pairs; preserve colons inside values, reject duplicate keys, and never interpret YAML tags or aliases. This parser is intentionally a subset of YAML rather than a general-purpose implementation.
-
-## Work through one case
-
-description: Check: every line -> one complete description. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+Split only a leading --- block. Accept plain or JSON-compatible double-quoted single-line key/value pairs; preserve colons inside values, reject duplicate keys, and never interpret YAML tags or aliases. This parser is intentionally a subset of YAML rather than a general-purpose implementation.
 
 ```figure
 pj-skill-validator-1
 ```
 
-## Your task
+## Implementation boundary
 
 ```rust
 pub fn parse(text: &str) -> Result<std::collections::BTreeMap<String,String>, Error>
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Primary reference: [Official reference](https://agentskills.io/specification).
 
-## Run the tests
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py skill-validator --stage 1 --path /tmp/skill-validator-work
+Before coding, review [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md).
+
+The installer emits quoted metadata. Accept plain single-line scalars and JSON-compatible double-quoted scalars, including escaped quotes and Unicode. Reject tags, aliases and multiline YAML rather than silently reinterpreting them.
+
+```text
+description: "Check \"replicas\" first"
+parsed description: Check "replicas" first
+description: | -> unsupported syntax
 ```
 
-The stage checks preserves_colon, rejects_missing_header, rejects_duplicate, rejects_alias, keeps_body. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+## Build and inspect
 
-## Check yourself
+Split a header line at its first colon. Decode quoted values before metadata validation; duplicate keys are conflicts.
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Going further
+```bash
+python3 scripts/project_test.py skill-validator --init learning-artifacts/skill-validator
+python3 scripts/project_test.py skill-validator --stage 1 --path learning-artifacts/skill-validator
+```
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Sources and scope
+## Investigate next
 
-[Official reference](https://agentskills.io/specification). Build a bounded Agent Skills loader with a deliberately small frontmatter grammar, strict metadata validation, safe reference paths, and progressive disclosure. The supported YAML subset is explicit; unsupported forms fail instead of being guessed.
+Why does a standards-compatible subset need an explicit unsupported-syntax error?

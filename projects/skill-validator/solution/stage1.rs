@@ -22,14 +22,71 @@ pub fn parse(text: &str) -> Result<std::collections::BTreeMap<String, String>, E
         let value = value.trim();
         if key.is_empty()
             || value.is_empty()
-            || value.starts_with(['!', '&', '*', '|', '>', '[', '{', '\'', '"'])
+            || value.starts_with(['!', '&', '*', '|', '>', '[', '{', '\''])
         {
             return Err(Error::Invalid("unsupported YAML syntax".into()));
         }
-        if result.insert(key.into(), value.into()).is_some() {
+        let value = if value.starts_with('"') {
+            quoted_scalar(value)?
+        } else {
+            value.to_string()
+        };
+        if result.insert(key.into(), value).is_some() {
             return Err(Error::Conflict);
         }
     }
     result.insert("$body".into(), lines[end + 1..].join("\n"));
     Ok(result)
+}
+
+fn quoted_scalar(text: &str) -> Result<String, Error> {
+    let fail = || Error::Invalid("invalid quoted scalar".into());
+    if !text.ends_with('"') || text.len() < 2 {
+        return Err(fail());
+    }
+    let mut chars = text[1..text.len() - 1].chars();
+    let mut out = String::new();
+    while let Some(ch) = chars.next() {
+        if ch == '"' || ch.is_control() {
+            return Err(fail());
+        }
+        if ch != '\\' {
+            out.push(ch);
+            continue;
+        }
+        match chars.next().ok_or_else(fail)? {
+            '"' => out.push('"'),
+            '\\' => out.push('\\'),
+            '/' => out.push('/'),
+            'n' => out.push('\n'),
+            'r' => out.push('\r'),
+            't' => out.push('\t'),
+            'b' => out.push('\u{8}'),
+            'f' => out.push('\u{c}'),
+            'u' => {
+                let hex: String = chars.by_ref().take(4).collect();
+                if hex.len() != 4 {
+                    return Err(fail());
+                }
+                let mut code = u32::from_str_radix(&hex, 16).map_err(|_| fail())?;
+                if (0xd800..=0xdbff).contains(&code) {
+                    if chars.next() != Some('\\') || chars.next() != Some('u') {
+                        return Err(fail());
+                    }
+                    let low: String = chars.by_ref().take(4).collect();
+                    if low.len() != 4 {
+                        return Err(fail());
+                    }
+                    let low = u32::from_str_radix(&low, 16).map_err(|_| fail())?;
+                    if !(0xdc00..=0xdfff).contains(&low) {
+                        return Err(fail());
+                    }
+                    code = 0x10000 + ((code - 0xd800) << 10) + (low - 0xdc00);
+                }
+                out.push(char::from_u32(code).ok_or_else(fail)?);
+            }
+            _ => return Err(fail()),
+        }
+    }
+    Ok(out)
 }
