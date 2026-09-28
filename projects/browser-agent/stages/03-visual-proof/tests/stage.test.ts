@@ -38,6 +38,8 @@ test("CRC corruption rejected", async () => {
 test("DOM success with red pixels rejected", async () => {
   const d = new m.FixtureDriver(path.join(root, "failure.png"));
   d.observation.done = true;
+  d.observation.fields[0].value = "Ada";
+  d.observation.fields[1].value = "ada@example.test";
   assert.equal(
     (
       await m.runAgent(d, {
