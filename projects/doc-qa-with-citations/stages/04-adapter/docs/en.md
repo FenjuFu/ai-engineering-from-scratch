@@ -1,59 +1,49 @@
 # Use a framework splitter without losing offsets
 
-> Framework chunks are converted to the same source-span contract used by the baseline.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~2 hours
+## What changes
 
-## What you build
+The adapter keeps the from-scratch retrieval and answer validator. The optional LangChain path contributes recursive splitting and a fake model interface, then converts every chunk back to exact source offsets. If a splitter rewrites text, reject it instead of inventing provenance. Repeated overlapping substrings must advance the search cursor by one position, not by the full chunk length.
 
-Implement `adapter.py`: `adapt_splits`, `framework_qa`. This artifact is stage 4 of Document QA With Citations and LangChain. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+## Work through one concrete case
+
+A framework splitter returns two overlapping copies of "aba" from "ababa". Their positions are 0 and 2; advancing the search cursor by the full chunk length would miss the second valid occurrence.
 
 ```figure
 pj-doc-qa-with-citations-4
 ```
 
-## Follow the mechanism
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-The adapter keeps the from-scratch retrieval and answer validator. The optional LangChain path contributes recursive splitting and a fake model interface, then converts every chunk back to exact source offsets. If a splitter rewrites text, reject it instead of inventing provenance. Repeated overlapping substrings must advance the search cursor by one position, not by the full chunk length.
+## Implement the contract
 
-## Build it
+Implement `adapter.py`: `adapt_splits`, `framework_qa`. This artifact is stage 4 of Document QA With Citations and LangChain. It consumes explicit inputs and returns an inspectable result that the next stage can use.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-```python
-def adapt_splits(doc,parts):
-    raise NotImplementedError("Implement the stage contract")
-```
+Move the cursor one character past the last match and verify every returned part against the original text. Keep the from-scratch retrieval and citation validator around the optional SDK path.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+## Verify and inspect
 
-## Run it
+From the repository root, initialize once with `python3 scripts/project_test.py doc-qa-with-citations --init learning-artifacts/doc-qa-with-citations`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py doc-qa-with-citations --init my-doc-qa-with-citations
-python3 scripts/project_test.py doc-qa-with-citations --stage 4 --path my-doc-qa-with-citations
+python3 scripts/project_test.py doc-qa-with-citations --stage 4 --path learning-artifacts/doc-qa-with-citations --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-## What you should see
+```bash
+cd learning-artifacts/doc-qa-with-citations
+python3 cli.py samples/docs "When does cache expire?" --output answer.json --html answer.html
+```
 
-Framework chunks are converted to the same source-span contract used by the baseline. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+## Investigate the failure boundary
 
-## Inspect the boundary
+Run the folder CLI with your own two text files. Then install the pinned optional dependencies and compare chunk offsets, not merely the number of chunks.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
-
-## Use it
-
-After all stages pass, run `python3 projects/doc-qa-with-citations/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
-
-## Primary references
-
-- [Reference 1](https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter)
+The default answerer is local and extractive. Lexical overlap cannot establish semantic entailment. A valid citation can still be irrelevant or outdated; the content hash lets a reader detect source changes.
 
 ## Verify the actual framework
 
@@ -67,3 +57,7 @@ python3 -m venv .venv
 ```
 
 Use `--path my-doc-qa-with-citations` instead of `--solution` to grade your implementation. Missing dependencies produce a skip in optional mode and a failure in strict optional mode. The verified SDK version is `langchain-text-splitters==1.1.2`; all model replies are local fixtures.
+
+## References
+
+[Reference 1](https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter)
