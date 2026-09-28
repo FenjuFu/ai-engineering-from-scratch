@@ -1,60 +1,55 @@
 # Turn DOM state into constrained actions
 
-> Read labels, values, disabled states and stable ids from a small form. Validate unique ids and field types. Choose one action at a time: fill the name, fill email, then click the uniquely identified Save request button. Page prose is never interpreted as instructions. Missing fields, ambiguous labels, dangerous buttons and unexpected origins cause an explicit blocked result.
+Stage 1 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript, Python
-**Stage:** 1 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Read labels, values, disabled states and stable ids from a small form. Validate unique ids and field types. Choose one action at a time: fill the name, fill email, then click the uniquely identified Save request button. Page prose is never interpreted as instructions. Missing fields, ambiguous labels, dangerous buttons and unexpected origins cause an explicit blocked result.
 
 The boundary for this stage is `parseObservation, choose`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-TypeScript expresses observations and an action union with no arbitrary-script action. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+A page has fields Full name and Full name confirmation. Only exact requested labels may match; choosing the first fuzzy match can fill the wrong control. If two fields share the requested label, block before mutation.
 
 ```figure
 pj-browser-agent-1
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `parseObservation, choose` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-The action union contains fill and click only; injected page prose has no execution path.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Treat Task as caller authority and Observation as untrusted page state. Build one fill or click value from observed ids; page prose never supplies code or commands.
 
-```bash
-python3 scripts/project_test.py browser-agent --init learning-artifacts/browser-agent
-python3 scripts/project_test.py browser-agent --stage 1 --path learning-artifacts/browser-agent
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py browser-agent --init learning-artifacts/browser-agent`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py browser-agent --path learning-artifacts/browser-agent
-node learning-artifacts/browser-agent/main.ts --demo
+python3 scripts/project_test.py browser-agent --stage 1 --path learning-artifacts/browser-agent --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-The action union contains fill and click only; injected page prose has no execution path.
+```bash
+cd learning-artifacts/browser-agent
+node cli.ts --task samples/contact.json --output browser-run.json
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Set done=true while the email differs from the task. Completion must fail even if a green banner is present.
 
-Keep your implementation and one input you invented under `learning-artifacts/browser-agent/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/)
+[PNG specification](https://www.w3.org/TR/png-3/)
+[HTML form controls](https://html.spec.whatwg.org/multipage/forms.html)

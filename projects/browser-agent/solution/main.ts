@@ -28,7 +28,13 @@ export type Observation = {
   buttons: Button[];
   done: boolean;
 };
-export type Task = { name: string; email: string; allowedOrigin: string };
+export type Task = {
+  name: string;
+  email: string;
+  allowedOrigin: string;
+  fields?: { label: string; value: string }[];
+  submitLabel?: string;
+};
 export type Action =
   | { kind: "fill"; id: string; value: string }
   | { kind: "click"; id: string }
@@ -72,19 +78,35 @@ export function choose(observation: Observation, task: Task): Action {
     return { kind: "blocked", reason: "origin changed" };
   if (!task.name.trim() || !/^\S+@\S+\.\S+$/.test(task.email))
     return { kind: "blocked", reason: "invalid task" };
-  if (o.done) return { kind: "done" };
-  for (const [pattern, value] of [
-    [/full name/i, task.name],
-    [/email/i, task.email],
-  ] as const) {
-    const fields = o.fields.filter((f) => pattern.test(f.label));
+  const desired = task.fields ?? [
+    { label: "Full name", value: task.name },
+    { label: "Email address", value: task.email },
+  ];
+  if (
+    !desired.length ||
+    desired.some((row) => !row.label.trim() || !row.value.trim()) ||
+    new Set(desired.map((row) => row.label.toLowerCase())).size !==
+      desired.length
+  )
+    return { kind: "blocked", reason: "invalid task fields" };
+  for (const { label, value } of desired) {
+    const fields = o.fields.filter(
+      (f) => f.label.trim().toLowerCase() === label.trim().toLowerCase(),
+    );
     if (fields.length !== 1 || fields[0].disabled)
       return { kind: "blocked", reason: "missing or ambiguous field" };
     if (fields[0].value !== value)
-      return { kind: "fill", id: fields[0].id, value };
+      return o.done
+        ? { kind: "blocked", reason: "completion values disagree" }
+        : { kind: "fill", id: fields[0].id, value };
   }
+  if (o.done) return { kind: "done" };
   const buttons = o.buttons.filter(
-    (b) => /^save request$/i.test(b.label) && !b.disabled && !b.dangerous,
+    (b) =>
+      b.label.trim().toLowerCase() ===
+        (task.submitLabel ?? "Save request").toLowerCase() &&
+      !b.disabled &&
+      !b.dangerous,
   );
   return buttons.length === 1
     ? { kind: "click", id: buttons[0].id }

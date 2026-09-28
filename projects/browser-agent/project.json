@@ -3,13 +3,10 @@
   "title": "Browser Agent",
   "level": 5,
   "levelName": "Frontier",
-  "tagline": "Build a bounded DOM agent, test it against adversarial observations, then verify a real local Chromium form with Python pixel evidence.",
-  "summary": "Build a bounded DOM agent, test it against adversarial observations, then verify a real local Chromium form with Python pixel evidence.",
+  "tagline": "A form-run receipt that checks the requested values before trusting the success banner.",
+  "summary": "A form-run receipt that checks the requested values before trusting the success banner. Replace Driver with an adapter that implements observe, act and capture. Run cli.ts --live only after serving the authored fixture and setting BROWSE_BIN.",
   "hours": 8,
-  "languages": [
-    "TypeScript",
-    "Python"
-  ],
+  "languages": ["TypeScript", "Python"],
   "status": "ready",
   "source": "core",
   "author": {
@@ -22,19 +19,23 @@
     "Verify screenshot pixels in Python",
     "Drive the real fixture and score the run"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Build a bounded DOM agent, test it against adversarial observations, then verify a real local Chromium form with Python pixel evidence.",
+  "prerequisites": [
+    "Node 22.18+, Python 3, DOM labels, async functions, subprocess arguments and byte arrays. Live Chromium additionally requires an installed gstack browse executable."
+  ],
+  "youWillBuild": "A form-run receipt that checks the requested values before trusting the success banner.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "Replace Driver with an adapter that implements observe, act and capture. Run cli.ts --live only after serving the authored fixture and setting BROWSE_BIN."
   ],
   "demo": {
+    "cwd": "solution",
     "command": [
       "node",
-      "main.ts",
-      "--demo"
-    ],
-    "cwd": "solution"
+      "cli.ts",
+      "--task",
+      "samples/contact.json",
+      "--output",
+      "browser-run.json"
+    ]
   },
   "stages": [
     {
@@ -44,10 +45,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "TypeScript expresses observations and an action union with no arbitrary-script action.",
-      "concepts": [
-        "parseObservation",
-        "choose"
-      ],
+      "concepts": ["parseObservation", "choose"],
       "difficulty": "starter",
       "runner": [
         "node",
@@ -55,10 +53,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-browser-agent-1"
     },
@@ -69,10 +64,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "An injected driver separates the policy from Chromium and enables deterministic failure tests.",
-      "concepts": [
-        "runAgent",
-        "FixtureDriver"
-      ],
+      "concepts": ["runAgent", "FixtureDriver"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -80,10 +72,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-browser-agent-2"
     },
@@ -94,9 +83,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Python stdlib can decode a bounded RGB/RGBA PNG without adding an imaging dependency.",
-      "concepts": [
-        "inspectPNG"
-      ],
+      "concepts": ["inspectPNG"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -104,10 +91,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-browser-agent-3"
     },
@@ -118,21 +102,16 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Node child-process argv calls adapt the same driver contract to the installed gstack browser.",
-      "concepts": [
-        "GstackDriver",
-        "scoreRuns"
-      ],
+      "concepts": ["GstackDriver", "scoreRuns"],
       "difficulty": "core",
       "runner": [
         "node",
         "--experimental-strip-types",
         "--test",
-        "{tests}/stage.test.ts"
+        "{tests}/stage.test.ts",
+        "{tests}/integration.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-browser-agent-4"
     }
