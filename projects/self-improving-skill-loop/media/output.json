@@ -1,0 +1,16 @@
+{
+  "title": "Self-Improving Skill Loop / actual output",
+  "recordedAt": "2026-09-28T16:12:37Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/self-improving-skill-loop/solution",
+      "exitCode": 0,
+      "output": "{\n  \"candidate\": [\n    {\n      \"terms\": [\n        \"refund\"\n      ],\n      \"label\": \"billing\"\n    }\n  ],\n  \"gate\": {\n    \"promote\": true,\n    \"gain\": 1.0,\n    \"regressions\": [],\n    \"candidate_sha256\": \"a303dc098d6915c2407dcde3403db191d1caacd9dac5a62b34c31a1d6eb6a21b\",\n    \"baseline\": 0.0,\n    \"candidate\": 1.0\n  }\n}\n",
+      "durationMs": 29
+    }
+  ]
+}
