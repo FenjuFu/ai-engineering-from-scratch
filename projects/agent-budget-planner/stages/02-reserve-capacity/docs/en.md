@@ -1,77 +1,53 @@
 # Reserve capacity before dispatch
 
-> Return a new ledger with a unique request reservation.
+Stage 2 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 2 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `reserve` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+## What changes
 
 Checking available budget without reserving it allows multiple queued requests to spend the same capacity. Store reservations separately from settled spending. A new request must fit after both quantities are counted.
 
 This single-process state machine teaches the invariant. It does not claim distributed concurrency safety. A service version needs an atomic transaction or lock around this exact transition.
 
+## Work through one concrete case
+
+Start at limit 100, spent 20, holds={A:30}. Available capacity is50, so reserving B:60 fails without changing A. A second reservation using idA also fails even if its amount is1.
+
 ```figure
 pj-agent-budget-planner-2
 ```
 
-## Predict first
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-If two requests each need 60 units from a 100-unit budget, can both be admitted?
+## Implement the contract
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Implement `reserve` against the stated contract.
 
-## Your task
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-Implement `reserve` in `main.py` in your learner workspace. Return a new ledger with a unique request reservation. Reject duplicate ids, invalid amounts, and overspending.
+Build a new holds dictionary only after validating the identity and amount. Admission and reservation must be one state transition; an earlier available() check alone permits double spending.
 
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
+## Verify and inspect
 
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
+From the repository root, initialize once with `python3 scripts/project_test.py agent-budget-planner --init learning-artifacts/agent-budget-planner`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py agent-budget-planner --init my-agent-budget-planner
-python3 scripts/project_test.py agent-budget-planner --stage 2 --path my-agent-budget-planner
+python3 scripts/project_test.py agent-budget-planner --stage 2 --path learning-artifacts/agent-budget-planner --strict
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
-
-## What you should see
-
-The first request reserves capacity and the second fails before dispatch.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-cd projects/agent-budget-planner/solution
-python3 demo.py
+cd learning-artifacts/agent-budget-planner
+python3 cli.py samples/input.json --mode execute --output budget.json
 ```
 
-## Debug with evidence
+## Investigate the failure boundary
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+Trace two callers both observing 50 free units. Name the lock or database transaction a service needs around reserve.
 
-## Check yourself
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
 
-## Going further
 
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
+## References
 
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/decimal.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+[Primary technical reference](https://docs.python.org/3/library/decimal.html)
