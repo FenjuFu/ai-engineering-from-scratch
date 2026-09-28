@@ -1,0 +1,16 @@
+{
+  "title": "Sandbox Policy Planner / actual output",
+  "recordedAt": "2026-09-28T16:20:53Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/sandbox-ladder/solution",
+      "exitCode": 0,
+      "output": "BUDGET 4: Err(Limit)\nprofile=microvm-fixture mode=policy-simulation os_isolation=false\nverify=runtime-configuration-and-escape-tests\n",
+      "durationMs": 367
+    }
+  ]
+}
