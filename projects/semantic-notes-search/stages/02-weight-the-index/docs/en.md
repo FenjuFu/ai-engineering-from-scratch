@@ -1,20 +1,6 @@
 # Weight terms by document rarity
 
-> Build an index from a mapping of ids to strings.
-
-**Type:** Build
-**Languages:** Python
-**Stage:** 2 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `build_index` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+**Stage 2 of 4.** Python. Plan about 2 hours.
 
 A word that appears in every note provides little discrimination. Compute smoothed IDF as log((1+N)/(1+df))+1, multiply by term frequency, then normalize each vector to unit length.
 
@@ -24,54 +10,31 @@ Store vectors and IDF together. A query must use the exact vocabulary and weight
 pj-semantic-notes-search-2
 ```
 
-## Predict first
+Primary reference: [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html).
 
-Which gets a larger weight: a word in one document or a word in every document?
+## Worked Orchard case
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md). Complete [stage 1](../../01-normalize-notes/docs/en.md) first.
 
-## Your task
+Rare operational terms separate notes better than common project names. Count document frequency once per note, multiply frequency by smoothed rarity, then normalize each sparse vector.
 
-Implement `build_index` in `main.py` in your learner workspace. Build an index from a mapping of ids to strings. Empty notes have zero vectors and never cause division by zero.
-
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
-
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
-
-```bash
-python3 scripts/project_test.py semantic-notes-search --init my-semantic-notes-search
-python3 scripts/project_test.py semantic-notes-search --stage 2 --path my-semantic-notes-search
+```text
+N=3; df(orchard)=3 -> idf=1
+df(restore)=1 -> idf=log(4/2)+1=1.6931
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
+## Build and inspect
 
-## What you should see
+Build a set of words per document for document frequency. Repeating orchard ten times in one note does not make it occur in ten documents.
 
-Every nonempty vector has squared length approximately 1. The empty index contains no vectors.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-cd projects/semantic-notes-search/solution
-python3 demo.py
+python3 scripts/project_test.py semantic-notes-search --stage 2 --path learning-artifacts/semantic-notes-search
 ```
 
-## Debug with evidence
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+## Investigate next
 
-## Check yourself
-
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
-
-## Going further
-
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
-
-## Sources
-
-- [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+Why normalize vector length before comparing a short note with a long runbook?
