@@ -1,0 +1,115 @@
+{
+  "id": "local-model-eval-harness",
+  "title": "Local Model Evaluation Harness",
+  "level": 2,
+  "levelName": "Builder",
+  "tagline": "Evaluate recorded local-model responses with exact-answer accuracy, calibration error, and latency percentiles. Keep model execution separate from measurement.",
+  "summary": "Evaluate recorded local-model responses with exact-answer accuracy, calibration error, and latency percentiles. Keep model execution separate from measurement.",
+  "youWillBuild": "A runnable Python command and JSON report. The reference demo runs on deterministic local fixtures; you can feed the same functions your own data.",
+  "usefulFor": [
+    "Use this artifact to inspect a real local dataset before connecting a model or an external service."
+  ],
+  "hours": 8,
+  "languages": [
+    "Python"
+  ],
+  "languageWhy": {
+    "Python": "The standard library makes parsing, scoring, and failure handling visible without hiding the mechanism behind a framework."
+  },
+  "status": "ready",
+  "source": "core",
+  "author": {
+    "name": "AI Engineering from Scratch",
+    "github": "rohitg00"
+  },
+  "skills": [
+    "Validate prediction records",
+    "Measure normalized exact-answer accuracy",
+    "Measure confidence calibration",
+    "Publish accuracy and latency together"
+  ],
+  "prerequisites": [],
+  "figures": true,
+  "overviewFigure": "pj-local-model-eval-harness-1",
+  "demo": {
+    "command": [
+      "python3",
+      "demo.py"
+    ],
+    "cwd": "solution"
+  },
+  "stages": [
+    {
+      "id": "01-validate-predictions",
+      "title": "Validate prediction records",
+      "summary": "Validate unique ids, string answers, confidence in [0,1], and nonnegative latency_ms..",
+      "hours": 2,
+      "difficulty": "starter",
+      "language": "python",
+      "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
+      "concepts": [
+        "recorded predictions",
+        "finite values"
+      ],
+      "figure": "pj-local-model-eval-harness-1"
+    },
+    {
+      "id": "02-measure-accuracy",
+      "title": "Measure normalized exact-answer accuracy",
+      "summary": "Return correct, total, accuracy, and coverage against a complete label mapping..",
+      "hours": 2,
+      "difficulty": "core",
+      "language": "python",
+      "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
+      "concepts": [
+        "accuracy",
+        "coverage",
+        "missing data"
+      ],
+      "figure": "pj-local-model-eval-harness-2"
+    },
+    {
+      "id": "03-measure-calibration",
+      "title": "Measure confidence calibration",
+      "summary": "Compute fixed-width bin ECE weighted by bin count, retaining per-bin evidence..",
+      "hours": 2,
+      "difficulty": "core",
+      "language": "python",
+      "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
+      "concepts": [
+        "calibration",
+        "ECE",
+        "confidence"
+      ],
+      "figure": "pj-local-model-eval-harness-3"
+    },
+    {
+      "id": "04-publish-scorecard",
+      "title": "Publish accuracy and latency together",
+      "summary": "Combine metrics with nearest-rank latency percentiles and a measurement-source label..",
+      "hours": 2,
+      "difficulty": "stretch",
+      "language": "python",
+      "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
+      "concepts": [
+        "percentiles",
+        "measurement provenance"
+      ],
+      "figure": "pj-local-model-eval-harness-4"
+    }
+  ],
+  "demos": [
+    {
+      "gif": "media/run.gif",
+      "poster": "media/run.png",
+      "title": "Initialize and grade",
+      "caption": "Recorded starter failure followed by all reference-solution stages passing. Reference passes do not earn learner certificates."
+    },
+    {
+      "gif": "media/output.gif",
+      "poster": "media/output.png",
+      "title": "Inspect the output",
+      "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
+    }
+  ]
+}
