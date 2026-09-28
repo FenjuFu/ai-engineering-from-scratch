@@ -1,60 +1,55 @@
 # Drive the real fixture and score the run
 
-> Serve fixture.html over loopback and navigate to it with gstack browse. GstackDriver reads DOM observations, fills labels, clicks the observed button and captures a real screenshot. Commands use argument arrays instead of a shell. Run the same bounded policy with --live and compare its trace with the fixture backend. Keep completion scores separate for simulated and real-browser runs.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript, Python
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Serve fixture.html over loopback and navigate to it with gstack browse. GstackDriver reads DOM observations, fills labels, clicks the observed button and captures a real screenshot. Commands use argument arrays instead of a shell. Run the same bounded policy with --live and compare its trace with the fixture backend. Keep completion scores separate for simulated and real-browser runs.
 
 The boundary for this stage is `GstackDriver, scoreRuns`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Node child-process argv calls adapt the same driver contract to the installed gstack browser. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+The real adapter navigates the configured loopback URL, reads labels through JavaScript, fills observed ids and captures browser-result.png. Its screenshot comes from Chromium; fixture mode deliberately reuses authored pixels.
 
 ```figure
 pj-browser-agent-4
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `GstackDriver, scoreRuns` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-Start `python3 -m http.server 8877 --bind 127.0.0.1 --directory projects/browser-agent/solution`, navigate with `$BROWSE_BIN goto http://127.0.0.1:8877/fixture.html`, then run `node projects/browser-agent/solution/main.ts --live`. The run saves browser-result.png and reports actual Chromium mode.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Keep binary and arguments separate in execFileSync. A task value containing quotes remains one fill argument. Supply an allowed origin before navigation, then recheck it on every observation.
 
-```bash
-python3 scripts/project_test.py browser-agent --init learning-artifacts/browser-agent
-python3 scripts/project_test.py browser-agent --stage 4 --path learning-artifacts/browser-agent
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py browser-agent --init learning-artifacts/browser-agent`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py browser-agent --path learning-artifacts/browser-agent
-node learning-artifacts/browser-agent/main.ts --demo
+python3 scripts/project_test.py browser-agent --stage 4 --path learning-artifacts/browser-agent --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-Start `python3 -m http.server 8877 --bind 127.0.0.1 --directory projects/browser-agent/solution`, navigate with `$BROWSE_BIN goto http://127.0.0.1:8877/fixture.html`, then run `node projects/browser-agent/solution/main.ts --live`. The run saves browser-result.png and reports actual Chromium mode.
+```bash
+cd learning-artifacts/browser-agent
+node cli.ts --task samples/contact.json --output browser-run.json
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Serve fixture.html at127.0.0.1:8877, set BROWSE_BIN, and run cli.ts --task samples/contact.json --live. Record the mode, action count and screenshot together.
 
-Keep your implementation and one input you invented under `learning-artifacts/browser-agent/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+Offline mode exercises fixture transitions and recorded pixels. Pixel greenness is a fixture-specific signal, not general visual understanding. The live CLI is limited to explicitly allowed loopback pages.
+
+
+## References
+
+[Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/)
+[PNG specification](https://www.w3.org/TR/png-3/)
+[HTML form controls](https://html.spec.whatwg.org/multipage/forms.html)
