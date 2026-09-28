@@ -15,9 +15,10 @@
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Improve an explicit routing skill from labeled development errors, then require a separate evaluation gate before promotion.",
+  "youWillBuild": "A correction-to-skill experiment runner preserving sources, preventing leakage and supporting rollback.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "A correction-to-skill experiment runner preserving sources, preventing leakage and supporting rollback.",
+    "The experiment proposes deterministic routing rules from development data."
   ],
   "skills": [
     "Split labeled cases without identity leakage",
@@ -25,7 +26,20 @@
     "Propose rules from development errors only",
     "Require a separate gate before promotion"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Model evaluation",
+      "path": "phases/02-ml-fundamentals/09-model-evaluation"
+    },
+    {
+      "title": "Repository memory and state",
+      "path": "phases/14-agent-engineering/34-repo-memory-and-state"
+    },
+    {
+      "title": "Verification gates",
+      "path": "phases/14-agent-engineering/38-verification-gates"
+    }
+  ],
   "figures": true,
   "overviewFigure": "pj-self-improving-skill-loop-1",
   "languageWhy": {

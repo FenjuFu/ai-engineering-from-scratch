@@ -1,56 +1,47 @@
 # Split labeled cases without identity leakage
 
-> Every case appears in exactly one partition; a repeated id stops the run.
+**Stage 1 of 4.** Python. Plan about 2 hours.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 1 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Implement `dataset.py`: `split_cases`. This artifact is stage 1 of Self-Improving Skill Loop. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Hash each stable case id to choose a partition independent of file order. A duplicate identity is rejected before evaluation. The split is deterministic, but it does not promise perfectly balanced label counts; inspect both partitions and reserve the evaluation partition before proposing rules.
 
 ```figure
 pj-self-improving-skill-loop-1
 ```
 
-## Follow the mechanism
-
-Hash each stable case id to choose a partition independent of file order. A duplicate identity is rejected before evaluation. The split is deterministic, but it does not promise perfectly balanced label counts; inspect both partitions and reserve the evaluation partition before proposing rules.
-
-## Build it
-
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Implementation boundary
 
 ```python
 def split_cases(cases,holdout_fraction=.25):
     raise NotImplementedError("Implement the stage contract")
 ```
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Primary reference: [Reference 1](https://docs.python.org/3/library/hashlib.html).
 
-## Run it
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py self-improving-skill-loop --init my-self-improving-skill-loop
-python3 scripts/project_test.py self-improving-skill-loop --stage 1 --path my-self-improving-skill-loop
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Model evaluation](../../../../../phases/02-ml-fundamentals/09-model-evaluation/docs/en.md).
+
+Holdout separation must follow content and groups, not just ids. Two tickets with different ids can repeat the same customer message. Normalize content and union related records before assigning the component to a partition.
+
+```text
+id d1: "Invoice wrong"
+id h1: "INVOICE   wrong"
+fingerprint equal -> one partition, or reject explicit split
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+## Build and inspect
 
-## What you should see
+Union both duplicate-content edges and group edges before hashing a component. Reject conflicting labels for identical normalized content.
 
-Every case appears in exactly one partition; a repeated id stops the run. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Inspect the boundary
+```bash
+python3 scripts/project_test.py self-improving-skill-loop --init learning-artifacts/self-improving-skill-loop
+python3 scripts/project_test.py self-improving-skill-loop --stage 1 --path learning-artifacts/self-improving-skill-loop
+```
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Use it
+## Investigate next
 
-After all stages pass, run `python3 projects/self-improving-skill-loop/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
-
-## Primary references
-
-- [Reference 1](https://docs.python.org/3/library/hashlib.html)
+Can two distinct messages from one customer thread safely be treated as independent examples?

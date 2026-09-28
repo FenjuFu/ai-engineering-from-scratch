@@ -1,21 +1,16 @@
-import json
-from propose import propose
-from promotion import gate
+from pathlib import Path
+import json, subprocess, tempfile, sys, shutil
 
-dev = [
-    {"text": "refund order", "label": "billing"},
-    {"text": "refund invoice", "label": "billing"},
-]
-candidate = propose(dev, [])
+root = Path(__file__).resolve().parent
+examples = root.parent / "examples"
+from cli import experiment, promote
+
+result = experiment(json.loads((examples / "support-cases.json").read_text()))
 print(
     json.dumps(
         {
-            "candidate": candidate,
-            "gate": gate(
-                [{"id": "eval-1", "text": "refund payment", "label": "billing"}],
-                [],
-                candidate,
-            ),
+            "candidate": result,
+            "promotion": "not requested; inspect candidate digest before approval",
         },
         indent=2,
     )
