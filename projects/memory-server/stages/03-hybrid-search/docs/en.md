@@ -1,60 +1,57 @@
 # Score vectors in a real Rust process
 
-> Compile score.rs with the standard Rust toolchain and send query and document vectors over stdin. Compute cosine similarity, returning zero for a zero-norm vector. Combine 60 percent lexical query coverage with 40 percent cosine score and use ids to break ties. Test dimensions and finite values before crossing the process boundary. Compile the Rust binary into a private temporary directory and remove it on normal process exit. Never trust an executable already present at a predictable shared temporary path.
+Stage 3 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript, Rust
-**Stage:** 3 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Compile score.rs with the standard Rust toolchain and send query and document vectors over stdin. Compute cosine similarity, returning zero for a zero-norm vector. Combine 60 percent lexical query coverage with 40 percent cosine score and use ids to break ties. Test dimensions and finite values before crossing the process boundary. Compile the Rust binary into a private temporary directory and remove it on normal process exit. Never trust an executable already present at a predictable shared temporary path.
 
 The boundary for this stage is `cosineScores, MemoryStore.search`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Rust handles the numerical kernel through a narrow line protocol; TypeScript owns retrieval and provenance. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+Query vector[1,1] and document[1,0] have cosine 1/sqrt(2), about 0.707. With lexical coverage 0.5, the hybrid score is0.6*0.5+0.4*0.707, about 0.583.
 
 ```figure
 pj-memory-server-3
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `cosineScores, MemoryStore.search` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-The Rust kernel scores identical vectors as 1.0 and search returns the matching memory with its source intact.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Validate finite, equal-length vectors before sending comma-separated rows to Rust. Treat zero norm as score 0 and check the real subprocess result count.
 
-```bash
-python3 scripts/project_test.py memory-server --init learning-artifacts/memory-server
-python3 scripts/project_test.py memory-server --stage 3 --path learning-artifacts/memory-server
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py memory-server --init learning-artifacts/memory-server`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py memory-server --path learning-artifacts/memory-server
-node learning-artifacts/memory-server/main.ts --demo
+python3 scripts/project_test.py memory-server --stage 3 --path learning-artifacts/memory-server --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-The Rust kernel scores identical vectors as 1.0 and search returns the matching memory with its source intact.
+```bash
+cd learning-artifacts/memory-server
+node cli.ts --data-dir memory-data --put samples/memory.json
+node cli.ts --data-dir memory-data --query "cache policy"
+node cli.ts --data-dir memory-data --history cache-policy
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Change the query in the lab and inspect both contributions. A high hash cosine with no literal overlap may be a collision, not semantic support.
 
-Keep your implementation and one input you invented under `learning-artifacts/memory-server/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[MCP tools specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)
+[Rust standard library](https://doc.rust-lang.org/std/)
+[Node HTTP API](https://nodejs.org/api/http.html)
