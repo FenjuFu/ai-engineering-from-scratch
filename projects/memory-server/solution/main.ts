@@ -222,7 +222,11 @@ export function createMemoryServer(store: MemoryStore, token: string) {
         send(200, { jsonrpc: "2.0", id: data.id, result });
       if (data.method === "initialize") {
         reply({
-          protocolVersion: "2025-11-25",
+          protocolVersion: ["2025-06-18", "2025-11-25"].includes(
+            data.params?.protocolVersion,
+          )
+            ? data.params.protocolVersion
+            : "2025-11-25",
           capabilities: { tools: {} },
           serverInfo: { name: "scratch-memory", version: "1.0.0" },
         });
@@ -249,7 +253,20 @@ export function createMemoryServer(store: MemoryStore, token: string) {
               inputSchema: {
                 type: "object",
                 properties: {
-                  memory: { type: "object" },
+                  memory: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", pattern: "^[a-zA-Z0-9_-]{1,64}$" },
+                      namespace: {
+                        type: "string",
+                        pattern: "^[a-zA-Z0-9_-]{1,64}$",
+                      },
+                      text: { type: "string", minLength: 1, maxLength: 10000 },
+                      source: { type: "string", minLength: 1 },
+                    },
+                    required: ["id", "namespace", "text", "source"],
+                    additionalProperties: false,
+                  },
                   expectedRevision: { type: "integer" },
                 },
                 required: ["memory"],

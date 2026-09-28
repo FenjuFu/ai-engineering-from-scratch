@@ -1,17 +1,16 @@
 {
-  "title": "Persistent Memory Server / actual output",
-  "recordedAt": "2026-09-28T16:27:39Z",
+  "title": "Persistent Memory Server | Actual artifact output",
+  "recordedAt": "2026-09-28T19:23:04Z",
   "records": [
     {
       "command": [
         "node",
-        "main.ts",
-        "--demo"
+        "demo-persistent.ts"
       ],
-      "cwd": "projects/memory-server/solution",
+      "cwd": "/tmp/aiefs-recorded-artifacts/memory-server/solution",
       "exitCode": 0,
-      "output": "{\n  \"transport\": \"actual local HTTP and MCP\",\n  \"response\": {\n    \"jsonrpc\": \"2.0\",\n    \"id\": 1,\n    \"result\": {\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"[{\\\"id\\\":\\\"m1\\\",\\\"namespace\\\":\\\"docs\\\",\\\"text\\\":\\\"Rust computes cosine similarity for memory search\\\",\\\"source\\\":\\\"notes/search.md:1\\\",\\\"revision\\\":1,\\\"score\\\":0.8138089936}]\"\n        }\n      ],\n      \"isError\": false\n    }\n  }\n}\n",
-      "durationMs": 559
+      "output": "{\n  \"mode\": \"actual separate processes sharing an append log; demo removes its temporary directory afterward\",\n  \"created\": {\n    \"id\": \"cache-policy\",\n    \"namespace\": \"docs\",\n    \"text\": \"Cache entries expire after sixty seconds. Never cache private responses.\",\n    \"source\": \"policies/cache.md:12\",\n    \"revision\": 1\n  },\n  \"recovered\": [\n    {\n      \"id\": \"cache-policy\",\n      \"namespace\": \"docs\",\n      \"text\": \"Cache entries expire after sixty seconds. Never cache private responses.\",\n      \"source\": \"policies/cache.md:12\",\n      \"revision\": 1,\n      \"score\": 0.4511857892\n    }\n  ],\n  \"updated\": {\n    \"id\": \"cache-policy\",\n    \"namespace\": \"docs\",\n    \"text\": \"Cache entries now expire after ninety seconds. Private responses remain excluded.\",\n    \"source\": \"policies/cache.md:18\",\n    \"revision\": 2\n  },\n  \"history\": [\n    {\n      \"id\": \"cache-policy\",\n      \"namespace\": \"docs\",\n      \"text\": \"Cache entries expire after sixty seconds. Never cache private responses.\",\n      \"source\": \"policies/cache.md:12\",\n      \"revision\": 1\n    },\n    {\n      \"id\": \"cache-policy\",\n      \"namespace\": \"docs\",\n      \"text\": \"Cache entries now expire after ninety seconds. Private responses remain excluded.\",\n      \"source\": \"policies/cache.md:18\",\n      \"revision\": 2\n    }\n  ]\n}\n",
+      "durationMs": 1292
     }
   ]
 }

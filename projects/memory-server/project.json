@@ -3,13 +3,10 @@
   "title": "Persistent Memory Server",
   "level": 3,
   "levelName": "Engineer",
-  "tagline": "Build a versioned memory log with serialized writes, combine lexical and Rust vector scores, and serve the same operations over local REST and MCP.",
-  "summary": "Build a versioned memory log with serialized writes, combine lexical and Rust vector scores, and serve the same operations over local REST and MCP.",
+  "tagline": "A persistent memory workbench with revision history and one boundary for REST and MCP.",
+  "summary": "A persistent memory workbench with revision history and one boundary for REST and MCP. Set MEMORY_TOKEN in the environment and run node cli.ts --data-dir memory-data --serve --port 8788. REST and MCP share the same store; no token is written into files.",
   "hours": 8,
-  "languages": [
-    "TypeScript",
-    "Rust"
-  ],
+  "languages": ["TypeScript", "Rust"],
   "status": "ready",
   "source": "core",
   "author": {
@@ -22,18 +19,16 @@
     "Score vectors in a real Rust process",
     "Expose REST and MCP tools"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Build a versioned memory log with serialized writes, combine lexical and Rust vector scores, and serve the same operations over local REST and MCP.",
+  "prerequisites": [
+    "Node 22.18+, Rust2021 and Python3 for the grader",
+    "promises, append logs, HTTP, namespaces, revisions and vector dot products."
+  ],
+  "youWillBuild": "A persistent memory workbench with revision history and one boundary for REST and MCP.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "Set MEMORY_TOKEN in the environment and run node cli.ts --data-dir memory-data --serve --port 8788. REST and MCP share the same store; no token is written into files."
   ],
   "demo": {
-    "command": [
-      "node",
-      "main.ts",
-      "--demo"
-    ],
+    "command": ["node", "demo-persistent.ts"],
     "cwd": "solution"
   },
   "stages": [
@@ -44,10 +39,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "TypeScript provides typed memory records; runtime validation protects JSON inputs.",
-      "concepts": [
-        "validateMemory",
-        "embed"
-      ],
+      "concepts": ["validateMemory", "embed"],
       "difficulty": "starter",
       "runner": [
         "node",
@@ -55,10 +47,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "rustc"
-      ],
+      "requires": ["node", "rustc"],
       "timeout": 90,
       "figure": "pj-memory-server-1"
     },
@@ -69,10 +58,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Promises serialize local writes while JSONL makes the durable history inspectable.",
-      "concepts": [
-        "MemoryStore.put",
-        "MemoryStore.list"
-      ],
+      "concepts": ["MemoryStore.put", "MemoryStore.list"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -80,10 +66,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "rustc"
-      ],
+      "requires": ["node", "rustc"],
       "timeout": 90,
       "figure": "pj-memory-server-2"
     },
@@ -94,10 +77,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Rust handles the numerical kernel through a narrow line protocol; TypeScript owns retrieval and provenance.",
-      "concepts": [
-        "cosineScores",
-        "MemoryStore.search"
-      ],
+      "concepts": ["cosineScores", "MemoryStore.search"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -105,10 +85,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "rustc"
-      ],
+      "requires": ["node", "rustc"],
       "timeout": 90,
       "figure": "pj-memory-server-3"
     },
@@ -119,22 +96,38 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Node HTTP serves the same MemoryStore methods across two wire formats.",
-      "concepts": [
-        "createMemoryServer"
-      ],
+      "concepts": ["createMemoryServer"],
       "difficulty": "core",
-      "runner": [
-        "node",
-        "--experimental-strip-types",
-        "--test",
-        "{tests}/stage.test.ts"
-      ],
-      "requires": [
-        "node",
-        "rustc"
-      ],
+      "requires": ["node", "rustc"],
       "timeout": 90,
-      "figure": "pj-memory-server-4"
+      "figure": "pj-memory-server-4",
+      "runners": [
+        {
+          "language": "typescript",
+          "argv": [
+            "node",
+            "--experimental-strip-types",
+            "--test",
+            "{tests}/stage.test.ts",
+            "{tests}/integration.test.ts"
+          ]
+        },
+        {
+          "language": "python",
+          "optional": true,
+          "requires": ["python:mcp"],
+          "argv": [
+            "{python}",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "{stage}/tests-framework",
+            "-p",
+            "test_standard_client.py"
+          ]
+        }
+      ]
     }
   ],
   "demos": [
