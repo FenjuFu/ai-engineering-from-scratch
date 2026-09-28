@@ -1,0 +1,16 @@
+{
+  "title": "Semantic Notes Search / actual output",
+  "recordedAt": "2026-09-28T16:11:18Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/semantic-notes-search/solution",
+      "exitCode": 0,
+      "output": "{\n  \"query\": \"release service\",\n  \"matches\": [\n    {\n      \"id\": \"deploy\",\n      \"score\": 0.553246,\n      \"matched\": [\n        \"deploy\",\n        \"service\"\n      ]\n    },\n    {\n      \"id\": \"incident\",\n      \"score\": 0.194924,\n      \"matched\": [\n        \"service\"\n      ]\n    }\n  ],\n  \"evaluation\": {\n    \"hits\": 2,\n    \"total\": 2,\n    \"recall\": 1.0\n  }\n}\n",
+      "durationMs": 27
+    }
+  ]
+}
