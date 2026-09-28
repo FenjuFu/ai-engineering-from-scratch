@@ -1,54 +1,50 @@
 # Route with a total-attempt budget
 
-> primary 503, secondary 200, budget 2 -> completed after 2 attempts
+> Route the caller body while keeping credentials private.
 
 **Type:** Build
 **Languages:** Go
 **Stage:** 4 of 4
+**Prerequisites:** Stages 1 through 3. Read [Token Counter and Cost Meter](../../../../token-counter-and-cost-meter/README.md) before adding usage accounting.
 **Time:** ~2 hours
 
 ## What you build
 
-Route a bounded request through providers with explicit failure semantics. This stage implements `Route` in `stage4.go`. The finished behavior feeds the next stage through a typed contract.
+Implement `Route` by walking validated endpoints once, charging attempts before calling `Attempt`, and recording status, elapsed milliseconds and failure kind. Stop on success, a terminal status, response overflow, cancellation or the call ceiling. Give the entire route a five-second maximum even without a caller deadline.
 
-## Why it matters
+Provided `RouteConfigured` composes your route with stricter operator settings: 1 through 5000 milliseconds, response ceiling and named providers. Its transport creates a provider-specific Authorization header from `key_env` and may rewrite `model`. `GatewayHandler` copies the JSON body only; caller headers never become provider credentials.
 
-Visit each validated provider once, stopping at success, a terminal client error, cancellation or the total attempt limit. Oversized bodies are terminal. Transport failures can fall through to another endpoint, but the gateway does not repeat side effects blindly on the same provider.
+## Worked example
 
-## Work through one case
+Primary takes 35 ms and returns 503. Under a 65 ms total deadline, backup receives roughly 30 ms, not another 65 ms. When that shared context expires, return `State=cancelled`, the attempts made so far and the context error.
 
-primary 503, secondary 200, budget 2 -> completed after 2 attempts. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+For a successful proxy request, the response carries `X-Gateway-Attempts: 2` and `X-Gateway-Provider: backup`. The body is the actual backup response. Errors use local 502 responses, or 504 for cancellation, without echoing provider error bodies. The CLI emits the fuller trace for operator inspection.
 
 ```figure
 pj-llm-gateway-with-fallbacks-4
 ```
 
-## Your task
+## Implement the contract
 
 ```go
-func Route(ctx context.Context,client *http.Client,providers []string,payload string,maxAttempts int,maxBytes int64)(Outcome,error)
+func Route(ctx context.Context, client *http.Client, providers []string, payload string, maxAttempts int, maxBytes int64) (Outcome, error)
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Check `ctx.Err()` immediately after a failed attempt, including the last provider. Otherwise a timeout may be mislabeled as ordinary exhaustion. Missing configured environment variables should fail before any provider receives a request. The integration tests use separate local servers to observe both credential headers.
 
-## Run the tests
+## Run your work
+
+From the repository root, initialize once; the grader preserves existing workspace files:
 
 ```bash
-python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 4 --path /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --init /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 4 --path /tmp/llm-gateway-with-fallbacks-work --strict
 ```
 
-The stage checks Success, Fallback, Budget, AuthStops, Cancelled. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+Your implementation belongs in `stage4.go` in that workspace. Provided adapters call those learner functions; they do not import the reference solution. Stage tests include cases separate from the Orchard demonstration.
 
-## Check yourself
+## Inspect and extend
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Run `go run .` from the completed workspace: it starts a primary, backup and proxy on temporary loopback ports and closes them after one request. For your own endpoints, copy `fixtures/providers.example.json`, replace model names, then use `go run . --config /tmp/providers.json --request fixtures/request.json` or `--listen 127.0.0.1:8088`. The server is local, non-streaming and unauthenticated; it is not a public deployment template.
 
-## Going further
-
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/net/http). Build an HTTP gateway library with endpoint validation, response limits, retry classification and a total-attempt budget. Offline tests inject a real net/http transport interface, while applications can use the standard HTTP client for live endpoints.
+[Go standard-library reference](https://pkg.go.dev/context). The runnable core uses only Go's standard library. External model calls are optional and do not run during ordinary grading.
