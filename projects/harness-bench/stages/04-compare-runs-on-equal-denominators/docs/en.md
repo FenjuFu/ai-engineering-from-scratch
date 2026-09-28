@@ -1,54 +1,50 @@
 # Compare runs on equal denominators
 
-> 2/2 outranks 1/2; 2/3 cannot join a two-case comparison
+> Prove the runs are comparable before ranking them.
 
 **Type:** Build
 **Languages:** Go
 **Stage:** 4 of 4
+**Prerequisites:** Stages 1 through 3. Read [Prompt Regression Tester](../../../../prompt-regression-tester/README.md) for paired output comparisons.
 **Time:** ~2 hours
 
 ## What you build
 
-Compare harness behavior under the same tasks and call budget. This stage implements `Leaderboard` in `stage4.go`. The finished behavior feeds the next stage through a typed contract.
+Implement `Leaderboard` so it validates results before sorting. Require equal totals and unique harness names. Receipt-bearing results must have the same ordered dataset SHA-256, model-configuration SHA-256 and call budget. Reject missing receipts mixed into a receipt-bearing comparison.
 
-## Why it matters
+`Fingerprint` serializes typed values before hashing. Dataset key order and whitespace disappear, but case order, prompts, expected answers and evidence remain part of the receipt. The model receipt includes adapter, model ID, generation settings, endpoint when live, and the full recording digest when replaying.
 
-Validate counters before ranking. Require every result to use the same total case count, reject duplicate harness names and rank by correct count followed by fewer errors and lexical name. The output states that scores are local fixture measurements, not model rankings.
+## Worked example
 
-## Work through one case
+The authored Orchard recording yields baseline `1/3` with three calls, retry `2/3` with four, and evidence `3/3` with three. Those are deliberately constructed responses that demonstrate the mechanism; they do not rank real models.
 
-2/2 outranks 1/2; 2/3 cannot join a two-case comparison. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+Now replace the expiry question but keep three cases. Equal denominators still say `3`, while dataset digests differ. Reject that comparison with `ErrConflict`. Changing `max_tokens` from 128 to 256 must also reject a mixed comparison, even if the model name is unchanged.
 
 ```figure
 pj-harness-bench-4
 ```
 
-## Your task
+## Implement the contract
 
 ```go
-func Leaderboard(results []Result)(string,error)
+func Leaderboard(results []Result) (string, error)
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Validate counters before sorting a copy: `Correct + Errors <= Attempted <= Total`, and receipt-bearing runs must satisfy `Attempted <= Calls <= CallBudget`. Rank by correct answers, then fewer final errors, then name. Legacy manually constructed results without any receipts retain the original counter-only API; use `EvaluatePolicy` for recorded or live comparisons.
 
-## Run the tests
+## Run your work
+
+From the repository root, initialize once; the grader preserves existing workspace files:
 
 ```bash
-python3 scripts/project_test.py harness-bench --stage 4 --path /tmp/harness-bench-work
+python3 scripts/project_test.py harness-bench --init /tmp/harness-bench-work
+python3 scripts/project_test.py harness-bench --stage 4 --path /tmp/harness-bench-work --strict
 ```
 
-The stage checks Rank, Denominator, Counter, Duplicate, Ties. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+Your implementation belongs in `stage4.go` in that workspace. Provided adapters call those learner functions; they do not import the reference solution. Stage tests include cases separate from the Orchard demonstration.
 
-## Check yourself
+## Inspect and extend
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Run `go run . --cases fixtures/orchard-cases.json --recording fixtures/orchard-recording.json --out /tmp/orchard-runs.json` in your completed workspace. Inspect one trace from each policy. The HTTP adapter accepts a full chat-completions endpoint, `--model`, `--key-env`, `--temperature` and `--max-tokens`; the README has the command. Repeated live runs are needed to estimate variance, and these unsigned receipts do not attest that a remote model stayed fixed.
 
-## Going further
-
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/testing). Build a deterministic evaluation harness with strict case ingestion, normalized exact-match scoring, per-run accounting and stable leaderboard output. The reference model is a local fixture function; benchmark numbers describe these cases, not general model capability.
+[Go standard-library reference](https://pkg.go.dev/encoding/json). The runnable core uses only Go's standard library. External model calls are optional and do not run during ordinary grading.
