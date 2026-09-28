@@ -1,0 +1,48 @@
+{
+  "title": "Agent Trace Debugger / initialize and test",
+  "recordedAt": "2026-09-28T16:15:42Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "agent-trace-debugger",
+        "--init",
+        "my-agent-trace-debugger"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-agent-trace-debugger\n  created  main.ts\n  created  package.json\n  created  stage-1.md\n  created  stage-2.md\n  created  stage-3.md\n  created  stage-4.md\nnext: python3 scripts/project_test.py agent-trace-debugger --stage 1 --path /privatemy-agent-trace-debugger\n",
+      "durationMs": 57
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "agent-trace-debugger",
+        "--stage",
+        "1",
+        "--path",
+        "my-agent-trace-debugger"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Agent Trace Debugger: grading learner\n  FAIL stage 1: Read a JSONL trace (6 tests)\n       tests failed; rerun with --verbose\n",
+      "durationMs": 279
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "agent-trace-debugger",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Agent Trace Debugger: grading solution\n  PASS stage 1: Read a JSONL trace (6 tests)\n  PASS stage 2: Validate parent relationships (6 tests)\n  PASS stage 3: Separate work time from waiting time (6 tests)\n  PASS stage 4: Render an inspectable timeline (6 tests)\n",
+      "durationMs": 962
+    }
+  ]
+}

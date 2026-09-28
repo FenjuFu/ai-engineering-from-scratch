@@ -1,0 +1,17 @@
+{
+  "title": "Agent Trace Debugger / actual output",
+  "recordedAt": "2026-09-28T16:15:43Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/agent-trace-debugger/solution",
+      "exitCode": 0,
+      "output": "{\n  \"rows\": [\n    {\n      \"id\": \"run\",\n      \"name\": \"Agent run\",\n      \"start\": 0,\n      \"end\": 100,\n      \"status\": \"ok\",\n      \"tokens\": 0,\n      \"inclusive\": 100,\n      \"exclusive\": 25\n    },\n    {\n      \"id\": \"search\",\n      \"parent\": \"run\",\n      \"name\": \"Search notes\",\n      \"start\": 10,\n      \"end\": 40,\n      \"status\": \"ok\",\n      \"tokens\": 50,\n      \"inclusive\": 30,\n      \"exclusive\": 30\n    },\n    {\n      \"id\": \"model\",\n      \"parent\": \"run\",\n      \"name\": \"Draft answer\",\n      \"start\": 45,\n      \"end\": 90,\n      \"status\": \"error\",\n      \"tokens\": 280,\n      \"inclusive\": 45,\n      \"exclusive\": 45\n    }\n  ],\n  \"totalTokens\": 330,\n  \"errors\": [\n    \"model\"\n  ],\n  \"wallTime\": 100,\n  \"slowest\": \"model\",\n  \"report\": \"trace.html\"\n}\n",
+      "durationMs": 106
+    }
+  ]
+}
