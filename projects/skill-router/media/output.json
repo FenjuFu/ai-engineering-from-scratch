@@ -1,0 +1,17 @@
+{
+  "title": "Skill Router / actual output",
+  "recordedAt": "2026-09-28T16:14:42Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/skill-router/solution",
+      "exitCode": 0,
+      "output": "{\n  \"status\": \"ready\",\n  \"ranked\": [\n    {\n      \"skill\": {\n        \"id\": \"review\",\n        \"description\": \"Review TypeScript changes\",\n        \"keywords\": [\n          \"review\",\n          \"diff\"\n        ],\n        \"paths\": [\n          \"src/*.ts\"\n        ],\n        \"priority\": 2,\n        \"requires\": [\n          \"tests\"\n        ],\n        \"permissions\": [\n          \"read\"\n        ]\n      },\n      \"score\": 7,\n      \"reasons\": [\n        \"keyword:review\",\n        \"keyword:diff\",\n        \"path:src/main.ts\"\n      ]\n    }\n  ],\n  \"plan\": [\n    \"tests\",\n    \"review\"\n  ]\n}\n",
+      "durationMs": 103
+    }
+  ]
+}
