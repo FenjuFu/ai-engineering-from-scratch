@@ -1,0 +1,48 @@
+{
+  "title": "Streaming Agent Shell in Rust / initialize and test",
+  "recordedAt": "2026-09-28T16:33:29Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "rust-agent-shell",
+        "--init",
+        "my-rust-agent-shell"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-rust-agent-shell\n  created  demo.py\n  created  main.rs\n  created  stage-2.md\n  created  stage-3.md\n  created  stage-4.md\nnext: python3 scripts/project_test.py rust-agent-shell --stage 1 --path /privatemy-rust-agent-shell\n",
+      "durationMs": 55
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "rust-agent-shell",
+        "--stage",
+        "1",
+        "--path",
+        "my-rust-agent-shell"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Streaming Agent Shell in Rust: grading learner\n  FAIL stage 1: Parse a deliberately small action language (6 tests)\n       tests failed; rerun with --verbose\n",
+      "durationMs": 954
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "rust-agent-shell",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Streaming Agent Shell in Rust: grading solution\n  PASS stage 1: Parse a deliberately small action language (6 tests)\n  PASS stage 2: Confine file tools to a bounded root (7 tests)\n  PASS stage 3: Track budgets and terminal state (6 tests)\n  PASS stage 4: Stream bounded JSON events through real stdin (6 tests)\n",
+      "durationMs": 2329
+    }
+  ]
+}

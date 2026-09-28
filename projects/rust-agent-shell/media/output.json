@@ -1,0 +1,16 @@
+{
+  "title": "Streaming Agent Shell in Rust / actual output",
+  "recordedAt": "2026-09-28T16:33:30Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/rust-agent-shell/solution",
+      "exitCode": 0,
+      "output": "mode=actual Rust stdin action loop; commands use filesystem APIs, no OS shell\n{\"seq\":1,\"kind\":\"ok\",\"output\":\"help | pwd | list [path] | read path | search pattern<TAB>path | quit\",\"terminal\":false}\n{\"seq\":2,\"kind\":\"ok\",\"output\":\"README.md\",\"terminal\":false}\n{\"seq\":3,\"kind\":\"ok\",\"output\":\"A bounded local agent shell.\\nEvery read stays inside the workspace.\\n\",\"terminal\":false}\n{\"seq\":4,\"kind\":\"ok\",\"output\":\"1:A bounded local agent shell.\",\"terminal\":false}\n{\"seq\":5,\"kind\":\"rejected\",\"output\":\"unsupported command\",\"terminal\":false}\n{\"seq\":6,\"kind\":\"ok\",\"output\":\"session closed\",\"terminal\":true}\n",
+      "durationMs": 689
+    }
+  ]
+}
