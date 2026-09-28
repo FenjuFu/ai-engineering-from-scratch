@@ -15,9 +15,10 @@
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Build a content-addressed document index with deletion tracking, version checks, and freshness-aware retrieval.",
+  "youWillBuild": "A stale-answer incident lab proving an edited or deleted policy can no longer be cited.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "A stale-answer incident lab proving an edited or deleted policy can no longer be cited.",
+    "The importer expects the complete corpus, not a partial change feed."
   ],
   "skills": [
     "Normalize documents and fingerprint content",
@@ -25,7 +26,16 @@
     "Persist an index with atomic replacement",
     "Exclude expired evidence at query time"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Data management",
+      "path": "phases/00-setup-and-tooling/09-data-management"
+    },
+    {
+      "title": "Retrieval augmented generation",
+      "path": "phases/11-llm-engineering/06-rag"
+    }
+  ],
   "figures": true,
   "overviewFigure": "pj-rag-freshness-pipeline-1",
   "languageWhy": {
@@ -42,7 +52,7 @@
     {
       "id": "01-fingerprint",
       "title": "Normalize documents and fingerprint content",
-      "summary": "Canonically equivalent \u00e9 encodings receive identical content hashes.",
+      "summary": "Canonically equivalent é encodings receive identical content hashes.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,

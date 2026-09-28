@@ -1,56 +1,48 @@
 # Normalize documents and fingerprint content
 
-> Canonically equivalent é encodings receive identical content hashes.
+**Stage 1 of 4.** Python. Plan about 2 hours.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 1 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Implement `fingerprint.py`: `normalize`. This artifact is stage 1 of RAG Freshness Pipeline. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Identity and content are different keys. Preserve the caller id while hashing normalized Unicode content, so equivalent encodings do not trigger unnecessary indexing. Timestamps remain metadata: changing a timestamp must not pretend that the document content changed.
 
 ```figure
 pj-rag-freshness-pipeline-1
 ```
 
-## Follow the mechanism
-
-Identity and content are different keys. Preserve the caller id while hashing normalized Unicode content, so equivalent encodings do not trigger unnecessary indexing. Timestamps remain metadata: changing a timestamp must not pretend that the document content changed.
-
-## Build it
-
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Implementation boundary
 
 ```python
 def normalize(doc):
     raise NotImplementedError("Implement the stage contract")
 ```
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Primary reference: [Reference 1](https://docs.python.org/3/library/os.html#os.replace).
 
-## Run it
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py rag-freshness-pipeline --init my-rag-freshness-pipeline
-python3 scripts/project_test.py rag-freshness-pipeline --stage 1 --path my-rag-freshness-pipeline
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md).
+
+The Orchard policy keeps the same document id when its timeout changes. Normalize Unicode and line endings before hashing the body, and retain updated time separately. A later observation of unchanged content is a refresh, not a rewrite.
+
+```text
+id=orchard-auth
+text: tokens expire after 60 minutes
+updated: 100 -> 200
+content hash: unchanged
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+## Build and inspect
 
-## What you should see
+Hash normalized UTF-8 bytes. Do not hash the timestamp into content identity.
 
-Canonically equivalent é encodings receive identical content hashes. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Inspect the boundary
+```bash
+python3 scripts/project_test.py rag-freshness-pipeline --init learning-artifacts/rag-freshness-pipeline
+python3 scripts/project_test.py rag-freshness-pipeline --stage 1 --path learning-artifacts/rag-freshness-pipeline
+```
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Use it
+## Investigate next
 
-After all stages pass, run `python3 projects/rag-freshness-pipeline/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
-
-## Primary references
-
-- [Reference 1](https://docs.python.org/3/library/os.html#os.replace)
+Why should two differently encoded versions of café produce the same fingerprint?

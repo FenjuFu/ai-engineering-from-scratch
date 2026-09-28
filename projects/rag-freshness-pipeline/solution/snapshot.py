@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import tempfile
 import threading
+import fcntl
 
 _LOCK = threading.Lock()
 
@@ -26,7 +27,8 @@ def read_snapshot(path):
 def commit(path, documents, expected_version):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with _LOCK:
+    with _LOCK, path.with_suffix(path.suffix + ".lock").open("a+") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
         current = read_snapshot(path)
         if current["version"] != expected_version:
             raise ValueError("stale index version")
@@ -39,6 +41,11 @@ def commit(path, documents, expected_version):
                 f.flush()
                 os.fsync(f.fileno())
             os.replace(name, path)
+            directory = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
         finally:
             if os.path.exists(name):
                 os.unlink(name)
