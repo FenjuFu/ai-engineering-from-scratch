@@ -1,0 +1,17 @@
+{
+  "title": "Harness Bench / actual output",
+  "recordedAt": "2026-09-28T16:21:06Z",
+  "records": [
+    {
+      "command": [
+        "go",
+        "run",
+        "."
+      ],
+      "cwd": "projects/harness-bench/solution",
+      "exitCode": 0,
+      "output": "LOCAL FIXTURE BENCHMARK\nlookup correct=3/3 attempted=3 errors=0 state=completed\nabstaining correct=1/3 attempted=3 errors=0 state=completed\nraw correct=1/3 attempted=3 errors=0 state=completed\nuppercase correct=1/3 attempted=3 errors=0 state=completed\nfailing correct=0/3 attempted=3 errors=3 state=completed\n",
+      "durationMs": 240
+    }
+  ]
+}

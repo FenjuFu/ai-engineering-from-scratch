@@ -1,0 +1,111 @@
+{
+  "id": "harness-bench",
+  "title": "Harness Bench",
+  "level": 5,
+  "levelName": "Frontier",
+  "tagline": "Compare harness behavior under the same tasks and call budget.",
+  "summary": "Build a deterministic evaluation harness with strict case ingestion, normalized exact-match scoring, per-run accounting and stable leaderboard output. The reference model is a local fixture function; benchmark numbers describe these cases, not general model capability.",
+  "usefulFor": [
+    "Compare harness behavior under the same tasks and call budget.",
+    "Offline experiments with explicit failure cases and limits"
+  ],
+  "youWillBuild": "Build a deterministic evaluation harness with strict case ingestion, normalized exact-match scoring, per-run accounting and stable leaderboard output. The reference model is a local fixture function; benchmark numbers describe these cases, not general model capability.",
+  "hours": 8,
+  "languages": [
+    "Go"
+  ],
+  "status": "ready",
+  "source": "core",
+  "author": {
+    "name": "AI Engineering from Scratch",
+    "github": "rohitg00"
+  },
+  "skills": [
+    "Load unseen benchmark cases",
+    "Define exactly what a correct answer means",
+    "Run a harness under a call budget",
+    "Compare runs on equal denominators"
+  ],
+  "prerequisites": [],
+  "inspiredBy": [],
+  "demo": {
+    "command": [
+      "go",
+      "run",
+      "."
+    ],
+    "cwd": "solution"
+  },
+  "stages": [
+    {
+      "id": "01-load-unseen-benchmark-cases",
+      "title": "Load unseen benchmark cases",
+      "summary": "Parse a JSON array with stable case IDs, prompts and expected answers.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "starter",
+      "concepts": [
+        "JSON fields",
+        "Case budget",
+        "Unique IDs",
+        "Held-out records"
+      ]
+    },
+    {
+      "id": "02-define-exactly-what-a-correct-answer-means",
+      "title": "Define exactly what a correct answer means",
+      "summary": "Normalize case and whitespace, but preserve punctuation and numbers.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "core",
+      "concepts": [
+        "Normalize whitespace",
+        "Lowercase",
+        "Preserve content",
+        "Exact equality"
+      ]
+    },
+    {
+      "id": "03-run-a-harness-under-a-call-budget",
+      "title": "Run a harness under a call budget",
+      "summary": "Pass only the prompt to the model function.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "core",
+      "concepts": [
+        "Prompt-only input",
+        "Charge attempt",
+        "Evaluate answer",
+        "Named terminal state"
+      ]
+    },
+    {
+      "id": "04-compare-runs-on-equal-denominators",
+      "title": "Compare runs on equal denominators",
+      "summary": "Validate counters before ranking.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "core",
+      "concepts": [
+        "Counter invariants",
+        "Same dataset size",
+        "Stable ranking",
+        "Scoped measurement"
+      ]
+    }
+  ],
+  "demos": [
+    {
+      "gif": "media/run.gif",
+      "poster": "media/run.png",
+      "title": "Initialize and grade",
+      "caption": "Recorded starter failure followed by all reference-solution stages passing. Reference passes do not earn learner certificates."
+    },
+    {
+      "gif": "media/output.gif",
+      "poster": "media/output.png",
+      "title": "Inspect the output",
+      "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
+    }
+  ]
+}
