@@ -7,17 +7,13 @@
 **Stage:** 3 of 4
 **Time:** ~2 hours
 
-## What you build
+## Make release groups reproducible
 
-Turn conventional commit records into a stable release note. This stage implements `Group` in `stage3.go`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
-
-Map breaking changes to their own section before feature and fix groups. Sort each group by hash so input order cannot alter the release artifact. The grouping function copies inputs, leaving the original export intact.
+Grouping is an ordered decision. Breaking behavior takes precedence over feature or fix. Sorting inside each group makes the output independent of the order in which records reached your program. The source commit remains available in a separate JSON receipt.
 
 ## Work through one case
 
-feat! appears under Breaking changes, not Features. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+Input hashes bbbbbbb for a fix and aaaaaaa for a fix become aaaaaaa then bbbbbbb. Add ccccccc with `feat!: new wire format`; it belongs only to Breaking changes. Sorting the original input slice would surprise another caller, so classify values into new group slices.
 
 ```figure
 pj-changelog-writer-from-git-3
@@ -39,16 +35,22 @@ python3 scripts/project_test.py changelog-writer-from-git --stage 3 --path /tmp/
 
 The stage checks Features, BreakingFirst, Stable, Unknown, Empty. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
 
-## Check yourself
+## Implementation hints
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Create the group map, classify one record at a time, then sort each resulting slice by hash. Do not emit sections by ranging over the map because map iteration does not establish a stable presentation order.
 
-## Going further
+Start with one valid record, then add the rejection case before optimizing. Keep source data unchanged on failure so the caller can diagnose what happened. Use the smallest function that expresses the boundary; an extra framework would hide the mechanism you are learning.
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+## Check your understanding
 
-## Sources and scope
+Shuffle the same commit list repeatedly and compare the rendered bytes. A revert must remain visible alongside its target; explain why silently subtracting both commits could hide a later follow-up change.
 
-[Official reference](https://git-scm.com/docs/pretty-formats). Build a parser for a bounded Git export, conventional-commit classification, deterministic grouping and Markdown release notes. Demo input is recorded locally, and a separate export command can read a real repository without modifying it.
+Write your prediction before running the test. If the result surprises you, trace the input through validation, state construction and output. A passing reference implementation is a comparison tool; your own workspace must pass the cumulative grader to establish completion.
+
+## Use it with your own data
+
+`--repo PATH --from REV --to REV` reads an immutable Git range. Alternatively, `--input FILE` accepts `git log --format=%H%x00%s%x00%b%x00 FROM..TO` output. Add `--output release.md --receipt release.json` for reusable artifacts. No argument means an original two-commit fixture. The supported repository profile uses SHA-1 commit IDs; SHA-256 repositories require a hash-format extension.
+
+## Sources
+
+[Git pretty formats](https://git-scm.com/docs/pretty-formats).
