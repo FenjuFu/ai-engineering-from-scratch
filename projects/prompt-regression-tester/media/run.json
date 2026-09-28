@@ -1,0 +1,48 @@
+{
+  "title": "Prompt Regression Tester / initialize and test",
+  "recordedAt": "2026-09-28T16:11:19Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "prompt-regression-tester",
+        "--init",
+        "my-prompt-regression-tester"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-prompt-regression-tester\n  created  main.py\n  created  STAGE.md\n  kept     STAGE.md\n  kept     STAGE.md\nnext: python3 scripts/project_test.py prompt-regression-tester --stage 1 --path /privatemy-prompt-regression-tester\n",
+      "durationMs": 62
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "prompt-regression-tester",
+        "--stage",
+        "1",
+        "--path",
+        "my-prompt-regression-tester"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Prompt Regression Tester: grading learner\n  FAIL stage 1: Validate cases before scoring (5 tests)\n       not implemented yet: validate_cases\n",
+      "durationMs": 103
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "prompt-regression-tester",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Prompt Regression Tester: grading solution\n  PASS stage 1: Validate cases before scoring (5 tests)\n  PASS stage 2: Score recorded outputs without a model (6 tests)\n  PASS stage 3: Compare the same cases across revisions (5 tests)\n  PASS stage 4: Gate releases on explicit tolerances (5 tests)\n",
+      "durationMs": 259
+    }
+  ]
+}

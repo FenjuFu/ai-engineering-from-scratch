@@ -1,0 +1,16 @@
+{
+  "title": "Prompt Regression Tester / actual output",
+  "recordedAt": "2026-09-28T16:11:19Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/prompt-regression-tester/solution",
+      "exitCode": 0,
+      "output": "{\n  \"comparison\": {\n    \"cases\": [\n      {\n        \"id\": \"a\",\n        \"state\": \"regressed\",\n        \"passed\": false\n      },\n      {\n        \"id\": \"b\",\n        \"state\": \"improved\",\n        \"passed\": true\n      }\n    ],\n    \"regressions\": 1,\n    \"improvements\": 1,\n    \"pass_rate\": 0.5\n  },\n  \"gate\": {\n    \"decision\": \"block\",\n    \"pass_rate\": 0.5,\n    \"regressions\": 1\n  }\n}\n",
+      "durationMs": 27
+    }
+  ]
+}
