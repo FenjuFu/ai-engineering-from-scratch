@@ -6,12 +6,11 @@
   "tagline": "Turn a question and a pile of documents into a report where every sentence can be checked.",
   "summary": "Build the pipeline behind deep research tools: search a corpus, pull exact snippets, plan the research, write only from evidence, verify every claim, publish an HTML report with footnotes and a trace, then score it on checked-in public evaluation fixtures.",
   "usefulFor": [
-    "Briefing documents and literature reviews over your own notes or docs",
-    "Internal research assistants that must show their sources",
-    "Any report where a wrong but confident sentence is expensive"
+    "An evidence ledger for technical decisions showing how source updates change published claims.",
+    "The default uses deterministic planning and extractive writing."
   ],
-  "youWillBuild": "A command line pipeline that searches through a Rust process, writes Python report.json and trace.json, and uses a typed renderer to produce interactive report.html.",
-  "hours": 14,
+  "youWillBuild": "An evidence ledger for technical decisions showing how source updates change published claims.",
+  "hours": 20,
   "languages": [
     "Rust",
     "Python",
@@ -36,7 +35,7 @@
   ],
   "prerequisites": [
     {
-      "title": "RAG",
+      "title": "Retrieval augmented generation",
       "path": "phases/11-llm-engineering/06-rag"
     },
     {
@@ -57,14 +56,14 @@
       "id": "01-search-the-corpus",
       "title": "Search the corpus",
       "summary": "Load markdown documents with headers and rank them with BM25.",
-      "hours": 2,
+      "hours": 5,
       "concepts": [
         "document parsing",
         "tokenization",
         "BM25",
         "IDF"
       ],
-      "difficulty": "starter",
+      "difficulty": "core",
       "language": "rust+python",
       "languageWhy": "Rust owns ranking and JSON parsing; Python exposes a small process adapter to later stages.",
       "figure": "pj-rra-bm25",

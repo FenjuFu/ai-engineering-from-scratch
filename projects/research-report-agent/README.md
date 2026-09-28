@@ -1,6 +1,6 @@
 # Research Report Agent
 
-Level 2, Builder. About 14 hours. Rust, Python and TypeScript standard libraries. Runs offline. Requires Python 3.10+, rustc and Node 22.18+.
+Level 2, Builder. About 20 hours. Rust, Python and TypeScript standard libraries. Runs offline. Requires Python 3.10+, rustc and Node 22.18+.
 
 Turn a question and a folder of documents into a report where every sentence can be checked. You build the pipeline that deep research tools run: search, snippet extraction, planning, cited writing, claim verification, publishing and evaluation.
 
@@ -66,3 +66,15 @@ Point `--corpus` at any folder of markdown files that start with `title:`, `sour
 ## Verified reference output
 
 The secrets-proxy example produces 4 sections, 10 sentences, no dropped claims and state `completed`. Its footnotes show exact evidence on hover or keyboard focus, and its expandable trace shows the five pipeline steps. The reference baseline scores 87.5 / 100 on the six checked-in public evaluation questions. The demo repeats question h4 from that file, so this is a reproducible fixture score rather than evidence from an unseen evaluation. Lexical verification does not establish real-world truth.
+
+
+## Inspect a source update
+
+The original Orchard corpus is fictional operational documentation. Run both revisions with the same question and inspect `orchard-after/changes.json`.
+
+```bash
+python3 projects/research-report-agent/solution/run_report.py "How long do Orchard guest tokens last?" --code projects/research-report-agent/solution --corpus projects/research-report-agent/examples/orchard/before --out orchard-before
+python3 projects/research-report-agent/solution/run_report.py "How long do Orchard guest tokens last?" --code projects/research-report-agent/solution --corpus projects/research-report-agent/examples/orchard/after --compare orchard-before/report.json --out orchard-after
+```
+
+The default uses deterministic planning and extractive writing. --model replay needs --cassette. --model live uses RRA_LLM_BASE_URL, RRA_LLM_MODEL and optional RRA_LLM_API_KEY for planning only. Live service behavior requires a separate run with caller credentials. Public fixture scores do not measure unseen generalization.

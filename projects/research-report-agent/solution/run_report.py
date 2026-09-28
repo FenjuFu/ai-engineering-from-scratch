@@ -6,6 +6,7 @@ Usage: python3 solution/run_report.py "question" --out out/
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -34,6 +35,14 @@ def parse_args(argv):
         default=str(HERE),
         help="directory holding the report_agent package to run",
     )
+    parser.add_argument(
+        "--model",
+        choices=["rules", "replay", "live"],
+        default="rules",
+        help="planner adapter; writing remains extractive",
+    )
+    parser.add_argument("--cassette", help="recorded planner cassette for replay")
+    parser.add_argument("--compare", help="previous report.json for the same question")
     args = parser.parse_args(argv)
     if not args.eval_path and not args.question:
         parser.error("give a question or --eval")
@@ -49,7 +58,26 @@ def main(argv=None):
     if args.eval_path:
         print(format_scorecard(evaluate(args.eval_path, args.corpus)))
         return 0
-    report, trace, _ = run_pipeline(args.question, args.corpus, out_dir=args.out)
+    from report_agent.model import ReplayModel, LiveModel
+
+    model = None
+    if args.model == "replay":
+        if not args.cassette:
+            raise ValueError("--replay requires --cassette")
+        model = ReplayModel(args.cassette)
+    elif args.model == "live":
+        model = LiveModel()
+    report, trace, _ = run_pipeline(
+        args.question, args.corpus, out_dir=args.out, model=model
+    )
+    if args.compare:
+        from report_agent.changes import compare_reports
+
+        previous = json.loads(Path(args.compare).read_text())
+        current = json.loads((Path(args.out) / "report.json").read_text())
+        (Path(args.out) / "changes.json").write_text(
+            json.dumps(compare_reports(previous, current), indent=2) + "\n"
+        )
     print(f"state      {trace['terminal_state']}")
     print(f"sections   {len(report.sections)}")
     print(

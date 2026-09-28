@@ -5,7 +5,7 @@
 **Type:** Build
 **Languages:** Rust, Python
 **Stage:** 1 of 7 (starter)
-**Time:** ~2 hours
+**Time:** ~5 hours
 
 ## What you build
 
@@ -55,13 +55,13 @@ A request has an operation and typed fields. The engine flushes each response li
 {"cmd":"tokenize","text":"The kernel, VM!"}
 ```
 
-The second request returns exactly `{"tokens":["kernel","vm"]}`. The protocol also supports `idf`, `docs`, `doc` and `score`. Invalid JSON or wrong field types return an `error` object. Implement strings and escapes according to [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259), including Unicode surrogate pairs. A fractional result limit is invalid; zero is a valid empty result request.
+The second request returns exactly `{"tokens":["kernel","vm"]}`. The protocol also supports `idf`, `docs`, `doc` and `score`. Invalid JSON or wrong field types return an `error` object. The supplied codec handles strings and escapes according to [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259), including Unicode surrogate pairs. A fractional result limit is invalid; zero is a valid empty result request.
 
-Python compiles the source to a temporary binary keyed by its content hash. Each index writes its input documents to a private temporary directory. Use an argument list with `subprocess.run`, a timeout, and explicit return-code checks. Never put a question into a shell command.
+Python compiles the source once per process into a fresh private temporary directory; it never trusts a predictable shared executable cache. Each index writes its input documents to a private temporary directory. Use an argument list with `subprocess.run`, a timeout, and explicit return-code checks. Never put a question into a shell command.
 
 ## Your task
 
-Implement the Rust parser, tokenizer, `Index`, JSON codec and `handle_line`. Complete the Python corpus loader and adapter with the existing `BM25Index`, `search`, `score` and `idf` API. Python sentence scoring later reuses the same tokenization rule, while document ranking stays in Rust.
+The starter provides `wire.rs` for JSON parsing/escaping and the stdin loop. Implement the corpus parser, tokenizer, `Index` and `handle_line`. Complete the Python corpus loader and adapter with the existing `BM25Index`, `search`, `score` and `idf` API. Python sentence scoring later reuses the same tokenization rule, while document ranking stays in Rust.
 
 ```bash
 python3 scripts/project_test.py research-report-agent --init my-report-agent
@@ -81,3 +81,32 @@ Why does document frequency count a repeated term once per document? What happen
 ## Going further
 
 Add an embedding index and fuse rankings only after this baseline is measured. Keep the wire format unchanged so the planner and writer can use either backend.
+
+## Worked Orchard case
+
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md).
+
+Begin with retrieval, not a JSON parser assignment. The starter supplies wire.rs and stdin plumbing. You implement corpus validation, tokenization, BM25 indexing and the Python process adapter. Rust builds into a private per-process directory.
+
+```text
+N=2, df(orchard)=2 -> idf=log(1.2)=0.1823
+df(expiration)=1 -> idf=log(2)=0.6931
+rare expiration term receives more weight
+```
+
+## Build and inspect
+
+Trace one term count and one document-frequency count separately. Keep transport code in wire.rs unless you choose the optional codec extension.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
+
+```bash
+python3 scripts/project_test.py research-report-agent --init learning-artifacts/research-report-agent
+python3 scripts/project_test.py research-report-agent --stage 1 --path learning-artifacts/research-report-agent
+```
+
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
+
+## Investigate next
+
+Why does a repeated term increase term frequency but not document frequency?

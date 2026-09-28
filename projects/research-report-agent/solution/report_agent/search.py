@@ -6,7 +6,7 @@ BM25 and Beyond" (2009). Stdlib only.
 """
 
 import functools
-import hashlib
+import atexit
 import json
 import math
 import subprocess
@@ -30,22 +30,19 @@ def tokenize(text):
 @functools.lru_cache(maxsize=1)
 def engine_binary():
     source = Path(__file__).resolve().parents[1] / "search" / "main.rs"
-    cache = Path(tempfile.gettempdir()) / (
-        "rra-search-" + hashlib.sha256(source.read_bytes()).hexdigest()[:20]
+    directory = tempfile.TemporaryDirectory(prefix="rra-private-build-")
+    atexit.register(directory.cleanup)
+    binary = Path(directory.name) / "search"
+    result = subprocess.run(
+        ["rustc", "--edition", "2021", "-O", str(source), "-o", str(binary)],
+        capture_output=True,
+        text=True,
+        timeout=60,
     )
-    if not cache.exists():
-        with tempfile.TemporaryDirectory(prefix="rra-build-") as temporary:
-            built = Path(temporary) / "search"
-            result = subprocess.run(
-                ["rustc", "--edition", "2021", "-O", str(source), "-o", str(built)],
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
-            if result.returncode:
-                raise RuntimeError("Rust search build failed: " + result.stderr)
-            built.replace(cache)
-    return cache
+    if result.returncode:
+        directory.cleanup()
+        raise RuntimeError("Rust search build failed: " + result.stderr)
+    return binary
 
 
 class BM25Index:
