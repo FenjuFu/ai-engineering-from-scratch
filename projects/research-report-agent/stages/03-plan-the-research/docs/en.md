@@ -105,3 +105,31 @@ Stage 3 passes 9 Python tests, and all preceding stages still pass. The recorded
 
 - Set `RRA_LLM_BASE_URL`, `RRA_LLM_MODEL` and `RRA_LLM_API_KEY`, pass `LiveModel()` to `plan_research`, and compare its facets with the rule planner.
 - Write a `RecordingModel` that wraps `LiveModel` and appends every call to a cassette, so a live run becomes a test fixture.
+
+## Worked Orchard case
+
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 2](../../02-extract-snippets/docs/en.md) first.
+
+Choose rules, a recorded cassette, or a live planner explicitly. Only planning calls the optional model; writing still arranges retrieved source sentences. The trace records whether planning used rules, model output or fallback.
+
+```text
+--model rules -> deterministic facets
+--model replay --cassette planner.json -> exact prompt lookup
+invalid facet JSON -> rules-fallback
+```
+
+## Build and inspect
+
+Keep the prompt digest and purpose together in cassette lookup. Validate the response shape before constructing facets.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
+
+```bash
+python3 scripts/project_test.py research-report-agent --stage 3 --path learning-artifacts/research-report-agent
+```
+
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
+
+## Investigate next
+
+Why should a live model failure not be mislabeled as a verified offline run?
