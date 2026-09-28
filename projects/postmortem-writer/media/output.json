@@ -1,0 +1,17 @@
+{
+  "title": "Incident Postmortem Writer / actual output",
+  "recordedAt": "2026-09-28T16:20:35Z",
+  "records": [
+    {
+      "command": [
+        "go",
+        "run",
+        "."
+      ],
+      "cwd": "projects/postmortem-writer/solution",
+      "exitCode": 0,
+      "output": "INCIDENT PACKET\nProvenance checked; causality requires review.\n[e1] t=0 deploy \"version B started\"\n[e2] t=35 alert \"latency exceeded SLO\"\n[e3] t=90 rollback \"version A restored\"\nCLAIM \"Latency alert followed deployment\" evidence=e1,e2\nRESULT <nil>\n",
+      "durationMs": 244
+    }
+  ]
+}

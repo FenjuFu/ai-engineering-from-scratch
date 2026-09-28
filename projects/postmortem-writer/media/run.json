@@ -1,0 +1,48 @@
+{
+  "title": "Incident Postmortem Writer / initialize and test",
+  "recordedAt": "2026-09-28T16:20:34Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "postmortem-writer",
+        "--init",
+        "my-postmortem-writer"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-postmortem-writer\n  created  go.mod\n  created  main.go\n  created  stage1.go\n  created  types.go\n  created  stage2.go\n  created  stage3.go\n  created  stage4.go\nnext: python3 scripts/project_test.py postmortem-writer --stage 1 --path /privatemy-postmortem-writer\n",
+      "durationMs": 59
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "postmortem-writer",
+        "--stage",
+        "1",
+        "--path",
+        "my-postmortem-writer"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Incident Postmortem Writer: grading learner\n  FAIL stage 1: Parse an incident event ledger (1 tests)\n       not implemented yet: Stage 1: implement Parse\n",
+      "durationMs": 792
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "postmortem-writer",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Incident Postmortem Writer: grading solution\n  PASS stage 1: Parse an incident event ledger (5 tests)\n  PASS stage 2: Build a stable bounded timeline (5 tests)\n  PASS stage 3: Require evidence for each claim (5 tests)\n  PASS stage 4: Publish a deterministic incident packet (5 tests)\n",
+      "durationMs": 3017
+    }
+  ]
+}
