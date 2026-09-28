@@ -1,77 +1,53 @@
 # Schedule within cost and time limits
 
-> Schedule known job estimates under integer cost and millisecond limits.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `schedule` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+## What changes
 
 A bounded agent needs more than a money counter. Apply a deadline and a cost limit before each sequential job, then append an explicit completed or rejected event. Test deterministic durations rather than sleeping.
 
 This is a simulator for admission decisions, clearly separated from execution. The JSON trace lets you inspect which constraint rejected each job. It is not a benchmark of model latency.
 
+## Work through one concrete case
+
+Two jobs each reserve 70 against limit 100. In execution mode, the first settles 20; the second now fits and settles 20. In conservative replay with costs 70 and 70, only the first fits. The different traces follow different evidence.
+
 ```figure
 pj-agent-budget-planner-4
 ```
 
-## Predict first
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-Can a cheap request still be rejected when no deadline remains?
+## Implement the contract
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Implement `schedule` against the stated contract.
 
-## Your task
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-Implement `schedule` in `main.py` in your learner workspace. Schedule known job estimates under integer cost and millisecond limits. Return named outcomes and a final ledger.
+Keep schedule as a deterministic admission replay. The supplied execute_jobs driver calls your reserve and settle functions around an actual callback; do not substitute predicted duration for the callback's elapsed clock.
 
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
+## Verify and inspect
 
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
+From the repository root, initialize once with `python3 scripts/project_test.py agent-budget-planner --init learning-artifacts/agent-budget-planner`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py agent-budget-planner --init my-agent-budget-planner
-python3 scripts/project_test.py agent-budget-planner --stage 4 --path my-agent-budget-planner
+python3 scripts/project_test.py agent-budget-planner --stage 4 --path learning-artifacts/agent-budget-planner --strict
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
-
-## What you should see
-
-The trace distinguishes budget rejection from deadline rejection.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-cd projects/agent-budget-planner/solution
-python3 demo.py
+cd learning-artifacts/agent-budget-planner
+python3 cli.py samples/input.json --mode execute --output budget.json
 ```
 
-## Debug with evidence
+## Investigate the failure boundary
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+Add an invocation that sleeps past the deadline. The next dispatch must stop, but this synchronous implementation cannot interrupt the already-running callback.
 
-## Check yourself
+Costs are caller-supplied integer receipts. A monotonic deadline gates dispatch but cannot interrupt a synchronous callback. The ledger is single-process and in-memory.
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
 
-## Going further
+## References
 
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
-
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/decimal.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+[Primary technical reference](https://docs.python.org/3/library/decimal.html)
