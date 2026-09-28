@@ -1,0 +1,19 @@
+{
+  "title": "Inspect report citations and trace",
+  "url": "http://localhost:8787/projects/research-report-agent/solution/out/report.html",
+  "actions": [
+    [
+      "hover",
+      "a[href=\"#fn-1\"]"
+    ],
+    [
+      "js",
+      "document.querySelector('details').open=true;document.querySelector('details').scrollIntoView()"
+    ],
+    [
+      "js",
+      "window.scrollTo(0,0)"
+    ]
+  ],
+  "kind": "browser capture"
+}

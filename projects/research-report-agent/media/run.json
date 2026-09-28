@@ -1,0 +1,48 @@
+{
+  "title": "Research Report Agent / initialize and test",
+  "recordedAt": "2026-09-28T16:29:02Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "research-report-agent",
+        "--init",
+        "my-research-report-agent"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-research-report-agent\n  created  report_agent/__init__.py\n  created  report_agent/corpus.py\n  created  report_agent/search.py\n  created  search/main.rs\n  created  report_agent/snippets.py\n  created  report_agent/model.py\n  created  report_agent/planner.py\n  created  report_agent/citations.py\n  created  report_agent/writer.py\n  created  report_agent/critic.py\n  created  report_agent/pipeline.py\n  created  report_agent/publish.py\n  created  viewer/render.ts\n  created  report_agent/evaluate.py\nnext: python3 scripts/project_test.py research-report-agent --stage 1 --path /privatemy-research-report-agent\n",
+      "durationMs": 60
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "research-report-agent",
+        "--stage",
+        "1",
+        "--path",
+        "my-research-report-agent"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Research Report Agent: grading learner\n  FAIL stage 1: Search the corpus (18 tests)\n       not implemented yet: Stage 1: implement corpus parser; not implemented yet: Stage 1: implement load_corpus in report_agent/corpus.py\n",
+      "durationMs": 930
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "research-report-agent",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Research Report Agent: grading solution\n  PASS stage 1: Search the corpus (18 tests)\n  PASS stage 2: Extract snippets you can cite (11 tests)\n  PASS stage 3: Plan the research (9 tests)\n  PASS stage 4: Write only from evidence (12 tests)\n  PASS stage 5: Verify every claim (9 tests)\n  PASS stage 6: Publish the report (14 tests)\n  PASS stage 7: Score the public fixtures (8 tests)\n",
+      "durationMs": 2642
+    }
+  ]
+}
