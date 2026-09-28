@@ -3,16 +3,14 @@
   "title": "Dataset Split Auditor",
   "level": 1,
   "levelName": "Starter",
-  "tagline": "Detect duplicate and group leakage before you trust an evaluation score. Produce deterministic group-preserving train and test splits.",
-  "summary": "Detect duplicate and group leakage before you trust an evaluation score. Produce deterministic group-preserving train and test splits.",
-  "youWillBuild": "A runnable Python command and JSON report. The reference demo runs on deterministic local fixtures; you can feed the same functions your own data.",
+  "tagline": "A dataset gate that names the records responsible for content and incident leakage.",
+  "summary": "A dataset gate that names the records responsible for content and incident leakage. Pass {train,test} records to the CLI, or {records} with --split 0.25 --seed experiment-1. Add --check in CI to return exit2 when the split is unusable.",
+  "youWillBuild": "A dataset gate that names the records responsible for content and incident leakage.",
   "usefulFor": [
-    "Use this artifact to inspect a real local dataset before connecting a model or an external service."
+    "Pass {train,test} records to the CLI, or {records} with --split 0.25 --seed experiment-1. Add --check in CI to return exit2 when the split is unusable."
   ],
   "hours": 8,
-  "languages": [
-    "Python"
-  ],
+  "languages": ["Python"],
   "languageWhy": {
     "Python": "The standard library makes parsing, scoring, and failure handling visible without hiding the mechanism behind a framework."
   },
@@ -28,15 +26,23 @@
     "Split groups with stable hashing",
     "Report split size and leakage together"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python 3.10+",
+    "lists, sets, dictionaries, Unicode normalization and hash functions."
+  ],
   "figures": true,
   "overviewFigure": "pj-dataset-split-auditor-1",
   "demo": {
+    "cwd": "solution",
     "command": [
       "python3",
-      "demo.py"
-    ],
-    "cwd": "solution"
+      "cli.py",
+      "samples/input.json",
+      "--output",
+      "split-audit.json",
+      "--html",
+      "split-audit.html"
+    ]
   },
   "stages": [
     {
@@ -47,10 +53,7 @@
       "difficulty": "starter",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "fingerprints",
-        "Unicode normalization"
-      ],
+      "concepts": ["fingerprints", "Unicode normalization"],
       "figure": "pj-dataset-split-auditor-1"
     },
     {
@@ -61,11 +64,7 @@
       "difficulty": "core",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "data leakage",
-        "groups",
-        "evidence"
-      ],
+      "concepts": ["data leakage", "groups", "evidence"],
       "figure": "pj-dataset-split-auditor-2"
     },
     {
@@ -76,10 +75,7 @@
       "difficulty": "core",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "deterministic splitting",
-        "group isolation"
-      ],
+      "concepts": ["deterministic splitting", "group isolation"],
       "figure": "pj-dataset-split-auditor-3"
     },
     {
@@ -90,10 +86,7 @@
       "difficulty": "stretch",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "evaluation readiness",
-        "dataset audit"
-      ],
+      "concepts": ["evaluation readiness", "dataset audit"],
       "figure": "pj-dataset-split-auditor-4"
     }
   ],
