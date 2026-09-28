@@ -90,3 +90,38 @@ Stage 7 passes 8 Python tests, and all preceding stages still pass. The referenc
 - Improve the public fixture score without lowering precision, and document which examples improved and which regressed.
 - Add a model judge that scores readability, and report it separately from the grounded metrics.
 - To measure generalization, have someone else prepare separate private questions and labels for a new corpus. Freeze your implementation and thresholds before evaluating them, then disclose when you review or tune against those results.
+
+## Worked Orchard case
+
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 6](../../06-publish-the-report/docs/en.md) first.
+
+The checked-in questions are public regression fixtures. Keep their score separate from an independently prepared corpus evaluation. The new Orchard scenario tests a policy update without changing the public isolation questions.
+
+```text
+same question + before corpus -> 60-minute claim
+same question + after corpus -> 15-minute claim
+comparison question mismatch -> reject
+```
+
+## Build and inspect
+
+Freeze your evaluation questions before tuning retrieval. Save component metrics and question-level failures with the aggregate.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
+
+```bash
+python3 scripts/project_test.py research-report-agent --stage 7 --path learning-artifacts/research-report-agent
+```
+
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
+
+```bash
+python3 projects/research-report-agent/solution/run_report.py "How long do Orchard guest tokens last?" --code learning-artifacts/research-report-agent --corpus projects/research-report-agent/examples/orchard/before --out orchard-before
+python3 projects/research-report-agent/solution/run_report.py "How long do Orchard guest tokens last?" --code learning-artifacts/research-report-agent --corpus projects/research-report-agent/examples/orchard/after --compare orchard-before/report.json --out orchard-after
+```
+
+The default uses deterministic planning and extractive writing. --model replay needs --cassette. --model live uses RRA_LLM_BASE_URL, RRA_LLM_MODEL and optional RRA_LLM_API_KEY for planning only. Live service behavior requires a separate run with caller credentials. Public fixture scores do not measure unseen generalization.
+
+## Investigate next
+
+What would justify a claim that the agent generalizes beyond the published fixtures?
