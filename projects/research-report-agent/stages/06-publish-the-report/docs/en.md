@@ -72,3 +72,31 @@ Why must JSON receive runtime validation even when the renderer is typed? Why do
 ## Going further
 
 Add a print stylesheet with page-aware footnotes, or render dropped claims in a separate review section. Keep unsupported claims visibly distinct from published evidence.
+
+## Worked Orchard case
+
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 5](../../05-verify-every-claim/docs/en.md) first.
+
+Publish one versioned report payload for the TypeScript viewer and the separate report judge. The Orchard before/after walkthrough writes changes.json listing removed claims, added claims and changed source spans.
+
+```text
+report.json -> viewer + judge
+60-minute sentence -> removed_claims
+15-minute sentence -> added_claims
+```
+
+## Build and inspect
+
+Validate source slices again at publication. Escape text before HTML rendering; source content is data, not executable markup.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
+
+```bash
+python3 scripts/project_test.py research-report-agent --stage 6 --path learning-artifacts/research-report-agent
+```
+
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
+
+## Investigate next
+
+How can a reviewer distinguish a changed claim from unchanged wording supported by changed evidence?
