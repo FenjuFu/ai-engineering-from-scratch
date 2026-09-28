@@ -1,0 +1,111 @@
+{
+  "id": "llm-gateway-with-fallbacks",
+  "title": "LLM Gateway With Fallbacks",
+  "level": 3,
+  "levelName": "Engineer",
+  "tagline": "Route a bounded request through providers with explicit failure semantics.",
+  "summary": "Build an HTTP gateway library with endpoint validation, response limits, retry classification and a total-attempt budget. Offline tests inject a real net/http transport interface, while applications can use the standard HTTP client for live endpoints.",
+  "usefulFor": [
+    "Route a bounded request through providers with explicit failure semantics.",
+    "Offline experiments with explicit failure cases and limits"
+  ],
+  "youWillBuild": "Build an HTTP gateway library with endpoint validation, response limits, retry classification and a total-attempt budget. Offline tests inject a real net/http transport interface, while applications can use the standard HTTP client for live endpoints.",
+  "hours": 8,
+  "languages": [
+    "Go"
+  ],
+  "status": "ready",
+  "source": "core",
+  "author": {
+    "name": "AI Engineering from Scratch",
+    "github": "rohitg00"
+  },
+  "skills": [
+    "Validate provider endpoints",
+    "Classify failures without retrying everything",
+    "Send one bounded HTTP request",
+    "Route with a total-attempt budget"
+  ],
+  "prerequisites": [],
+  "inspiredBy": [],
+  "demo": {
+    "command": [
+      "go",
+      "run",
+      "."
+    ],
+    "cwd": "solution"
+  },
+  "stages": [
+    {
+      "id": "01-validate-provider-endpoints",
+      "title": "Validate provider endpoints",
+      "summary": "Allow HTTPS endpoints and explicit loopback HTTP fixtures, reject embedded credentials and fragments, and deduplicate providers without changing order.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "starter",
+      "concepts": [
+        "Parse URL",
+        "Transport rule",
+        "No credentials",
+        "Stable endpoint list"
+      ]
+    },
+    {
+      "id": "02-classify-failures-without-retrying-everything",
+      "title": "Classify failures without retrying everything",
+      "summary": "A success is exactly an HTTP 2xx response.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "core",
+      "concepts": [
+        "Status bounds",
+        "2xx success",
+        "429 and 5xx",
+        "Terminal client error"
+      ]
+    },
+    {
+      "id": "03-send-one-bounded-http-request",
+      "title": "Send one bounded HTTP request",
+      "summary": "Use net/http with the caller context, a JSON POST body and a response byte ceiling.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "core",
+      "concepts": [
+        "Context-bound POST",
+        "HTTP transport",
+        "Limit plus one",
+        "Close response body"
+      ]
+    },
+    {
+      "id": "04-route-with-a-total-attempt-budget",
+      "title": "Route with a total-attempt budget",
+      "summary": "Visit each validated provider once, stopping at success, a terminal client error, cancellation or the total attempt limit.",
+      "hours": 2,
+      "language": "go",
+      "difficulty": "core",
+      "concepts": [
+        "Provider order",
+        "Attempt budget",
+        "Failure class",
+        "Terminal outcome"
+      ]
+    }
+  ],
+  "demos": [
+    {
+      "gif": "media/run.gif",
+      "poster": "media/run.png",
+      "title": "Initialize and grade",
+      "caption": "Recorded starter failure followed by all reference-solution stages passing. Reference passes do not earn learner certificates."
+    },
+    {
+      "gif": "media/output.gif",
+      "poster": "media/output.png",
+      "title": "Inspect the output",
+      "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
+    }
+  ]
+}

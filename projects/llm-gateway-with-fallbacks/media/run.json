@@ -1,0 +1,48 @@
+{
+  "title": "LLM Gateway With Fallbacks / initialize and test",
+  "recordedAt": "2026-09-28T16:27:50Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "llm-gateway-with-fallbacks",
+        "--init",
+        "my-llm-gateway-with-fallbacks"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-llm-gateway-with-fallbacks\n  created  go.mod\n  created  main.go\n  created  stage1.go\n  created  types.go\n  created  stage2.go\n  created  stage3.go\n  created  stage4.go\nnext: python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 1 --path /privatemy-llm-gateway-with-fallbacks\n",
+      "durationMs": 59
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "llm-gateway-with-fallbacks",
+        "--stage",
+        "1",
+        "--path",
+        "my-llm-gateway-with-fallbacks"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "LLM Gateway With Fallbacks: grading learner\n  FAIL stage 1: Validate provider endpoints (1 tests)\n       not implemented yet: Stage 1: implement Endpoints\n",
+      "durationMs": 882
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "llm-gateway-with-fallbacks",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "LLM Gateway With Fallbacks: grading solution\n  PASS stage 1: Validate provider endpoints (5 tests)\n  PASS stage 2: Classify failures without retrying everything (5 tests)\n  PASS stage 3: Send one bounded HTTP request (7 tests)\n  PASS stage 4: Route with a total-attempt budget (5 tests)\n",
+      "durationMs": 3615
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "title": "LLM Gateway With Fallbacks / actual output",
+  "recordedAt": "2026-09-28T16:27:51Z",
+  "records": [
+    {
+      "command": [
+        "go",
+        "run",
+        "."
+      ],
+      "cwd": "projects/llm-gateway-with-fallbacks/solution",
+      "exitCode": 0,
+      "output": "STATE completed\nATTEMPTS 2\nPROVIDER https://backup.test\nBODY {\"answer\":\"Use cited evidence.\"}\nERROR <nil>\n",
+      "durationMs": 863
+    }
+  ]
+}
