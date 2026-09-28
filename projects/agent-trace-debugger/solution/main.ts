@@ -18,30 +18,28 @@ export type Span = {
   tokens: number;
 };
 export function parseTrace(raw: string): Span[] {
-  return raw
-    .split(/\r?\n/)
-    .filter((l) => l.trim())
-    .map((line, index) => {
-      let s: Span;
-      try {
-        s = JSON.parse(line);
-      } catch {
-        throw new Error(`invalid JSON line ${index + 1}`);
-      }
-      if (
-        !s ||
-        typeof s.id !== "string" ||
-        !s.id ||
-        typeof s.name !== "string" ||
-        (s.parent !== undefined && typeof s.parent !== "string") ||
-        ![s.start, s.end, s.tokens].every(Number.isFinite) ||
-        s.end < s.start ||
-        s.tokens < 0 ||
-        !["ok", "error"].includes(s.status)
-      )
-        throw new Error(`invalid span line ${index + 1}`);
-      return s;
-    });
+  return raw.split(/\r?\n/).flatMap((line, index) => {
+    if (!line.trim()) return [];
+    let s: Span;
+    try {
+      s = JSON.parse(line);
+    } catch {
+      throw new Error(`invalid JSON line ${index + 1}`);
+    }
+    if (
+      !s ||
+      typeof s.id !== "string" ||
+      !s.id ||
+      typeof s.name !== "string" ||
+      (s.parent !== undefined && typeof s.parent !== "string") ||
+      ![s.start, s.end, s.tokens].every(Number.isFinite) ||
+      s.end < s.start ||
+      s.tokens < 0 ||
+      !["ok", "error"].includes(s.status)
+    )
+      throw new Error(`invalid span line ${index + 1}`);
+    return [s];
+  });
 }
 export function validateTree(spans: Span[]): Map<string, Span> {
   const map = new Map(spans.map((s) => [s.id, s]));

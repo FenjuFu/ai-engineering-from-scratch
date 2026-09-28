@@ -3,12 +3,10 @@
   "title": "Agent Trace Debugger",
   "level": 3,
   "levelName": "Engineer",
-  "tagline": "Validate nested agent spans, separate inclusive and exclusive time, identify expensive failures, and render a local trace timeline.",
-  "summary": "Validate nested agent spans, separate inclusive and exclusive time, identify expensive failures, and render a local trace timeline.",
+  "tagline": "A before-and-after regression report that explains overlap, own time and failed-token spending.",
+  "summary": "A before-and-after regression report that explains overlap, own time and failed-token spending. Export one Span JSON object per line from your instrumentation and retain trace.json beside trace.html in CI.",
   "hours": 8,
-  "languages": [
-    "TypeScript"
-  ],
+  "languages": ["TypeScript"],
   "status": "ready",
   "source": "core",
   "author": {
@@ -21,19 +19,28 @@
     "Separate work time from waiting time",
     "Render an inspectable timeline"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Validate nested agent spans, separate inclusive and exclusive time, identify expensive failures, and render a local trace timeline.",
+  "prerequisites": [
+    "Node 22.18+ and Python 3 for the grader",
+    "TypeScript objects, arrays, Map, sorting and interval arithmetic."
+  ],
+  "youWillBuild": "A before-and-after regression report that explains overlap, own time and failed-token spending.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "Export one Span JSON object per line from your instrumentation and retain trace.json beside trace.html in CI."
   ],
   "demo": {
+    "cwd": "solution",
     "command": [
       "node",
-      "main.ts",
-      "--demo"
-    ],
-    "cwd": "solution"
+      "cli.ts",
+      "--input",
+      "samples/trace.jsonl",
+      "--baseline",
+      "samples/before.jsonl",
+      "--output",
+      "trace.html",
+      "--json",
+      "trace.json"
+    ]
   },
   "stages": [
     {
@@ -43,9 +50,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "TypeScript models spans while preserving runtime checks at the log boundary.",
-      "concepts": [
-        "parseTrace"
-      ],
+      "concepts": ["parseTrace"],
       "difficulty": "starter",
       "runner": [
         "node",
@@ -53,9 +58,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-agent-trace-debugger-1"
     },
@@ -66,9 +69,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Maps provide stable identity lookup and sets expose cycles.",
-      "concepts": [
-        "validateTree"
-      ],
+      "concepts": ["validateTree"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -76,9 +77,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-agent-trace-debugger-2"
     },
@@ -89,10 +88,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Interval arithmetic exposes concurrency without relying on a tracing library.",
-      "concepts": [
-        "unionDuration",
-        "analyze"
-      ],
+      "concepts": ["unionDuration", "analyze"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -100,9 +96,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-agent-trace-debugger-3"
     },
@@ -113,19 +107,16 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "HTML can present the same typed analysis without a build pipeline or chart dependency.",
-      "concepts": [
-        "render"
-      ],
+      "concepts": ["render"],
       "difficulty": "core",
       "runner": [
         "node",
         "--experimental-strip-types",
         "--test",
-        "{tests}/stage.test.ts"
+        "{tests}/stage.test.ts",
+        "{tests}/integration.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-agent-trace-debugger-4"
     }
