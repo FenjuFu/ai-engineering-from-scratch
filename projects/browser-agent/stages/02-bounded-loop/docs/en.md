@@ -1,60 +1,55 @@
 # Stop on completion, stalling or budget
 
-> Observe after every action. Stop if the state repeats, if policy blocks an action, or if the step budget is consumed. Completion requires the DOM success flag and a separate screenshot check. Trace every selected action before execution. The fixture backend is explicitly a simulator; it supplies deterministic observations to test the loop and does not claim browser coverage.
+Stage 2 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript, Python
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Observe after every action. Stop if the state repeats, if policy blocks an action, or if the step budget is consumed. Completion requires the DOM success flag and a separate screenshot check. Trace every selected action before execution. The fixture backend is explicitly a simulator; it supplies deterministic observations to test the loop and does not claim browser coverage.
 
 The boundary for this stage is `runAgent, FixtureDriver`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-An injected driver separates the policy from Chromium and enables deterministic failure tests. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+An empty two-field form needs four observations: fill name, fill email, submit, verify. A budget of3 can perform the submit but cannot establish completion, so the terminal state remains budget-exhausted.
 
 ```figure
 pj-browser-agent-2
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `runAgent, FixtureDriver` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-A successful run records name, email, submit and done. An unresponsive driver stops as stalled instead of clicking forever.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Observe after every mutation. Compare successive complete observations to detect a stalled driver; compare requested values before accepting done.
 
-```bash
-python3 scripts/project_test.py browser-agent --init learning-artifacts/browser-agent
-python3 scripts/project_test.py browser-agent --stage 2 --path learning-artifacts/browser-agent
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py browser-agent --init learning-artifacts/browser-agent`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py browser-agent --path learning-artifacts/browser-agent
-node learning-artifacts/browser-agent/main.ts --demo
+python3 scripts/project_test.py browser-agent --stage 2 --path learning-artifacts/browser-agent --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-A successful run records name, email, submit and done. An unresponsive driver stops as stalled instead of clicking forever.
+```bash
+cd learning-artifacts/browser-agent
+node cli.ts --task samples/contact.json --output browser-run.json
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Use samples/accessibility.json, where the name is already correct. Explain why three observations now suffice without changing the policy.
 
-Keep your implementation and one input you invented under `learning-artifacts/browser-agent/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/)
+[PNG specification](https://www.w3.org/TR/png-3/)
+[HTML form controls](https://html.spec.whatwg.org/multipage/forms.html)
