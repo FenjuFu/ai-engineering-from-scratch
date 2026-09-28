@@ -1,8 +1,12 @@
 import json
-from intake import ticket
-from handoff import begin, transition
+import tempfile
+from pathlib import Path
+from support import support_ticket, export_support
 
-t = ticket({"id": "T-1", "text": "Please review this invoice"})
-s = transition(begin(t), "classify", t["text"])
-s = transition(s, "respond", "Review the invoice reference.")
-print(json.dumps(s, indent=2))
+raw = json.loads((Path(__file__).parent / "fixtures/ticket.json").read_text())
+with tempfile.TemporaryDirectory() as tmp:
+    result = export_support(support_ticket(raw), Path(tmp))
+    print(json.dumps(result, indent=2))
+print(
+    "Use python3 main.py --ticket fixtures/ticket.json --out support-output to keep the HTML and JSON review."
+)

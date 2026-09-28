@@ -3,8 +3,8 @@
   "title": "Support Agent With Google ADK",
   "level": 3,
   "levelName": "Engineer",
-  "tagline": "Build ticket contracts, routing and handoff rules, then run real ADK specialist agents with deterministic local models.",
-  "summary": "Build ticket contracts, routing and handoff rules, then run real ADK specialist agents with deterministic local models.",
+  "tagline": "Build a redacted, authorized support review with retained replies and evidence, then run the same policy through real Google ADK agents.",
+  "summary": "Build a redacted, authorized support review with retained replies and evidence, then run the same policy through real Google ADK agents.",
   "hours": 8,
   "languages": [
     "Python"
@@ -15,17 +15,21 @@
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Build ticket contracts, routing and handoff rules, then run real ADK specialist agents with deterministic local models.",
+  "youWillBuild": "An HTML review page and support.json with the redacted ticket, selected capability, source guidance, reply or escalation and state history.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "An HTML review page and support.json with the redacted ticket, selected capability, source guidance, reply or escalation and state history."
   ],
   "skills": [
-    "Validate and redact support tickets",
-    "Route tickets and enforce specialist capabilities",
-    "Record allowed handoff state transitions",
-    "Run two actual ADK agents with a session handoff"
+    "Validate before starting a session",
+    "Route and authorize as separate decisions",
+    "Retain the actual response in the handoff",
+    "Reuse the policy inside the real ADK path"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python dictionaries, exceptions and module imports.",
+    "An async function and an iterator of model events.",
+    "The distinction between classifying a request and authorizing a capability."
+  ],
   "figures": true,
   "overviewFigure": "pj-support-agent-with-google-adk-1",
   "languageWhy": {
@@ -41,66 +45,62 @@
   "stages": [
     {
       "id": "01-intake",
-      "title": "Validate and redact support tickets",
-      "summary": "The fixture replaces an email with [email] and an API-key value with [redacted].",
+      "title": "Validate before starting a session",
+      "summary": "For invoice for sam@example.invalid api_key=EXAMPLE_TOKEN, the usable ticket text becomes invoice for [email] api_key=[redacted]. An empty string fails before routing. The same cleaned text must reach both the baseline and ADK path.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "starter",
       "figure": "pj-support-agent-with-google-adk-1",
       "concepts": [
-        "validate",
-        "and",
-        "redact",
-        "support"
+        "input validation",
+        "redaction",
+        "source handling"
       ]
     },
     {
       "id": "02-routing",
-      "title": "Route tickets and enforce specialist capabilities",
-      "summary": "A refund/password tie goes to human, and billing cannot read an account.",
+      "title": "Route and authorize as separate decisions",
+      "summary": "invoice refund selects billing and can use read_invoice. invoice login ties billing and access, so it escalates. A billing route requesting read_account is rejected even though that tool is valid for another specialist.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-support-agent-with-google-adk-2",
       "concepts": [
-        "route",
-        "tickets",
-        "and",
-        "enforce"
+        "routing scores",
+        "ties",
+        "capability allowlists"
       ]
     },
     {
       "id": "03-handoff",
-      "title": "Record allowed handoff state transitions",
-      "summary": "A received ticket becomes routed before it can become answered or escalated.",
+      "title": "Retain the actual response in the handoff",
+      "summary": "begin followed by classify on invoice then respond with Check the invoice reference produces answered and retains response=\"Check the invoice reference\". The history records classify and respond. Classifying invoice login followed by respond fails; escalate is the valid transition.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-support-agent-with-google-adk-3",
       "concepts": [
-        "record",
-        "allowed",
-        "handoff",
-        "state"
+        "state transitions",
+        "immutable history",
+        "response retention"
       ]
     },
     {
       "id": "04-adk-adapter",
-      "title": "Run two actual ADK agents with a session handoff",
-      "summary": "The real ADK run emits triage and specialist events, with route and response in session state.",
+      "title": "Reuse the policy inside the real ADK path",
+      "summary": "A login ticket chooses read_account and access-recovery guidance. The fixture specialist replies using that guidance, and the final handoff stores the reply. A request for read_invoice under the access route raises PermissionError before a graph is run. Optional tests inspect model requests to ensure raw email and example keys did not cross the boundary.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "stretch",
       "figure": "pj-support-agent-with-google-adk-4",
       "concepts": [
-        "run",
-        "two",
-        "actual",
-        "adk"
+        "ADK Workflow",
+        "shared policy boundary",
+        "provider injection"
       ],
       "runners": [
         {

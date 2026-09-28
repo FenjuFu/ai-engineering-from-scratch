@@ -33,6 +33,10 @@ def transition(session, event, payload=None):
         raise ValueError("human route requires escalation")
     if event == "respond" and (not isinstance(payload, str) or not payload.strip()):
         raise ValueError("response text required")
+    if event == "respond":
+        next_state["response"] = payload.strip()
+    if event == "escalate":
+        next_state["escalation_reason"] = payload or "Human review required"
     next_state["state"] = allowed[session["state"]][event]
     next_state["history"].append({"event": event, "state": next_state["state"]})
     return next_state
