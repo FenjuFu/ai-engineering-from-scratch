@@ -1,56 +1,46 @@
 # Execute and score a transparent routing skill
 
-> The rule [reset, password] matches reset password but does not match reset only.
+**Stage 2 of 4.** Python. Plan about 2 hours.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Implement `skill.py`: `route`, `evaluate`. This artifact is stage 2 of Self-Improving Skill Loop. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+A routing skill is an ordered list of conjunctions. Matching every term makes multiword rules more specific than a bag of independent keywords, and first-match order is part of the contract. Evaluation stores predicted and expected labels per case so an aggregate cannot hide who regressed.
 
 ```figure
 pj-self-improving-skill-loop-2
 ```
 
-## Follow the mechanism
-
-A routing skill is an ordered list of conjunctions. Matching every term makes multiword rules more specific than a bag of independent keywords, and first-match order is part of the contract. Evaluation stores predicted and expected labels per case so an aggregate cannot hide who regressed.
-
-## Build it
-
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Implementation boundary
 
 ```python
 def route(text,rules,default='unknown'):
     raise NotImplementedError("Implement the stage contract")
 ```
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Primary reference: [Reference 1](https://docs.python.org/3/library/hashlib.html).
 
-## Run it
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py self-improving-skill-loop --init my-self-improving-skill-loop
-python3 scripts/project_test.py self-improving-skill-loop --stage 2 --path my-self-improving-skill-loop
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Model evaluation](../../../../../phases/02-ml-fundamentals/09-model-evaluation/docs/en.md). Complete [stage 1](../../01-dataset/docs/en.md) first.
+
+The routing skill is a transparent ordered list. A rule requires every term, and the first matching rule wins. Record each expected/predicted pair before calculating accuracy so errors can drive a proposal.
+
+```text
+rule terms=[password,reset], label=access
+"password reset expired" -> access
+"password rejected" -> unknown
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+## Build and inspect
 
-## What you should see
+Normalize input words once. Empty term sets must never become match-everything rules.
 
-The rule [reset, password] matches reset password but does not match reset only. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Inspect the boundary
+```bash
+python3 scripts/project_test.py self-improving-skill-loop --stage 2 --path learning-artifacts/self-improving-skill-loop
+```
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Use it
+## Investigate next
 
-After all stages pass, run `python3 projects/self-improving-skill-loop/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
-
-## Primary references
-
-- [Reference 1](https://docs.python.org/3/library/hashlib.html)
+What happens when a broad early rule shadows a more precise later rule?
