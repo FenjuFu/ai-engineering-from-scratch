@@ -1,0 +1,16 @@
+{
+  "title": "Report Judge / actual output",
+  "recordedAt": "2026-09-28T16:12:33Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/report-judge/solution",
+      "exitCode": 0,
+      "output": "{\n  \"precision\": 1.0,\n  \"recall\": 1.0,\n  \"coverage\": 1.0,\n  \"score\": 100.0,\n  \"verdicts\": [\n    {\n      \"score\": 1.0,\n      \"reason\": \"overlap\",\n      \"supported\": true\n    }\n  ]\n}\n{\n  \"mean_delta\": 5.0,\n  \"interval\": [\n    5.0,\n    5.0\n  ],\n  \"regressions\": [],\n  \"promote\": true\n}\n",
+      "durationMs": 30
+    }
+  ]
+}
