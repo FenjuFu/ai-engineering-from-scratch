@@ -1,60 +1,54 @@
 # Separate work time from waiting time
 
-> Inclusive duration is end minus start. Exclusive duration subtracts the union of immediate child intervals, not their sum, because parallel children overlap. Root interval union provides wall time across runs. Tokens are local per span and summed once. The slowest result names the span with greatest exclusive duration, avoiding a root that is mostly waiting on children.
+Stage 3 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 3 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Inclusive duration is end minus start. Exclusive duration subtracts the union of immediate child intervals, not their sum, because parallel children overlap. Root interval union provides wall time across runs. Tokens are local per span and summed once. The slowest result names the span with greatest exclusive duration, avoiding a root that is mostly waiting on children.
 
 The boundary for this stage is `unionDuration, analyze`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Interval arithmetic exposes concurrency without relying on a tracing library. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+ChildA runs 10..60 and childB runs 40..90. Their summed duration is100, their overlap is20, and their union is80. The 100 ms parent therefore owns 20 ms, not zero.
 
 ```figure
 pj-agent-trace-debugger-3
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `unionDuration, analyze` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-Overlapping child spans count once, and the model call becomes the largest owner of elapsed work.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Sort intervals by start; extend the current end on overlap and commit the interval only when the next interval starts after it. Use immediate children when computing a span's exclusive duration.
 
-```bash
-python3 scripts/project_test.py agent-trace-debugger --init learning-artifacts/agent-trace-debugger
-python3 scripts/project_test.py agent-trace-debugger --stage 3 --path learning-artifacts/agent-trace-debugger
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py agent-trace-debugger --init learning-artifacts/agent-trace-debugger`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py agent-trace-debugger --path learning-artifacts/agent-trace-debugger
-node learning-artifacts/agent-trace-debugger/main.ts --demo
+python3 scripts/project_test.py agent-trace-debugger --stage 3 --path learning-artifacts/agent-trace-debugger --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-Overlapping child spans count once, and the model call becomes the largest owner of elapsed work.
+```bash
+cd learning-artifacts/agent-trace-debugger
+node cli.ts --input samples/trace.jsonl --baseline samples/before.jsonl --output trace.html --json trace.json
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Move B start from 40 to70 in the lab. Predict union 70 and parent own time 30 before observing the bars.
 
-Keep your implementation and one input you invented under `learning-artifacts/agent-trace-debugger/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[OpenTelemetry traces concepts](https://opentelemetry.io/docs/concepts/signals/traces/)
+[Node test runner](https://nodejs.org/api/test.html)
