@@ -3,16 +3,14 @@
   "title": "Local Model Evaluation Harness",
   "level": 2,
   "levelName": "Builder",
-  "tagline": "Evaluate recorded local-model responses with exact-answer accuracy, calibration error, and latency percentiles. Keep model execution separate from measurement.",
-  "summary": "Evaluate recorded local-model responses with exact-answer accuracy, calibration error, and latency percentiles. Keep model execution separate from measurement.",
-  "youWillBuild": "A runnable Python command and JSON report. The reference demo runs on deterministic local fixtures; you can feed the same functions your own data.",
+  "tagline": "A reproducible local-model recording and comparison artifact with visible coverage and confidence error.",
+  "summary": "A reproducible local-model recording and comparison artifact with visible coverage and confidence error. record.py writes the same {manifest,source,labels,records} contract consumed by cli.py. --baseline compares only identical label fingerprints; --min-accuracy supplies a local CI gate.",
+  "youWillBuild": "A reproducible local-model recording and comparison artifact with visible coverage and confidence error.",
   "usefulFor": [
-    "Use this artifact to inspect a real local dataset before connecting a model or an external service."
+    "record.py writes the same {manifest,source,labels,records} contract consumed by cli.py. --baseline compares only identical label fingerprints; --min-accuracy supplies a local CI gate."
   ],
   "hours": 8,
-  "languages": [
-    "Python"
-  ],
+  "languages": ["Python"],
   "languageWhy": {
     "Python": "The standard library makes parsing, scoring, and failure handling visible without hiding the mechanism behind a framework."
   },
@@ -28,15 +26,23 @@
     "Measure confidence calibration",
     "Publish accuracy and latency together"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python 3.10+",
+    "JSON, ratios, sorting, percentiles and basic HTTP. A live recorder additionally needs an already-running loopback OpenAI-compatible model server."
+  ],
   "figures": true,
   "overviewFigure": "pj-local-model-eval-harness-1",
   "demo": {
+    "cwd": "solution",
     "command": [
       "python3",
-      "demo.py"
-    ],
-    "cwd": "solution"
+      "cli.py",
+      "samples/input.json",
+      "--output",
+      "scorecard.json",
+      "--html",
+      "reliability.html"
+    ]
   },
   "stages": [
     {
@@ -47,10 +53,7 @@
       "difficulty": "starter",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "recorded predictions",
-        "finite values"
-      ],
+      "concepts": ["recorded predictions", "finite values"],
       "figure": "pj-local-model-eval-harness-1"
     },
     {
@@ -61,11 +64,7 @@
       "difficulty": "core",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "accuracy",
-        "coverage",
-        "missing data"
-      ],
+      "concepts": ["accuracy", "coverage", "missing data"],
       "figure": "pj-local-model-eval-harness-2"
     },
     {
@@ -76,11 +75,7 @@
       "difficulty": "core",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "calibration",
-        "ECE",
-        "confidence"
-      ],
+      "concepts": ["calibration", "ECE", "confidence"],
       "figure": "pj-local-model-eval-harness-3"
     },
     {
@@ -91,10 +86,7 @@
       "difficulty": "stretch",
       "language": "python",
       "languageWhy": "Use explicit data structures and deterministic standard-library operations.",
-      "concepts": [
-        "percentiles",
-        "measurement provenance"
-      ],
+      "concepts": ["percentiles", "measurement provenance"],
       "figure": "pj-local-model-eval-harness-4"
     }
   ],
