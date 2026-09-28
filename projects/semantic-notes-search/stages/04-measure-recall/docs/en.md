@@ -1,20 +1,6 @@
 # Measure retrieval before adding embeddings
 
-> Evaluate labeled query-to-id cases and report hits, total, and recall.
-
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `evaluate` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+**Stage 4 of 4.** Python. Plan about 2 hours.
 
 A retrieval demo needs a score tied to a task. For each labeled query, measure whether the expected document appears in the first k results. Average these independent hits for recall at k.
 
@@ -24,54 +10,38 @@ This tiny labeled fixture is public and deterministic. A perfect score here cann
 pj-semantic-notes-search-4
 ```
 
-## Predict first
+Primary reference: [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html).
 
-Can adding a synonym improve one query while hurting another through a tie?
+## Worked Orchard case
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md). Complete [stage 3](../../03-rank-queries/docs/en.md) first.
 
-## Your task
+Measure whether the intended note appears near the top before adding a different retrieval backend. The supplied notes span deployment, restore and guest Wi-Fi so an alias can help one topic while harming another.
 
-Implement `evaluate` in `main.py` in your learner workspace. Evaluate labeled query-to-id cases and report hits, total, and recall. Reject labels that reference missing notes.
-
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
-
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
-
-```bash
-python3 scripts/project_test.py semantic-notes-search --init my-semantic-notes-search
-python3 scripts/project_test.py semantic-notes-search --stage 4 --path my-semantic-notes-search
+```text
+labels: restore -> backup.md; café -> café.md
+hits=2,total=2,k=1 -> recall=1
+add a misleading alias -> inspect changed hit ids
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
+## Build and inspect
 
-## What you should see
+Keep labeled queries outside the tuning examples. Call the actual search function inside evaluation instead of reconstructing a separate scorer.
 
-The included deployment and backup questions produce a JSON report with scores and a recall metric.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-cd projects/semantic-notes-search/solution
-python3 demo.py
+python3 scripts/project_test.py semantic-notes-search --stage 4 --path learning-artifacts/semantic-notes-search
 ```
 
-## Debug with evidence
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+```bash
+python3 learning-artifacts/semantic-notes-search/cli.py projects/semantic-notes-search/examples/notes "release replicas" --aliases projects/semantic-notes-search/examples/aliases.json --out matches.json
+```
 
-## Check yourself
+This is an explainable lexical TF-IDF baseline with explicit aliases, not a learned embedding model. The title preserves the project route; every match exposes its lexical terms. The folder reader accepts bounded UTF-8 markdown and rejects symlink files.
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
+## Investigate next
 
-## Going further
-
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
-
-## Sources
-
-- [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+How many new labels would you collect before claiming improved retrieval for beginners?
