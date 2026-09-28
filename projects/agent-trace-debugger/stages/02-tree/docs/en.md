@@ -1,60 +1,54 @@
 # Validate parent relationships
 
-> A child span must reference an existing parent and fit inside the parent interval. Check every ancestor chain for cycles and reject duplicate ids. Multiple roots are allowed because a trace can contain overlapping independent runs. Validation happens before aggregation so corrupted graphs cannot produce convincing charts.
+Stage 2 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 A child span must reference an existing parent and fit inside the parent interval. Check every ancestor chain for cycles and reject duplicate ids. Multiple roots are allowed because a trace can contain overlapping independent runs. Validation happens before aggregation so corrupted graphs cannot produce convincing charts.
 
 The boundary for this stage is `validateTree`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Maps provide stable identity lookup and sets expose cycles. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+The root runs 0..100 and childA runs 10..80. A childB ending 110 violates containment even though each individual interval has a nonnegative duration. A->B->A violates ancestry even if every time is identical.
 
 ```figure
 pj-agent-trace-debugger-2
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `validateTree` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-The graph rejects a plausible-looking child that ends after its parent.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Build an id map before walking ancestors. A fresh visited set per span catches cycles without confusing an ancestor shared by two valid children.
 
-```bash
-python3 scripts/project_test.py agent-trace-debugger --init learning-artifacts/agent-trace-debugger
-python3 scripts/project_test.py agent-trace-debugger --stage 2 --path learning-artifacts/agent-trace-debugger
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py agent-trace-debugger --init learning-artifacts/agent-trace-debugger`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py agent-trace-debugger --path learning-artifacts/agent-trace-debugger
-node learning-artifacts/agent-trace-debugger/main.ts --demo
+python3 scripts/project_test.py agent-trace-debugger --stage 2 --path learning-artifacts/agent-trace-debugger --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-The graph rejects a plausible-looking child that ends after its parent.
+```bash
+cd learning-artifacts/agent-trace-debugger
+node cli.ts --input samples/trace.jsonl --baseline samples/before.jsonl --output trace.html --json trace.json
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Create two independent roots that overlap. They are valid; stage 3 must merge their time intervals instead of summing wall time.
 
-Keep your implementation and one input you invented under `learning-artifacts/agent-trace-debugger/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+
+
+
+## References
+
+[OpenTelemetry traces concepts](https://opentelemetry.io/docs/concepts/signals/traces/)
+[Node test runner](https://nodejs.org/api/test.html)
