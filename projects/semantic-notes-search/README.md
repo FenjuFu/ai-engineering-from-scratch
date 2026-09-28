@@ -1,28 +1,48 @@
 # Semantic Notes Search
 
-Search local notes with explicit synonym expansion and normalized TF-IDF scores. Explain every match rather than hiding retrieval in a hosted embedding service.
+Local notes search explaining each match and showing when aliases help or harm.
 
-Python 3.10 or newer. No external packages, API keys, or network calls are needed for the core project.
+Orchard operators type café with different Unicode encodings. Apply case folding and NFC normalization to both text and alias keys so equivalent spellings share tokens. An alias is one explicit lexical substitution.
 
-## Build it
+## Start with a learner workspace
+
+[Data management](../../phases/00-setup-and-tooling/09-data-management/docs/en.md), [Retrieval augmented generation](../../phases/11-llm-engineering/06-rag/docs/en.md). Language foundation: [Python data structures](https://docs.python.org/3/tutorial/datastructures.html).
+
+Use Python 3.10+ and its standard library. POSIX is required where the project uses file locks or process-group supervision.
 
 ```bash
-python3 scripts/project_test.py semantic-notes-search --init my-semantic-notes-search
-python3 scripts/project_test.py semantic-notes-search --stage 1 --path my-semantic-notes-search
-python3 scripts/project_test.py semantic-notes-search --all --solution --strict
-cd projects/semantic-notes-search/solution
-python3 demo.py
+python3 scripts/project_test.py semantic-notes-search --init learning-artifacts/semantic-notes-search
+python3 scripts/project_test.py semantic-notes-search --stage 1 --path learning-artifacts/semantic-notes-search
 ```
 
-The demo prints real JSON from the implementation on local fixtures. It does not call a model service or claim a production benchmark. Each stage teaches an independent contract and adds tests against your workspace.
-
-## Stages
+## Build route
 
 1. [Normalize notes without losing identity](stages/01-normalize-notes/docs/en.md)
 2. [Weight terms by document rarity](stages/02-weight-the-index/docs/en.md)
 3. [Rank queries with a stable tie rule](stages/03-rank-queries/docs/en.md)
 4. [Measure retrieval before adding embeddings](stages/04-measure-recall/docs/en.md)
 
-## Primary reference
+## Run with your own inputs
 
-[Mechanism and API reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html). Original implementation and fixtures.
+After completing the stages, these commands run your workspace code on the original Orchard examples. Replace the sample paths with your own files.
+
+```bash
+python3 learning-artifacts/semantic-notes-search/cli.py projects/semantic-notes-search/examples/notes "release replicas" --aliases projects/semantic-notes-search/examples/aliases.json --out matches.json
+```
+
+To inspect the complete reference first, replace `learning-artifacts/semantic-notes-search` with `projects/semantic-notes-search/solution` in the same command. JSON results use `schema_version: 1`; paths and argument examples are explicit so another tool can consume them.
+
+## Integration boundary
+
+This is an explainable lexical TF-IDF baseline with explicit aliases, not a learned embedding model. The title preserves the project route; every match exposes its lexical terms. The folder reader accepts bounded UTF-8 markdown and rejects symlink files.
+
+```bash
+python3 scripts/project_test.py semantic-notes-search --all --solution --strict
+python3 scripts/project_test.py semantic-notes-search --all --path learning-artifacts/semantic-notes-search --strict
+```
+
+The first command checks the reference. The second checks your implementation. The published examples and tests are regression evidence, not a production certification or an unseen benchmark.
+
+## Primary references
+
+- [Mechanism and API reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html)

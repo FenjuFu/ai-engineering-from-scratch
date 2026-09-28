@@ -1,20 +1,6 @@
 # Normalize notes without losing identity
 
-> Return canonical Unicode word tokens.
-
-**Type:** Build
-**Languages:** Python
-**Stage:** 1 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `normalize` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+**Stage 1 of 4.** Python. Plan about 2 hours.
 
 A search index is a contract between the note you wrote and the query you will type later. Tokenize Unicode words with case folding, but keep each original document id. Repeated terms carry frequency information; a set would destroy it.
 
@@ -24,54 +10,33 @@ Use a small explicit synonym map to map deploy and release to the same canonical
 pj-semantic-notes-search-1
 ```
 
-## Predict first
+Primary reference: [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html).
 
-If release maps to deploy and deploy maps to release, should one token expand forever?
+## Worked Orchard case
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Data management](../../../../../phases/00-setup-and-tooling/09-data-management/docs/en.md).
 
-## Your task
+Orchard operators type café with different Unicode encodings. Apply case folding and NFC normalization to both text and alias keys so equivalent spellings share tokens. An alias is one explicit lexical substitution.
 
-Implement `normalize` in `main.py` in your learner workspace. Return canonical Unicode word tokens. Expand aliases only once so a cycle in the alias table cannot loop.
-
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
-
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
-
-```bash
-python3 scripts/project_test.py semantic-notes-search --init my-semantic-notes-search
-python3 scripts/project_test.py semantic-notes-search --stage 1 --path my-semantic-notes-search
+```text
+"CAFE\u0301" -> ["café"]
+alias release -> deploy
+"release café" -> ["deploy","café"]
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
+## Build and inspect
 
-## What you should see
+Normalize before the Unicode word regex; otherwise a combining mark can disappear. Do not recursively expand aliases into cycles.
 
-`normalize("Release CAFÉ", {"release":"deploy"})` returns `["deploy", "café"]`.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-cd projects/semantic-notes-search/solution
-python3 demo.py
+python3 scripts/project_test.py semantic-notes-search --init learning-artifacts/semantic-notes-search
+python3 scripts/project_test.py semantic-notes-search --stage 1 --path learning-artifacts/semantic-notes-search
 ```
 
-## Debug with evidence
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+## Investigate next
 
-## Check yourself
-
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
-
-## Going further
-
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
-
-## Sources
-
-- [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/the-vector-space-model-for-scoring-1.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+When would mapping release to deploy harm retrieval rather than help it?

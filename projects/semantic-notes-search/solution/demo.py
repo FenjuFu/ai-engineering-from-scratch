@@ -1,28 +1,19 @@
-import json
-from main import *
+from pathlib import Path
+import json, subprocess, tempfile, sys, shutil
 
-index = build_index(
-    {
-        "deploy": "Deploy the service after tests pass.",
-        "backup": "Back up the database every night.",
-        "incident": "Service errors require an incident report.",
-    },
-    {"release": "deploy"},
-)
+root = Path(__file__).resolve().parent
+examples = root.parent / "examples"
+from cli import run
+
+aliases = json.loads((examples / "aliases.json").read_text())
 print(
     json.dumps(
         {
-            "query": "release service",
-            "matches": search(index, "release service"),
-            "evaluation": evaluate(
-                index,
-                [
-                    {"query": "release", "expected": "deploy"},
-                    {"query": "database", "expected": "backup"},
-                ],
-                1,
-            ),
+            "without_alias": run(examples / "notes", "release replicas"),
+            "with_alias": run(examples / "notes", "release replicas", aliases),
+            "unicode": run(examples / "notes", "cafe\u0301"),
         },
         indent=2,
+        ensure_ascii=False,
     )
 )

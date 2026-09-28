@@ -3,11 +3,12 @@
   "title": "Semantic Notes Search",
   "level": 1,
   "levelName": "Starter",
-  "tagline": "Search local notes with explicit synonym expansion and normalized TF-IDF scores. Explain every match rather than hiding retrieval in a hosted embedding service.",
+  "tagline": "Search your markdown notes with Unicode normalization, explicit aliases and inspectable lexical scores.",
   "summary": "Search local notes with explicit synonym expansion and normalized TF-IDF scores. Explain every match rather than hiding retrieval in a hosted embedding service.",
-  "youWillBuild": "A runnable Python command and JSON report. The reference demo runs on deterministic local fixtures; you can feed the same functions your own data.",
+  "youWillBuild": "Local notes search explaining each match and showing when aliases help or harm.",
   "usefulFor": [
-    "Use this artifact to inspect a real local dataset before connecting a model or an external service."
+    "Local notes search explaining each match and showing when aliases help or harm.",
+    "This is an explainable lexical TF-IDF baseline with explicit aliases, not a learned embedding model."
   ],
   "hours": 8,
   "languages": [
@@ -28,7 +29,16 @@
     "Rank queries with a stable tie rule",
     "Measure retrieval before adding embeddings"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Data management",
+      "path": "phases/00-setup-and-tooling/09-data-management"
+    },
+    {
+      "title": "Retrieval augmented generation",
+      "path": "phases/11-llm-engineering/06-rag"
+    }
+  ],
   "figures": true,
   "overviewFigure": "pj-semantic-notes-search-1",
   "demo": {

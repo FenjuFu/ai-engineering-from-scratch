@@ -1,5 +1,6 @@
 import math
 import re
+import unicodedata
 from collections import Counter
 
 
@@ -7,7 +8,13 @@ def normalize(text, aliases=None):
     if not isinstance(text, str):
         raise ValueError("text must be a string")
     aliases = aliases or {}
-    return [aliases.get(word, word) for word in re.findall("\\w+", text.casefold())]
+    canonical = lambda value: unicodedata.normalize("NFC", value.casefold())
+    if not isinstance(aliases, dict) or any(
+        not isinstance(k, str) or not isinstance(v, str) for k, v in aliases.items()
+    ):
+        raise ValueError("aliases must map strings to strings")
+    aliases = {canonical(k): canonical(v) for k, v in aliases.items()}
+    return [aliases.get(word, word) for word in re.findall(r"\w+", canonical(text))]
 
 
 def build_index(documents, aliases=None):
