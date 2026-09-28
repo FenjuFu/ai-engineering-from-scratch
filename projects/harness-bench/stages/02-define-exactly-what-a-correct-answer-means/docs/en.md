@@ -1,54 +1,50 @@
 # Define exactly what a correct answer means
 
-> Blue newline SKY -> blue sky; 10 remains distinct from 100
+> Define the answer contract before seeing the scores.
 
 **Type:** Build
 **Languages:** Go
 **Stage:** 2 of 4
+**Prerequisites:** Stage 1 and string processing. The scorer deliberately uses an exact answer contract.
 **Time:** ~2 hours
 
 ## What you build
 
-Compare harness behavior under the same tasks and call budget. This stage implements `Correct` in `stage2.go`. The finished behavior feeds the next stage through a typed contract.
+Implement `Correct(actual, expected)` as lowercase plus collapsed whitespace, followed by equality. Empty expected answers never pass. Keep numbers, units and punctuation: an expiry of 15 minutes and 150 minutes have different operational consequences.
 
-## Why it matters
+This metric is appropriate when prompts request a duration, state or explicit abstention. It does not measure the factual quality of free-form essays.
 
-Normalize case and whitespace, but preserve punctuation and numbers. Exact equality then produces a deterministic score. This intentionally narrow metric catches format differences; semantic equivalence needs a separately calibrated evaluator rather than a hidden fuzzy threshold.
+## Worked example
 
-## Work through one case
+For `actual = " 15   MINUTES\n"`, split the text into `["15", "MINUTES"]`, join it as `15 MINUTES`, then lowercase it to `15 minutes`. The normalized expected answer is also `15 minutes`, so the case earns one point.
 
-Blue newline SKY -> blue sky; 10 remains distinct from 100. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+`15 min` fails against `15 minutes`. That is a declared metric limitation, not evidence that the model is wrong. Add accepted variants through a separately specified contract if your application needs them; do not loosen equality after inspecting the winners.
 
 ```figure
 pj-harness-bench-2
 ```
 
-## Your task
+## Implement the contract
 
 ```go
-func Correct(actual,expected string)bool
+func Correct(actual, expected string) bool
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+`strings.Fields` handles runs of whitespace. `strings.ToLower` handles Unicode case, but does not compose canonically equivalent accents. Record that boundary rather than claiming semantic or full Unicode normalization.
 
-## Run the tests
+## Run your work
+
+From the repository root, initialize once; the grader preserves existing workspace files:
 
 ```bash
-python3 scripts/project_test.py harness-bench --stage 2 --path /tmp/harness-bench-work
+python3 scripts/project_test.py harness-bench --init /tmp/harness-bench-work
+python3 scripts/project_test.py harness-bench --stage 2 --path /tmp/harness-bench-work --strict
 ```
 
-The stage checks Whitespace, Number, Punctuation, Empty, Unicode. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+Your implementation belongs in `stage2.go` in that workspace. Provided adapters call those learner functions; they do not import the reference solution. Stage tests include cases separate from the Orchard demonstration.
 
-## Check yourself
+## Inspect and extend
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Test `10 ms` against `100 ms`, and `ready!` against `ready`. Which should pass under this contract? Write the answer before running the scorer. For open-ended answers, use the [Report Judge](../../../../report-judge/README.md) with source evidence instead of this metric.
 
-## Going further
-
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/testing). Build a deterministic evaluation harness with strict case ingestion, normalized exact-match scoring, per-run accounting and stable leaderboard output. The reference model is a local fixture function; benchmark numbers describe these cases, not general model capability.
+[Go standard-library reference](https://pkg.go.dev/encoding/json). The runnable core uses only Go's standard library. External model calls are optional and do not run during ordinary grading.
