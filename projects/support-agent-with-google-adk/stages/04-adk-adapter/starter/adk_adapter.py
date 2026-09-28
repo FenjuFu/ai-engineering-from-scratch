@@ -12,7 +12,11 @@ def collect_events(events):
 
 async def run_adk(
     ticket_text,
-    route_reply="billing",
-    answer_reply="Review the invoice and confirm its reference.",
+    route_reply=None,
+    answer_reply=None,
+    *,
+    ticket_id="local-ticket",
+    requested_tool=None,
+    model=None,
 ):
     raise NotImplementedError("Stage 4: implement run_adk")
