@@ -1,20 +1,8 @@
 # Validate owners and calendar dates
 
-> Validate owner, task, and ISO date.
+Stage 2 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 2 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `validate_action` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+## What changes
 
 An action list is operational data. Reject impossible calendar dates rather than accepting a shape that merely resembles a date. A missing owner or date is not a parser crash; it is a review flag.
 
@@ -22,58 +10,46 @@ Use the literal ? marker for unknown fields. This keeps uncertainty visible in s
 
 Require source citations to be a nonempty list of positive integers. Reject booleans even though Python treats them as integers. Invalid or missing citations cannot become trustworthy evidence in the published checklist.
 
+## Work through one concrete case
+
+2026-02-30 has the right digit pattern but is not a calendar date. The marker ? means a missing commitment field and creates needs_date or needs_owner instead of guessing a value.
+
 ```figure
 pj-meeting-notes-to-actions-2
 ```
 
-## Predict first
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-Is 2026-02-30 a valid deadline because it matches the date regex?
+## Implement the contract
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Implement `validate_action` against the stated contract.
 
-## Your task
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-Implement `validate_action` in `main.py` in your learner workspace. Validate owner, task, and ISO date. Return review flags for unknown owner/date and reject impossible dates.
+Parse dates with date.fromisoformat after enforcing the intended ISO shape. Validate source lines as positive integers and explicitly reject bool, empty lists and HTML-like values.
 
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
+## Verify and inspect
 
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
+From the repository root, initialize once with `python3 scripts/project_test.py meeting-notes-to-actions --init learning-artifacts/meeting-notes-to-actions`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py meeting-notes-to-actions --init my-meeting-notes-to-actions
-python3 scripts/project_test.py meeting-notes-to-actions --stage 2 --path my-meeting-notes-to-actions
+python3 scripts/project_test.py meeting-notes-to-actions --stage 2 --path learning-artifacts/meeting-notes-to-actions --strict
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
-
-## What you should see
-
-Unknown fields create needs_owner or needs_date; invalid calendar dates raise ValueError.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-cd projects/meeting-notes-to-actions/solution
-python3 demo.py
+cd learning-artifacts/meeting-notes-to-actions
+python3 cli.py samples/notes.txt --today 2026-09-29 --output actions.json --html actions.html --csv approved.csv
 ```
 
-## Debug with evidence
+## Investigate the failure boundary
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+Try approving an action whose owner is?. The inbox must reject approval, leaving the incomplete commitment for review.
 
-## Check yourself
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
 
-## Going further
 
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
+## References
 
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/datetime.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+[Primary technical reference](https://docs.python.org/3/library/datetime.html)
