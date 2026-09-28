@@ -3,21 +3,19 @@
   "title": "Document QA With Citations and LangChain",
   "level": 2,
   "levelName": "Builder",
-  "tagline": "Build grounded document QA from explicit spans, then use LangChain only for its useful splitter and model interfaces.",
-  "summary": "Build grounded document QA from explicit spans, then use LangChain only for its useful splitter and model interfaces.",
+  "tagline": "A citation receipt that separates exact source support from relevance to the question.",
+  "summary": "A citation receipt that separates exact source support from relevance to the question. Import query(directory, question, model). A model callback returns JSON {source:chunk_id,quote:exact_text}. --response accepts a recorded response and applies the same gate.",
   "hours": 8,
-  "languages": [
-    "Python"
-  ],
+  "languages": ["Python"],
   "status": "ready",
   "source": "core",
   "author": {
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Build grounded document QA from explicit spans, then use LangChain only for its useful splitter and model interfaces.",
+  "youWillBuild": "A citation receipt that separates exact source support from relevance to the question.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "Import query(directory, question, model). A model callback returns JSON {source:chunk_id,quote:exact_text}. --response accepts a recorded response and applies the same gate."
   ],
   "skills": [
     "Load local documents with stable provenance",
@@ -25,18 +23,27 @@
     "Accept only answers grounded in retrieved spans",
     "Use a framework splitter without losing offsets"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python 3.10+",
+    "pathlib, strings, offsets, dictionaries and callback functions. Optional LangChain dependencies are pinned separately."
+  ],
   "figures": true,
   "overviewFigure": "pj-doc-qa-with-citations-1",
   "languageWhy": {
     "Python": "Stdlib data structures, explicit algorithms and deterministic local tests."
   },
   "demo": {
+    "cwd": "solution",
     "command": [
       "python3",
-      "demo.py"
-    ],
-    "cwd": "solution"
+      "cli.py",
+      "samples/docs",
+      "When does cache expire?",
+      "--output",
+      "answer.json",
+      "--html",
+      "answer.html"
+    ]
   },
   "stages": [
     {
@@ -48,12 +55,7 @@
       "hours": 2,
       "difficulty": "starter",
       "figure": "pj-doc-qa-with-citations-1",
-      "concepts": [
-        "load",
-        "local",
-        "documents",
-        "with"
-      ]
+      "concepts": ["load", "local", "documents", "with"]
     },
     {
       "id": "02-retrieval",
@@ -64,12 +66,7 @@
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-doc-qa-with-citations-2",
-      "concepts": [
-        "rank",
-        "chunks",
-        "with",
-        "an"
-      ]
+      "concepts": ["rank", "chunks", "with", "an"]
     },
     {
       "id": "03-answer",
@@ -80,12 +77,7 @@
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-doc-qa-with-citations-3",
-      "concepts": [
-        "accept",
-        "only",
-        "answers",
-        "grounded"
-      ]
+      "concepts": ["accept", "only", "answers", "grounded"]
     },
     {
       "id": "04-adapter",
@@ -96,12 +88,7 @@
       "hours": 2,
       "difficulty": "stretch",
       "figure": "pj-doc-qa-with-citations-4",
-      "concepts": [
-        "use",
-        "a",
-        "framework",
-        "splitter"
-      ],
+      "concepts": ["use", "a", "framework", "splitter"],
       "runners": [
         {
           "language": "python"
@@ -109,9 +96,7 @@
         {
           "language": "python",
           "optional": true,
-          "requires": [
-            "python:langchain_text_splitters"
-          ],
+          "requires": ["python:langchain_text_splitters"],
           "argv": [
             "{python}",
             "-m",
