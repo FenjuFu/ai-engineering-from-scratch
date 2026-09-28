@@ -6,10 +6,10 @@
   "tagline": "Account for usage and budgets with integer arithmetic.",
   "summary": "Build an explicit approximate tokenizer, exact recorded-usage accounting, rate-card cost calculation and budget admission. Estimates are labeled and never presented as provider tokenizer counts. Prices are fixture inputs rather than claims about current provider pricing.",
   "usefulFor": [
-    "Account for usage and budgets with integer arithmetic.",
-    "Offline experiments with explicit failure cases and limits"
+    "Usage reconciliation explaining why real billing differs from preflight estimates.",
+    "Rates are explicit fixture inputs in integer nano-dollars per token, not current provider prices."
   ],
-  "youWillBuild": "Build an explicit approximate tokenizer, exact recorded-usage accounting, rate-card cost calculation and budget admission. Estimates are labeled and never presented as provider tokenizer counts. Prices are fixture inputs rather than claims about current provider pricing.",
+  "youWillBuild": "Usage reconciliation explaining why real billing differs from preflight estimates.",
   "hours": 8,
   "languages": [
     "Rust"
@@ -26,7 +26,16 @@
     "Price with checked integers",
     "Admit work against a ledger"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Tokenizers",
+      "path": "phases/10-llms-from-scratch/01-tokenizers"
+    },
+    {
+      "title": "Verification gates",
+      "path": "phases/14-agent-engineering/38-verification-gates"
+    }
+  ],
   "inspiredBy": [],
   "demo": {
     "command": [

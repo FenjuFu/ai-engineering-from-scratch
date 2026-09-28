@@ -1,41 +1,48 @@
 # Token Counter and Cost Meter
 
-Build an explicit approximate tokenizer, exact recorded-usage accounting, rate-card cost calculation and budget admission. Estimates are labeled and never presented as provider tokenizer counts. Prices are fixture inputs rather than claims about current provider pricing.
+Usage reconciliation explaining why real billing differs from preflight estimates.
 
-Level 1. Four stages, about eight hours. Implementation: Rust, standard library only.
+Start with a visible approximation. At four characters per token, 21 Unicode scalar values estimate six tokens. This is a baseline for preflight planning; actual provider counts can differ by language, punctuation and tokenizer.
 
-## Stages
+## Start with a learner workspace
+
+[Tokenizers](../../phases/10-llms-from-scratch/01-tokenizers/docs/en.md), [Verification gates](../../phases/14-agent-engineering/38-verification-gates/docs/en.md). Language foundation: [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html).
+
+Install Rust (`rustc`) and Python 3.10+. The core uses the Rust standard library; Python adapters compile into private temporary directories.
+
+```bash
+python3 scripts/project_test.py token-counter-and-cost-meter --init learning-artifacts/token-counter-and-cost-meter
+python3 scripts/project_test.py token-counter-and-cost-meter --stage 1 --path learning-artifacts/token-counter-and-cost-meter
+```
+
+## Build route
 
 1. [Estimate text with a documented bound](stages/01-estimate-text-with-a-documented-bound/docs/en.md)
 2. [Validate recorded usage](stages/02-validate-recorded-usage/docs/en.md)
 3. [Price with checked integers](stages/03-price-with-checked-integers/docs/en.md)
 4. [Admit work against a ledger](stages/04-admit-work-against-a-ledger/docs/en.md)
 
-## Build it
+## Run with your own inputs
+
+After completing the stages, these commands run your workspace code on the original Orchard examples. Replace the sample paths with your own files.
 
 ```bash
-python3 scripts/project_test.py token-counter-and-cost-meter --init /tmp/token-counter-and-cost-meter-work
-python3 scripts/project_test.py token-counter-and-cost-meter --stage 1 --path /tmp/token-counter-and-cost-meter-work
+python3 learning-artifacts/token-counter-and-cost-meter/usage.py projects/token-counter-and-cost-meter/examples/usage.json --out usage-ledger.json
+```
+
+To inspect the complete reference first, replace `learning-artifacts/token-counter-and-cost-meter` with `projects/token-counter-and-cost-meter/solution` in the same command. JSON results use `schema_version: 1`; paths and argument examples are explicit so another tool can consume them.
+
+## Integration boundary
+
+Rates are explicit fixture inputs in integer nano-dollars per token, not current provider prices. usage.py normalizes recorded usage JSON and delegates checked arithmetic to Rust. Its ledger is a sequential replay saved with --out; it is not a live billing service or concurrent reservation store.
+
+```bash
 python3 scripts/project_test.py token-counter-and-cost-meter --all --solution --strict
+python3 scripts/project_test.py token-counter-and-cost-meter --all --path learning-artifacts/token-counter-and-cost-meter --strict
 ```
 
-## Run the artifact
+The first command checks the reference. The second checks your implementation. The published examples and tests are regression evidence, not a production certification or an unseen benchmark.
 
-```bash
-cd projects/token-counter-and-cost-meter/solution
-python3 demo.py
-```
+## Primary references
 
-The demo exercises the real reference implementation with offline fixtures and terminates. Each stage has at least five distinct tests, including boundaries and rejected inputs. Expected behavior lives in the stage tests; the implementation never reads the held-out test files. The grader preserves your code during initialization and reports incomplete runs honestly when a runtime is missing.
-
-## Completion evidence
-
-```bash
-python3 scripts/project_test.py token-counter-and-cost-meter --all --path /tmp/token-counter-and-cost-meter-work --strict --report /tmp/token-counter-and-cost-meter-result.json
-```
-
-Only a complete learner report can establish local completion. Reference runs do not grant a certificate. Reports are unsigned local evidence, and the project does not certify production readiness.
-
-## Sources
-
-[Official reference](https://doc.rust-lang.org/std/primitive.u64.html#method.checked_mul). All implementations and exercises are original. Fixture numbers are examples, not external benchmark claims or live service guarantees.
+- [Official reference](https://doc.rust-lang.org/std/primitive.u64.html#method.checked_mul)
