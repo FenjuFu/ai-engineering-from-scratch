@@ -96,3 +96,30 @@ Stage 4 passes 12 Python tests, and all preceding stages still pass. A clean ext
 
 - Add a model-backed writer that receives only the numbered snippets and must return sentences in the citation format. Run the validator on its output and retry once on failure.
 - Merge two snippets that say the same thing into one sentence with two markers, `[S2][S5]`.
+
+## Worked Orchard case
+
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 3](../../03-plan-the-research/docs/en.md) first.
+
+A sentence in the report must carry snippet ids that exist in the evidence ledger. The writer selects evidence for each facet; it does not invent a new 15-minute policy when only the 60-minute source exists.
+
+```text
+before corpus -> "tokens expire after 60 minutes" [S1]
+after corpus -> "tokens expire after 15 minutes" [S1]
+```
+
+## Build and inspect
+
+Track citation ids with source spans, not just their display number. Deduplicate repeated sentences across sections without losing evidence.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
+
+```bash
+python3 scripts/project_test.py research-report-agent --stage 4 --path learning-artifacts/research-report-agent
+```
+
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
+
+## Investigate next
+
+Why can the same display id S1 refer to different evidence in two separate runs?
