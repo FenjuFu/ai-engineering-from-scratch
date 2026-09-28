@@ -1,54 +1,52 @@
 # Admit work against a ledger
 
-> spent 740 + quote 260 = limit 1000 -> accepted
-
-**Type:** Build
-**Languages:** Rust
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Account for usage and budgets with integer arithmetic. This stage implements `reserve` in `stage4.rs`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
+**Stage 4 of 4.** Rust. Plan about 2 hours.
 
 Reserve a quoted amount only if spent plus quote is within the configured limit. An exact boundary is accepted; a rejected reservation never mutates the ledger. This example is single-process accounting and does not claim concurrent distributed guarantees.
-
-## Work through one case
-
-spent 740 + quote 260 = limit 1000 -> accepted. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
 
 ```figure
 pj-token-counter-and-cost-meter-4
 ```
 
-## Your task
+## Implementation boundary
 
 ```rust
 pub fn reserve(spent:&mut u64,quote:u64,limit:u64)->Result<u64,Error>
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Primary reference: [Official reference](https://doc.rust-lang.org/std/primitive.u64.html#method.checked_mul).
 
-## Run the tests
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py token-counter-and-cost-meter --stage 4 --path /tmp/token-counter-and-cost-meter-work
+Before coding, review [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) and [Tokenizers](../../../../../phases/10-llms-from-scratch/01-tokenizers/docs/en.md). Complete [stage 3](../../03-price-with-checked-integers/docs/en.md) first.
+
+Replay reservations against recorded usage. The first Orchard request reserves 600 and settles 260, releasing 340. A later request requiring 1,500 is blocked when only 430 remains. Saved JSON retains request ids and all settlement fields.
+
+```text
+limit=1000
+request 1 reserved=600 actual=260 unused=340
+request 2 actual=310 -> spent=570
+remaining=430; larger reservation -> blocked
 ```
 
-The stage checks normal, boundary, reject_atomic, overflow_atomic, zero. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+## Build and inspect
 
-## Check yourself
+A settlement must record actual usage even when it exceeds the estimate. Mark an overrun explicitly; do not hide it by capping the billed cost.
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Going further
+```bash
+python3 scripts/project_test.py token-counter-and-cost-meter --stage 4 --path learning-artifacts/token-counter-and-cost-meter
+```
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
 
-## Sources and scope
+```bash
+python3 learning-artifacts/token-counter-and-cost-meter/usage.py projects/token-counter-and-cost-meter/examples/usage.json --out usage-ledger.json
+```
 
-[Official reference](https://doc.rust-lang.org/std/primitive.u64.html#method.checked_mul). Build an explicit approximate tokenizer, exact recorded-usage accounting, rate-card cost calculation and budget admission. Estimates are labeled and never presented as provider tokenizer counts. Prices are fixture inputs rather than claims about current provider pricing.
+Rates are explicit fixture inputs in integer nano-dollars per token, not current provider prices. usage.py normalizes recorded usage JSON and delegates checked arithmetic to Rust. Its ledger is a sequential replay saved with --out; it is not a live billing service or concurrent reservation store.
+
+## Investigate next
+
+Which fields can the agent-budget-planner reuse without confusing a quote with actual usage?
