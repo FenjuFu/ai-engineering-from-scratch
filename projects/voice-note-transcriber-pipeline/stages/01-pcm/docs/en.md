@@ -1,57 +1,57 @@
-# Decode and validate PCM WAV samples
+# Decode the audio clock before processing
 
-> The bytes encoding [0, 0.5, -0.5] decode to those exact normalized values.
+> The integer samples 0, 16384 and -16384 become 0, 0.5 and -0.5. A sample index of 800 at 16000 Hz means 0.05 seconds. Interpreting the same index at 8000 Hz would double the timestamp without changing a single byte.
 
 **Type:** Build
-**Languages:** Python
 **Stage:** 1 of 4
-**Time:** ~2 hours
+**Time:** About 2 hours
 
-## What you build
+## The useful boundary
 
-Implement `pcm.py`: `decode_wav`, `encode_wav`. This artifact is stage 1 of Voice Note Transcriber Pipeline. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Read the WAV header before interpreting bytes. The core accepts uncompressed mono signed 16-bit PCM and normalizes samples by 32768. Preserve the actual sample rate: every later timestamp is a sample index divided by that rate. Unsupported stereo or compressed input must fail visibly.
 
 ```figure
 pj-voice-note-transcriber-pipeline-1
 ```
 
-## Follow the mechanism
+## Work the example
 
-Read the WAV header before interpreting samples. This stage accepts mono, little-endian signed 16-bit PCM only and normalizes samples to roughly [-1, 1]. A timestamp later means sample_index / sample_rate; guessing the sample rate silently shifts every transcript boundary.
+The integer samples 0, 16384 and -16384 become 0, 0.5 and -0.5. A sample index of 800 at 16000 Hz means 0.05 seconds. Interpreting the same index at 8000 Hz would double the timestamp without changing a single byte.
 
-## Build it
+Write the returned fields and the expected side-effect count before coding. Keep a second input that should fail so the successful example cannot become a hard-coded answer.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Build the contract
 
-```python
-def decode_wav(data):
-    raise NotImplementedError("Implement the stage contract")
-```
+Implement `decode_wav(data), encode_wav(samples, rate=16000) in pcm.py` in your learner workspace. Preserve the exported names and continue using earlier stages rather than duplicating their policies.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+The authored repair-note.wav is a 5.685-second spoken sentence synthesized locally with the operating system voice. Its companion reference.json contains author-supplied text and a hash of the original WAV. It is a speech fixture, not proof that the project recognized speech. The generation tool is not needed to run the committed fixture.
 
-## Run it
+## Hints
+
+Check channels, sample width and compression type before unpacking. Verify the byte count equals the declared frame count times two. Test negative samples and clipping at the largest positive signed value.
+
+## Verify your work
 
 ```bash
 python3 scripts/project_test.py voice-note-transcriber-pipeline --init my-voice-note-transcriber-pipeline
-python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 1 --path my-voice-note-transcriber-pipeline
+python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 1 --path my-voice-note-transcriber-pipeline --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+Initialize once. Cumulative tests import your workspace and preserve your earlier source. A reference-solution run verifies the teaching implementation and never grants a learner certificate. Optional SDK checks require the dependencies and commands in the project README.
 
-## What you should see
+## Inspect the result
 
-The bytes encoding [0, 0.5, -0.5] decode to those exact normalized values. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Why can valid sample values still yield incorrect captions if the sample rate is guessed? Which conversion should happen before processing a phone voice note?
 
-## Inspect the boundary
+The completed project produces audio.wav, captions.vtt, transcript.json and an HTML page with embedded playback and cue-seek buttons.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+```bash
+cd projects/voice-note-transcriber-pipeline/solution
+python3 pipeline.py --input fixtures/repair-note.wav --transcript-file fixtures/reference.json --out voice-output
+```
 
-## Use it
+Replace the fixture with a small input from your own workflow. Keep expected outcomes and observed evidence together, then retain a separate set of cases for evaluation. Provider request tests establish serialization and control flow; they do not establish model quality.
 
-After all stages pass, run `python3 projects/voice-note-transcriber-pipeline/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
+## Primary reference
 
-## Primary references
-
-- [Reference 1](https://docs.python.org/3/library/wave.html)
-- [Reference 2](https://www.w3.org/TR/webvtt1/)
+[Official API documentation](https://docs.python.org/3/library/wave.html). The implementation, policy choices and examples are original.

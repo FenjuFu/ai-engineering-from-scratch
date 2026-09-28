@@ -1,16 +1,11 @@
 {
-  "title": "Voice Note Transcriber Pipeline / actual output",
-  "recordedAt": "2026-09-28T16:12:35Z",
-  "records": [
-    {
-      "command": [
-        "python3",
-        "demo.py"
-      ],
-      "cwd": "projects/voice-note-transcriber-pipeline/solution",
-      "exitCode": 0,
-      "output": "OFFLINE FIXTURE TRANSCRIBER; activity detection uses real PCM audio\n[\n  {\n    \"start\": 0.04,\n    \"end\": 0.16,\n    \"text\": \"Recorded fixture: review the deployment checklist.\",\n    \"audio_sha256\": \"b39da32dbf078323f06f3b37f5d6d05a8cc361858ee57d8e71b05879c1901054\",\n    \"attempts\": 1\n  }\n]\nWEBVTT\n\n1\n00:00:00.040 --> 00:00:00.160\nRecorded fixture: review the deployment checklist.\n\n",
-      "durationMs": 33
-    }
-  ]
+  "title": "voice-note-transcriber-pipeline | Actual application output",
+  "url": "file:///tmp/aiefs-reviewed-apps/voice/index.html",
+  "actions": [
+    [
+      "js",
+      "window.scrollTo(0,250)"
+    ]
+  ],
+  "kind": "browser capture"
 }

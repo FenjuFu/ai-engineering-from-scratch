@@ -9,6 +9,14 @@ import math
 
 
 def activity(samples, rate, frame_ms=20, threshold=0.02, min_ms=40, gap_ms=40):
+    if any(
+        not isinstance(value, (int, float)) or not math.isfinite(value)
+        for value in (rate, frame_ms, threshold, min_ms, gap_ms)
+    ) or any(
+        not isinstance(value, (int, float)) or not math.isfinite(value)
+        for value in samples
+    ):
+        raise ValueError("finite audio and parameters required")
     if rate <= 0 or frame_ms <= 0 or threshold < 0 or min_ms < 0 or gap_ms < 0:
         raise ValueError("invalid activity parameters")
     width = max(1, round(rate * frame_ms / 1000))

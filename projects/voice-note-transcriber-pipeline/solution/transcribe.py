@@ -10,12 +10,20 @@ from pcm import encode_wav
 
 
 def transcribe(samples, rate, spans, provider, retries=1):
-    if retries < 0:
+    if type(retries) is not int or retries < 0 or retries > 5:
         raise ValueError("nonnegative retries required")
+    if type(rate) is not int or rate <= 0:
+        raise ValueError("positive integer sample rate required")
     rows = []
+    previous = 0
     for start, end in spans:
-        if not 0 <= start < end <= len(samples):
+        if (
+            type(start) is not int
+            or type(end) is not int
+            or not previous <= start < end <= len(samples)
+        ):
             raise ValueError("invalid sample span")
+        previous = end
         audio = encode_wav(samples[start:end], rate)
         for attempt in range(retries + 1):
             try:

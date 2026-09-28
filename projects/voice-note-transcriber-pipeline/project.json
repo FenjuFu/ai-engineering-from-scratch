@@ -3,8 +3,8 @@
   "title": "Voice Note Transcriber Pipeline",
   "level": 3,
   "levelName": "Engineer",
-  "tagline": "Decode real PCM WAV bytes, segment activity by energy, and assemble timestamped transcripts through an injected transcription provider.",
-  "summary": "Decode real PCM WAV bytes, segment activity by energy, and assemble timestamped transcripts through an injected transcription provider.",
+  "tagline": "Turn a selected WAV into an inspectable transcript and caption review page using a real optional HTTP recognizer, with an honest offline speech fixture.",
+  "summary": "Turn a selected WAV into an inspectable transcript and caption review page using a real optional HTTP recognizer, with an honest offline speech fixture.",
   "hours": 8,
   "languages": [
     "Python"
@@ -15,17 +15,21 @@
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Decode real PCM WAV bytes, segment activity by energy, and assemble timestamped transcripts through an injected transcription provider.",
+  "youWillBuild": "audio.wav, captions.vtt, transcript.json and an HTML page with embedded playback and cue-seek buttons.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "audio.wav, captions.vtt, transcript.json and an HTML page with embedded playback and cue-seek buttons."
   ],
   "skills": [
-    "Decode and validate PCM WAV samples",
-    "Segment speech candidates with RMS energy",
-    "Call an injected transcriber with bounded retries",
-    "Export validated WebVTT captions"
+    "Decode the audio clock before processing",
+    "Measure activity without claiming speech detection",
+    "Send real WAV bytes through a recognizer boundary",
+    "Export a transcript you can hear and correct"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Python bytes, lists and context managers.",
+    "Sample rate, channels and signed integer audio samples.",
+    "A callable provider interface and basic HTTP request structure."
+  ],
   "figures": true,
   "overviewFigure": "pj-voice-note-transcriber-pipeline-1",
   "languageWhy": {
@@ -41,66 +45,62 @@
   "stages": [
     {
       "id": "01-pcm",
-      "title": "Decode and validate PCM WAV samples",
-      "summary": "The bytes encoding [0, 0.5, -0.5] decode to those exact normalized values.",
+      "title": "Decode the audio clock before processing",
+      "summary": "The integer samples 0, 16384 and -16384 become 0, 0.5 and -0.5. A sample index of 800 at 16000 Hz means 0.05 seconds. Interpreting the same index at 8000 Hz would double the timestamp without changing a single byte.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "starter",
       "figure": "pj-voice-note-transcriber-pipeline-1",
       "concepts": [
-        "decode",
-        "and",
-        "validate",
-        "pcm"
+        "PCM WAV",
+        "sample normalization",
+        "sample clock"
       ]
     },
     {
       "id": "02-activity",
-      "title": "Segment speech candidates with RMS energy",
-      "summary": "Two active 40 ms regions separated by 20 ms silence merge into one 100 ms region.",
+      "title": "Measure activity without claiming speech detection",
+      "summary": "At 1000 Hz, forty samples of amplitude0.5, twenty silent samples and forty active samples merge into [0,100] when gap_ms is40. The merged span lasts100 ms. A20 ms isolated burst is discarded when min_ms is40.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-voice-note-transcriber-pipeline-2",
       "concepts": [
-        "segment",
-        "speech",
-        "candidates",
-        "with"
+        "RMS energy",
+        "gap merging",
+        "activity limits"
       ]
     },
     {
       "id": "03-transcribe",
-      "title": "Call an injected transcriber with bounded retries",
-      "summary": "A provider timeout followed by success records attempts=2 and the segment audio hash.",
+      "title": "Send real WAV bytes through a recognizer boundary",
+      "summary": "A provider timeout followed by success records attempts=2. Each output row retains start, end, text and the SHA256 of the exact encoded segment. A second segment cannot overlap the previous one, and fractional sample indices are invalid.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "core",
       "figure": "pj-voice-note-transcriber-pipeline-3",
       "concepts": [
-        "call",
-        "an",
-        "injected",
-        "transcriber"
+        "multipart HTTP",
+        "bounded retry",
+        "audio hashes"
       ]
     },
     {
       "id": "04-captions",
-      "title": "Export validated WebVTT captions",
-      "summary": "A 1.234-second offset renders as 00:00:01.234, and malformed cue order is rejected.",
+      "title": "Export a transcript you can hear and correct",
+      "summary": "The fixture CLI pairs the original spoken clip with its supplied reference text and labels the method clearly. Real recognition instead uses --endpoint. After inspecting playback, edit the rows in transcript.json and run --review-file to rerender; the report must match the original audio hash.",
       "language": "python",
       "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
       "hours": 2,
       "difficulty": "stretch",
       "figure": "pj-voice-note-transcriber-pipeline-4",
       "concepts": [
-        "export",
-        "validated",
-        "webvtt",
-        "captions"
+        "WebVTT",
+        "audio review",
+        "portable exports"
       ]
     }
   ],

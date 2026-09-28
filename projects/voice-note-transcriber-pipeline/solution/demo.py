@@ -1,17 +1,23 @@
-import json
-from pcm import encode_wav, decode_wav
-from activity import activity
-from transcribe import transcribe
-from captions import captions
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
 
-audio = decode_wav(encode_wav([0] * 800 + [0.2] * 1600 + [0] * 800))
-spans = activity(audio["samples"], audio["rate"])
-rows = transcribe(
-    audio["samples"],
-    audio["rate"],
-    spans,
-    lambda wav: "Recorded fixture: review the deployment checklist.",
+root = Path(__file__).parent
+with tempfile.TemporaryDirectory() as tmp:
+    subprocess.run(
+        [
+            sys.executable,
+            str(root / "pipeline.py"),
+            "--input",
+            str(root / "fixtures/repair-note.wav"),
+            "--transcript-file",
+            str(root / "fixtures/reference.json"),
+            "--out",
+            tmp,
+        ],
+        check=True,
+    )
+print(
+    "Run pipeline.py with --endpoint for actual speech recognition; the fixture demo uses supplied reference text."
 )
-print("OFFLINE FIXTURE TRANSCRIBER; activity detection uses real PCM audio")
-print(json.dumps(rows, indent=2))
-print(captions(rows))
