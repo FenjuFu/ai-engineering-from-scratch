@@ -1,54 +1,57 @@
 # Claim with a lease and version
 
-> queued v0 -> running v1 with lease until 15
+> The claim is the moment a worker acquires permission to act. Persist it before starting the work.
 
 **Type:** Build
 **Languages:** Go
+**Prerequisites:** Complete stages 1 through 1; understand their exported types and failure contracts.
 **Stage:** 2 of 4
 **Time:** ~2 hours
 
 ## What you build
 
-Persist job states and reject stale worker completions. This stage implements `ClaimJob` in `stage2.go`. The finished behavior feeds the next stage through a typed contract.
+Reserve an execution window. Implement `stage2.go` in your initialized workspace. The supplied CLI calls your implementation; it does not import the reference solution.
 
-## Why it matters
+## Work through the mechanism
 
-Only queued work can be claimed. A successful claim increments version and attempts, records a positive lease duration and moves to running. Compare the expected version before mutation so a stale worker cannot claim an already changed record.
+Start with queued version 0, attempts 0. A claim at 100 ms for10ms with expected version 0 becomes running version 1, attempts 1, lease 110. The lease interval is [100,110): its right endpoint is excluded.
 
-## Work through one case
+Two workers may read version 0. Only the first successful claim may proceed. Checking the expected version after changing the record would lose the evidence needed to reject the second worker. Validate state, expected version, attempt cap, clock and overflow before assigning any field.
 
-queued v0 -> running v1 with lease until 15. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+`ClaimJob` is a pure in-memory transition. The supplied `ClaimNext` wrapper holds an operating-system file lock across load, transition and Save. Separate processes open the same `ledger.lock`; a crash releases the kernel lock. `jobs.json` is replaced while that stable lock file stays in place. Locking the renamed snapshot itself would let processes lock different file objects.
+
+The attempt counter survives recovery. A job that crashes three times should remain visible as queued with attempts 3 when the cap is 3; silently clearing the counter would create an unlimited retry loop.
 
 ```figure
 pj-durable-agent-jobs-2
 ```
 
-## Your task
+## Your contract
 
 ```go
-func ClaimJob(j *Job,expected int,now,ttl int64,maxAttempts int)error
+func ClaimJob(j *Job, expected int, now, ttl int64, maxAttempts int) error
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Keep the public signature and errors in `types.go`. Rejected calls must preserve the caller's prior state. Read [the project API](../../../API.md) for the final artifact's file and process boundaries.
 
-## Run the tests
+## Implementation hint
+
+Write every rejection as an early return. Check `now > MaxInt64-ttl` before addition. Only then assign lease, version, attempt count and state.
+
+## Verify your work
+
+From the repository root:
 
 ```bash
-python3 scripts/project_test.py durable-agent-jobs --stage 2 --path /tmp/durable-agent-jobs-work
+python3 scripts/project_test.py durable-agent-jobs --stage 2 --path /tmp/durable-agent-jobs-work --strict
 ```
 
-The stage checks Claim, Stale, AlreadyRunning, AttemptLimit, BadLease. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+The grader exercises your selected workspace, including the earlier stages. Its reference mode is a separate instructor check and does not earn learner completion.
 
-## Check yourself
+## Investigate a failure
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Predict the snapshot after two callers both supply expected0. Then set maxAttempts1 and reclaim the first attempt. Why does the next claim fail even though the state is queued?
 
-## Going further
+## Sources and limits
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/os#Rename). Build a local job ledger with explicit transitions, versioned claims, lease expiry and atomic snapshot files. The store assumes one process owns the ledger; production multi-process coordination needs a transactional database or lock service.
+Study the standard-library [os package](https://pkg.go.dev/os), [context](https://pkg.go.dev/context) and [Go pipelines guide](https://go.dev/blog/pipelines) as needed. These exercises and samples are original. Process recovery is demonstrated on one host; the README names the filesystem and evaluation limits you must preserve when adapting the artifact.
