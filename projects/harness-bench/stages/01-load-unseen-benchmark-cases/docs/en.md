@@ -1,54 +1,50 @@
 # Load unseen benchmark cases
 
-> two records share ID a -> benchmark rejected
+> Freeze the cases before comparing policies.
 
 **Type:** Build
 **Languages:** Go
 **Stage:** 1 of 4
+**Prerequisites:** Go structs, slices and JSON decoding. Read [model evaluation](../../../../../phases/02-ml-fundamentals/09-model-evaluation/docs/en.md) for the role of held-out examples.
 **Time:** ~2 hours
 
 ## What you build
 
-Compare harness behavior under the same tasks and call budget. This stage implements `Cases` in `stage1.go`. The finished behavior feeds the next stage through a typed contract.
+An export-link assistant remembers an old 60-minute expiry. Your runbook says 15 minutes. Keep the question, expected answer and permitted evidence in separate fields so you can see exactly what each policy receives.
 
-## Why it matters
+`Cases(data, max)` accepts a JSON array of `Case{ID, Prompt, Expected, Evidence}`. `Evidence` is an optional string array. Reject unknown fields, duplicate IDs, blank required fields, trailing JSON and more than `max` cases. The input file is limited to one MiB before decoding.
 
-Parse a JSON array with stable case IDs, prompts and expected answers. Reject unknown fields, duplicate IDs, empty fields and a dataset larger than the configured case budget. Keeping the dataset outside the harness function makes leakage visible during review.
+## Worked example
 
-## Work through one case
+Start with the first record in `fixtures/orchard-cases.json`. Its ID is `orchard-ttl`, expected answer is `15 minutes`, and its evidence is one runbook sentence. After decoding, your state contains one typed record and a seen-ID set containing `orchard-ttl`.
 
-two records share ID a -> benchmark rejected. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+Append a second record with the same ID and a different question. Return `ErrConflict`; do not silently replace the first record. With `max=0`, even the first record exceeds the declared case budget. An empty array can parse, but the final CLI rejects a benchmark with no cases.
 
 ```figure
 pj-harness-bench-1
 ```
 
-## Your task
+## Implement the contract
 
 ```go
-func Cases(data []byte,max int)([]Case,error)
+func Cases(data []byte, max int) ([]Case, error)
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Use `json.Decoder.DisallowUnknownFields`, then perform a second decode and require `io.EOF`. Count records separately from validating their fields. A misspelled `Expected` key must produce an error instead of an empty answer that quietly changes your score.
 
-## Run the tests
+## Run your work
+
+From the repository root, initialize once; the grader preserves existing workspace files:
 
 ```bash
-python3 scripts/project_test.py harness-bench --stage 1 --path /tmp/harness-bench-work
+python3 scripts/project_test.py harness-bench --init /tmp/harness-bench-work
+python3 scripts/project_test.py harness-bench --stage 1 --path /tmp/harness-bench-work --strict
 ```
 
-The stage checks Valid, Unknown, Duplicate, Bound, Missing. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+Your implementation belongs in `stage1.go` in that workspace. Provided adapters call those learner functions; they do not import the reference solution. Stage tests include cases separate from the Orchard demonstration.
 
-## Check yourself
+## Inspect and extend
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Why is an ID collision different from two cases with the same expected answer? Try changing JSON whitespace without changing any field: the final dataset receipt should remain identical. Changing case order must change the receipt because a limited budget visits cases in order.
 
-## Going further
-
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/testing). Build a deterministic evaluation harness with strict case ingestion, normalized exact-match scoring, per-run accounting and stable leaderboard output. The reference model is a local fixture function; benchmark numbers describe these cases, not general model capability.
+[Go standard-library reference](https://pkg.go.dev/encoding/json). The runnable core uses only Go's standard library. External model calls are optional and do not run during ordinary grading.
