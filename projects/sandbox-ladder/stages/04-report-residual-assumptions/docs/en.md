@@ -1,54 +1,51 @@
 # Report residual assumptions
 
-> selected microvm-fixture -> policy simulation, runtime proof still required
-
-**Type:** Build
-**Languages:** Rust
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Choose isolation controls from an explicit capability requirement. This stage implements `plan` in `stage4.rs`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
+**Stage 4 of 4.** Rust. Plan about 2 hours.
 
 Return the selected fixture and state clearly that operating-system enforcement has not been performed. List shared-kernel and enabled-network residuals from the selected controls, and reject a profile that fails the original requirements. The report is an input to deployment review.
-
-## Work through one case
-
-selected microvm-fixture -> policy simulation, runtime proof still required. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
 
 ```figure
 pj-sandbox-ladder-4
 ```
 
-## Your task
+## Implementation boundary
 
 ```rust
 pub fn plan(n:&Needs,p:&Profile)->Result<String,Error>
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Primary reference: [Official reference](https://docs.docker.com/engine/security/).
 
-## Run the tests
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py sandbox-ladder --stage 4 --path /tmp/sandbox-ladder-work
+Before coding, review [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) and [Docker for AI](../../../../../phases/00-setup-and-tooling/07-docker-for-ai/docs/en.md). Complete [stage 3](../../03-select-the-least-costly-sufficient-profile/docs/en.md) first.
+
+The optional Docker adapter produces an inspectable argument list and only runs a caller-selected image already present locally. Its harmless probes test a denied root write and absence of a default route. No microVM implementation is included.
+
+```text
+--docker-image alpine:local -> command preview
+--execute -> docker_probe with observed stdout
+shared host kernel remains a residual
 ```
 
-The stage checks honest, shared_kernel, microvm, insufficient, verification. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+## Build and inspect
 
-## Check yourself
+Keep policy_simulation and docker_probe results distinct. A successful probe is evidence for those checks only, not proof against container escape.
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Going further
+```bash
+python3 scripts/project_test.py sandbox-ladder --stage 4 --path learning-artifacts/sandbox-ladder
+```
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
 
-## Sources and scope
+```bash
+python3 learning-artifacts/sandbox-ladder/cli.py untrusted=true,secrets=true,network=true,host_kernel=false --budget 3
+```
 
-[Official reference](https://docs.docker.com/engine/security/). Build a policy simulator for four isolation profiles, requirement matching and residual-risk reports. Profiles are modeled fixtures. This project does not start containers or virtual machines and does not provide operating-system isolation.
+Default output is a policy simulation. --docker-image previews an invocation; --execute requires an already available local image and Docker. Only root-write and default-route probes are tested. The adapter never implements or verifies a microVM boundary.
+
+## Investigate next
+
+If root_write becomes allowed, which runtime setting would you inspect first?
