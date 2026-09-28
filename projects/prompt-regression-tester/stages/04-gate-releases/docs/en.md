@@ -1,20 +1,6 @@
 # Gate releases on explicit tolerances
 
-> Apply a finite minimum pass fraction and integer regression budget to a comparison report..
-
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `release_gate` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+**Stage 4 of 4.** Python. Plan about 2 hours.
 
 A release rule converts measurements into a decision. Require a minimum pass fraction and a maximum number of regressions. Check the threshold domain first: NaN and out-of-range values must not disable the gate.
 
@@ -24,54 +10,38 @@ An empty suite fails closed. A release decision with zero evidence is not the sa
 pj-prompt-regression-tester-4
 ```
 
-## Predict first
+Primary reference: [Primary technical reference](https://docs.python.org/3/library/difflib.html).
 
-Should an empty suite pass because its regression count is zero?
+## Worked Orchard case
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Structured outputs](../../../../../phases/11-llm-engineering/03-structured-outputs/docs/en.md). Complete [stage 3](../../03-pair-revisions/docs/en.md) first.
 
-## Your task
+Your release gate is an executable policy. With three cases and one regression, a candidate is blocked even if its other responses improve. Save the JSON and Markdown diff as CI artifacts.
 
-Implement `release_gate` in `main.py` in your learner workspace. Apply a finite minimum pass fraction and integer regression budget to a comparison report.
-
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
-
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
-
-```bash
-python3 scripts/project_test.py prompt-regression-tester --init my-prompt-regression-tester
-python3 scripts/project_test.py prompt-regression-tester --stage 4 --path my-prompt-regression-tester
+```text
+cases=3; candidate passes=2; regressions=1
+minimum pass fraction=1; regression budget=0
+decision=block; CLI exit=1
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
+## Build and inspect
 
-## What you should see
+Check that thresholds are finite and the suite is nonempty before comparing numbers. Exit status must agree with the reported decision.
 
-The candidate is blocked when the allowed regression count is zero.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-cd projects/prompt-regression-tester/solution
-python3 demo.py
+python3 scripts/project_test.py prompt-regression-tester --stage 4 --path learning-artifacts/prompt-regression-tester
 ```
 
-## Debug with evidence
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+```bash
+python3 learning-artifacts/prompt-regression-tester/cli.py projects/prompt-regression-tester/examples/cases.json projects/prompt-regression-tester/examples/baseline.json projects/prompt-regression-tester/examples/candidate.json --out prompt-diff.json --markdown prompt-diff.md
+```
 
-## Check yourself
+The supplied recordings are authored fixtures. The tool compares recorded responses; it does not call a model or establish semantic correctness. JSON case and response files are the public interface. A blocked gate exits 1.
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
+## Investigate next
 
-## Going further
-
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
-
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/difflib.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+Which assertion would you add after a real support incident, and how would you keep its recording provenance?
