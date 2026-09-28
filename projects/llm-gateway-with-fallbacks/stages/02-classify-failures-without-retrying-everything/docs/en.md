@@ -1,54 +1,50 @@
 # Classify failures without retrying everything
 
-> 503 -> retry; 401 -> terminal
+> Separate a repairable outage from a broken request.
 
 **Type:** Build
 **Languages:** Go
 **Stage:** 2 of 4
+**Prerequisites:** Stage 1 and HTTP status-code classes.
 **Time:** ~2 hours
 
 ## What you build
 
-Route a bounded request through providers with explicit failure semantics. This stage implements `ClassifyStatus` in `stage2.go`. The finished behavior feeds the next stage through a typed contract.
+Implement `ClassifyStatus(status)` with three outcomes. A 2xx response succeeds; 429 and 5xx permit fallback; all other valid codes are terminal. Integers outside 100 through 599 are invalid.
 
-## Why it matters
+A 401 usually means the configured credential needs repair. Sending the same request to several providers can hide that mistake, so this project stops. A 503 indicates that a provider cannot serve the request right now, so another configured provider may help.
 
-A success is exactly an HTTP 2xx response. Retry only rate limits and server errors; client authentication and request errors terminate. Validate status codes so missing or malformed fixture data is not treated as success.
+## Worked example
 
-## Work through one case
+Follow statuses `[503, 200]`: classify the first as `retry`, then the second as `success`. Follow `[401, 200]`: the 401 is `terminal` and the second provider is never contacted. A 307 is also terminal because the request layer refuses redirects.
 
-503 -> retry; 401 -> terminal. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
+This routing policy visits each provider at most once. It does not sleep for `Retry-After`, retry the same endpoint, or promise that a timed-out generation was never billed.
 
 ```figure
 pj-llm-gateway-with-fallbacks-2
 ```
 
-## Your task
+## Implement the contract
 
 ```go
-func ClassifyStatus(status int)(string,error)
+func ClassifyStatus(status int) (string, error)
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Validate the numeric range first, then test success, then the two retry conditions. Do not use `status >= 400` as the retry rule: it would include malformed requests and authentication failures.
 
-## Run the tests
+## Run your work
+
+From the repository root, initialize once; the grader preserves existing workspace files:
 
 ```bash
-python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 2 --path /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --init /tmp/llm-gateway-with-fallbacks-work
+python3 scripts/project_test.py llm-gateway-with-fallbacks --stage 2 --path /tmp/llm-gateway-with-fallbacks-work --strict
 ```
 
-The stage checks Success, RateLimit, Server, Auth, Invalid. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+Your implementation belongs in `stage2.go` in that workspace. Provided adapters call those learner functions; they do not import the reference solution. Stage tests include cases separate from the Orchard demonstration.
 
-## Check yourself
+## Inspect and extend
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Predict the outcomes for 204, 301, 408, 429, 500 and 600. In this policy, 408 is terminal. If you choose to retry it in a future extension, write the new contract and side-effect assumptions before changing the implementation.
 
-## Going further
-
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
-
-## Sources and scope
-
-[Official reference](https://pkg.go.dev/net/http). Build an HTTP gateway library with endpoint validation, response limits, retry classification and a total-attempt budget. Offline tests inject a real net/http transport interface, while applications can use the standard HTTP client for live endpoints.
+[Go standard-library reference](https://pkg.go.dev/context). The runnable core uses only Go's standard library. External model calls are optional and do not run during ordinary grading.
