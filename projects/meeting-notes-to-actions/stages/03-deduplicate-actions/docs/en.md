@@ -1,77 +1,53 @@
 # Deduplicate exact commitments without losing citations
 
-> Merge exact normalized duplicates and sort provenance line numbers.
+Stage 3 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 3 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `deduplicate` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+## What changes
 
 Repeated notes can duplicate a task. Group by normalized owner, due date, and normalized task text, then merge all source line numbers. Two people assigned the same task are still two commitments.
 
 This is exact normalization, not semantic deduplication. Avoid merging paraphrases automatically because their deadlines or scope may differ. Human review is safer than quietly deleting a distinct obligation.
 
+## Work through one concrete case
+
+Two identical commitments on lines 2 and 8 collapse to one row with citations[2,8]. Changing either the owner or the due date creates a second commitment even if the task text remains identical.
+
 ```figure
 pj-meeting-notes-to-actions-3
 ```
 
-## Predict first
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-Do two identical tasks with different due dates represent one commitment?
+## Implement the contract
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Implement `deduplicate` against the stated contract.
 
-## Your task
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-Implement `deduplicate` in `main.py` in your learner workspace. Merge exact normalized duplicates and sort provenance line numbers. Preserve different owners or dates.
+Build the key from normalized owner, due and task, while preserving the displayed text. Merge citation sets in sorted order so repeated imports produce deterministic output.
 
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
+## Verify and inspect
 
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
+From the repository root, initialize once with `python3 scripts/project_test.py meeting-notes-to-actions --init learning-artifacts/meeting-notes-to-actions`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py meeting-notes-to-actions --init my-meeting-notes-to-actions
-python3 scripts/project_test.py meeting-notes-to-actions --stage 3 --path my-meeting-notes-to-actions
+python3 scripts/project_test.py meeting-notes-to-actions --stage 3 --path learning-artifacts/meeting-notes-to-actions --strict
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
-
-## What you should see
-
-A repeated action appears once with both source line numbers.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-cd projects/meeting-notes-to-actions/solution
-python3 demo.py
+cd learning-artifacts/meeting-notes-to-actions
+python3 cli.py samples/notes.txt --today 2026-09-29 --output actions.json --html actions.html --csv approved.csv
 ```
 
-## Debug with evidence
+## Investigate the failure boundary
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+Write a paraphrase with a later deadline. Explain why an automatic semantic merge could delete an actual obligation.
 
-## Check yourself
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
 
-## Going further
 
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
+## References
 
-## Sources
-
-- [Primary technical reference](https://docs.python.org/3/library/datetime.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+[Primary technical reference](https://docs.python.org/3/library/datetime.html)
