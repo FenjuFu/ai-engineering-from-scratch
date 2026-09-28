@@ -1,60 +1,69 @@
 # Expose REST and MCP tools
 
-> Bind a local server, require a bearer token, bound request bodies, and implement health, REST writes/search and the MCP initialization/tools subset over JSON-RPC POST. Tool execution failures use isError inside a successful JSON-RPC response; unknown protocol methods use a JSON-RPC error. This is a teaching subset without sessions, streaming or production authentication. Test actual HTTP bytes so serialization cannot drop source or revision.
+Stage 4 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** TypeScript, Rust
-**Stage:** 4 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 Bind a local server, require a bearer token, bound request bodies, and implement health, REST writes/search and the MCP initialization/tools subset over JSON-RPC POST. Tool execution failures use isError inside a successful JSON-RPC response; unknown protocol methods use a JSON-RPC error. This is a teaching subset without sessions, streaming or production authentication. Test actual HTTP bytes so serialization cannot drop source or revision.
 
 The boundary for this stage is `createMemoryServer`. Keep earlier stage behavior intact: the final grader runs every stage against the same workspace.
 
-## Why this language
+## Work through one concrete case
 
-Node HTTP serves the same MemoryStore methods across two wire formats. Node 22.18 or newer executes the erasable TypeScript syntax directly. Runtime checks remain necessary because Node strips types without checking them.
-
-## Predict
-
-Before coding, write down the successful output and one failure case. Use the last test in this stage as your adversarial example. Explain which invariant should reject that input and why the failure must happen before a side effect.
-
-## Interactive lab
+The persistent CLI chooses a retained directory and binds only 127.0.0.1. A REST write and an MCP tools/call memory_search use the same MemoryStore, so source and revision must survive both serialization paths.
 
 ```figure
 pj-memory-server-4
 ```
 
-Step through the boundary checks. Change one assumption in your notebook, then predict whether the next step is reachable. The diagram describes control flow; your tests establish its behavior.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `createMemoryServer` in your workspace `main.ts`. Read the exported types in the reference only after attempting the contract. Preserve the starter's public names so tests can call your implementation. Return structured values instead of printing inside the core function; the CLI prints the final result.
 
-The demo performs an actual REST write and MCP search over loopback, then prints source, revision and score.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Set the bearer token through MEMORY_TOKEN and never print it. Initialize with a supported version, inspect the complete memory_put schema, then send malformed arguments to confirm a tool-level isError response.
 
-```bash
-python3 scripts/project_test.py memory-server --init learning-artifacts/memory-server
-python3 scripts/project_test.py memory-server --stage 4 --path learning-artifacts/memory-server
-```
+## Verify and inspect
 
-Run `--init` only once. Tests import `PROJECT_WORKSPACE/main.ts`, so editing the reference solution cannot make your learner workspace pass. A missing implementation must fail. After all stages, run the complete suite and demo:
+From the repository root, initialize once with `python3 scripts/project_test.py memory-server --init learning-artifacts/memory-server`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py memory-server --path learning-artifacts/memory-server
-node learning-artifacts/memory-server/main.ts --demo
+python3 scripts/project_test.py memory-server --stage 4 --path learning-artifacts/memory-server --strict
 ```
 
-## What you see
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
-The demo performs an actual REST write and MCP search over loopback, then prints source, revision and score.
+```bash
+cd learning-artifacts/memory-server
+node cli.ts --data-dir memory-data --put samples/memory.json
+node cli.ts --data-dir memory-data --query "cache policy"
+node cli.ts --data-dir memory-data --history cache-policy
+```
 
-Passing cases cover ordinary inputs and boundary failures. Record the observed return value, exception, or output file in your notebook. If a test fails, reduce it to the smallest input before changing the algorithm.
+## Investigate the failure boundary
 
-## Ship it
+Restart the service with the same directory and query the prior record. Distinguish restart persistence from multi-writer locking and power-loss durability, which this log does not provide.
 
-Keep your implementation and one input you invented under `learning-artifacts/memory-server/`. Add a short explanation of a rejected input and the limitation you would remove next. The reference is a local educational implementation, not a claim of production completeness.
+Use one writer process per data directory. Appended JSONL is restart persistence, not a power-loss or multi-process transaction guarantee. Hashed lexical vectors are not semantic embeddings. MCP HTTP is a documented tools subset without streaming or sessions.
+
+
+## References
+
+[MCP tools specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)
+[Rust standard library](https://doc.rust-lang.org/std/)
+[Node HTTP API](https://nodejs.org/api/http.html)
+
+## Optional standard MCP client verification
+
+The optional track uses `mcp==2.1.1`, the installed official Python client, against this project's actual loopback HTTP server. It negotiates the declared 2025-11-25 legacy tools contract. This does not establish support for every newer protocol feature.
+
+```bash
+python3 -m venv .venv-mcp
+.venv-mcp/bin/python -m pip install -r projects/memory-server/requirements-framework.txt
+.venv-mcp/bin/python scripts/project_test.py memory-server --all --solution --optional --strict
+```
+
+Use `--path learning-artifacts/memory-server` to run the same client against your implementation. The default track stays standard-library-only; missing optional packages produce SKIP, which fails strict optional grading.
