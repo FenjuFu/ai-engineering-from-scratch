@@ -4,16 +4,14 @@
   "level": 5,
   "levelName": "Frontier",
   "tagline": "Partition cases, lease shards and aggregate bounded concurrent workers.",
-  "summary": "Build the coordinator logic behind an evaluation farm: deterministic partitions, fenced leases, idempotent results and a real bounded goroutine worker pool. The reference deployment runs in one process; network transport and cross-process storage are explicit extension points.",
+  "summary": "Build a persistent same-host evaluation coordinator that partitions recorded predictions, leases shards to real worker processes, fences stale completions and retains dataset-bound receipts.",
   "usefulFor": [
-    "Partition cases, lease shards and aggregate bounded concurrent workers.",
-    "Offline experiments with explicit failure cases and limits"
+    "Resume interrupted batch evaluations with exact dataset identity",
+    "Inspect shard ownership, process receipts and stale-worker rejection"
   ],
-  "youWillBuild": "Build the coordinator logic behind an evaluation farm: deterministic partitions, fenced leases, idempotent results and a real bounded goroutine worker pool. The reference deployment runs in one process; network transport and cross-process storage are explicit extension points.",
+  "youWillBuild": "Build a persistent same-host evaluation coordinator that partitions recorded predictions, leases shards to real worker processes, fences stale completions and retains dataset-bound receipts.",
   "hours": 8,
-  "languages": [
-    "Go"
-  ],
+  "languages": ["Go"],
   "status": "ready",
   "source": "core",
   "author": {
@@ -26,14 +24,15 @@
     "Accept idempotent completion receipts",
     "Run a bounded local worker pool"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "Go 1.22 or later on Linux or macOS",
+    "Python 3.10 or later for the grader",
+    "Go structs, pointers, errors and JSON files",
+    "Goroutines, channels and context cancellation"
+  ],
   "inspiredBy": [],
   "demo": {
-    "command": [
-      "go",
-      "run",
-      "."
-    ],
+    "command": ["go", "run", ".", "demo"],
     "cwd": "solution"
   },
   "stages": [
@@ -44,12 +43,7 @@
       "hours": 2,
       "language": "go",
       "difficulty": "starter",
-      "concepts": [
-        "Stable ID",
-        "Hash bytes",
-        "Modulo count",
-        "One partition"
-      ]
+      "concepts": ["Stable ID", "Hash bytes", "Modulo count", "One partition"]
     },
     {
       "id": "02-fence-each-shard-lease",
@@ -82,7 +76,7 @@
     {
       "id": "04-run-a-bounded-local-worker-pool",
       "title": "Run a bounded local worker pool",
-      "summary": "Start at most the configured number of goroutines, dispatch each unique ID once and collect results in stable ID order.",
+      "summary": "Compose the bounded pool with persistent leases and actual worker processes; retain scored case coverage and reject stale receipts.",
       "hours": 2,
       "language": "go",
       "difficulty": "core",
@@ -91,7 +85,8 @@
         "Unique dispatch",
         "Cooperative cancellation",
         "Stable results"
-      ]
+      ],
+      "timeout": 120
     }
   ],
   "demos": [
