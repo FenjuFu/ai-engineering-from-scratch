@@ -1,77 +1,53 @@
 # Split groups with stable hashing
 
-> Return train and test arrays with no group overlap.
+Stage 3 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 3 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `split_groups` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+## What changes
 
 Partition groups, not rows. Hash the seed and group id into a stable fraction and compare it with the requested test fraction. Every row in a group follows the same decision, regardless of input order.
 
 Hash partitioning gives an expected fraction rather than an exact row count. Small datasets may have an empty partition. Report that honestly instead of moving one row and breaking group isolation.
 
+## Work through one concrete case
+
+If incident-A contains nine messages and incident-B contains one, a50 percent group split can yield nine train rows and one test row. Moving one message to balance counts would reintroduce incident leakage.
+
 ```figure
 pj-dataset-split-auditor-3
 ```
 
-## Predict first
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-Will reversing the input list change which group is assigned to test?
+## Implement the contract
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Implement `split_groups` against the stated contract.
 
-## Your task
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-Implement `split_groups` in `main.py` in your learner workspace. Return train and test arrays with no group overlap. Validate the fraction and preserve deterministic assignments.
+Derive the partition decision from seed plus group, never input row order. Reversing the input list may change row order but must preserve each id's partition membership.
 
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
+## Verify and inspect
 
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
+From the repository root, initialize once with `python3 scripts/project_test.py dataset-split-auditor --init learning-artifacts/dataset-split-auditor`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py dataset-split-auditor --init my-dataset-split-auditor
-python3 scripts/project_test.py dataset-split-auditor --stage 3 --path my-dataset-split-auditor
+python3 scripts/project_test.py dataset-split-auditor --stage 3 --path learning-artifacts/dataset-split-auditor --strict
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
-
-## What you should see
-
-All records sharing a group stay together and every input id appears exactly once.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-cd projects/dataset-split-auditor/solution
-python3 demo.py
+cd learning-artifacts/dataset-split-auditor
+python3 cli.py samples/input.json --output split-audit.json --html split-audit.html
 ```
 
-## Debug with evidence
+## Investigate the failure boundary
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+Generate 20 groups with different sizes, change the seed and compare group isolation and row balance separately.
 
-## Check yourself
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
 
-## Going further
 
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
+## References
 
-## Sources
-
-- [Primary technical reference](https://scikit-learn.org/stable/common_pitfalls.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+[Primary technical reference](https://scikit-learn.org/stable/common_pitfalls.html)
