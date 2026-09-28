@@ -5,9 +5,10 @@
   "levelName": "Builder",
   "tagline": "Measure ranking quality with precision, recall, reciprocal rank, and discounted gain while exposing duplicates and missing judgments.",
   "summary": "Measure ranking quality with precision, recall, reciprocal rank, and discounted gain while exposing duplicates and missing judgments.",
-  "youWillBuild": "A runnable Python command and JSON report. The reference demo runs on deterministic local fixtures; you can feed the same functions your own data.",
+  "youWillBuild": "A retrieval regression detective revealing which evidence moved and why the aggregate changed.",
   "usefulFor": [
-    "Use this artifact to inspect a real local dataset before connecting a model or an external service."
+    "A retrieval regression detective revealing which evidence moved and why the aggregate changed.",
+    "Metrics apply to supplied labels."
   ],
   "hours": 8,
   "languages": [
@@ -28,7 +29,16 @@
     "Reward useful evidence near the top",
     "Compare systems query by query"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Retrieval augmented generation",
+      "path": "phases/11-llm-engineering/06-rag"
+    },
+    {
+      "title": "Model evaluation",
+      "path": "phases/02-ml-fundamentals/09-model-evaluation"
+    }
+  ],
   "figures": true,
   "overviewFigure": "pj-retrieval-evaluation-lab-1",
   "demo": {

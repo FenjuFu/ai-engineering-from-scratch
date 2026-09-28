@@ -1,15 +1,17 @@
-import json
-from main import *
+from pathlib import Path
+import json, subprocess, tempfile, sys, shutil
+
+root = Path(__file__).resolve().parent
+examples = root.parent / "examples"
+from cli import run
 
 print(
     json.dumps(
-        compare_systems(
-            {
-                "baseline": {"deploy": ["b", "c", "a"]},
-                "candidate": {"deploy": ["a", "b", "c"]},
-            },
-            {"deploy": {"a": 3, "b": 1, "c": 0}},
-            3,
+        run(
+            *(
+                json.loads((examples / (name + ".json")).read_text())
+                for name in ["baseline", "candidate", "judgments"]
+            )
         ),
         indent=2,
     )
