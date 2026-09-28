@@ -32,4 +32,4 @@ class StageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x"
             commit(p, {}, 0)
-            self.assertEqual([q.name for q in Path(d).iterdir()], ["x"])
+            self.assertEqual(sorted(q.name for q in Path(d).iterdir()), ["x", "x.lock"])
