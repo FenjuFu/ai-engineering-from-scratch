@@ -1,0 +1,16 @@
+{
+  "title": "Tool Call Firewall / actual output",
+  "recordedAt": "2026-09-28T16:21:01Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/tool-call-firewall/solution",
+      "exitCode": 0,
+      "output": "Allow\nDeny\nApprovalRequired\nAUDIT\n1\treader\tread\tAllow\n2\treader\twrite\tDeny\n3\teditor\twrite\tApprovalRequired\n",
+      "durationMs": 341
+    }
+  ]
+}
