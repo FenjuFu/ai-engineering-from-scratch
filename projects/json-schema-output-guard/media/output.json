@@ -1,0 +1,17 @@
+{
+  "title": "JSON Schema Output Guard / actual output",
+  "recordedAt": "2026-09-28T16:27:33Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/json-schema-output-guard/solution",
+      "exitCode": 0,
+      "output": "{\n  \"status\": \"accepted\",\n  \"value\": {\n    \"answer\": \"bounded repair\",\n    \"confidence\": 0.9\n  },\n  \"trace\": [\n    {\n      \"attempt\": 1,\n      \"accepted\": false,\n      \"issues\": [\n        {\n          \"path\": \"$/confidence\",\n          \"message\": \"above maximum\"\n        }\n      ]\n    },\n    {\n      \"attempt\": 2,\n      \"accepted\": true,\n      \"issues\": []\n    }\n  ]\n}\n",
+      "durationMs": 108
+    }
+  ]
+}
