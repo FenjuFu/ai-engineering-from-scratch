@@ -1,57 +1,57 @@
-# Segment speech candidates with RMS energy
+# Measure activity without claiming speech detection
 
-> Two active 40 ms regions separated by 20 ms silence merge into one 100 ms region.
+> At 1000 Hz, forty samples of amplitude 0.5, twenty silent samples and forty active samples merge into [0,100] when gap_ms is 40. The merged span lasts 100 ms. A 20 ms isolated burst is discarded when min_ms is 40.
 
 **Type:** Build
-**Languages:** Python
 **Stage:** 2 of 4
-**Time:** ~2 hours
+**Time:** About 2 hours
 
-## What you build
+## The useful boundary
 
-Implement `activity.py`: `activity`. This artifact is stage 2 of Voice Note Transcriber Pipeline. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+Compute root-mean-square energy for each frame. Mark frames above the threshold, merge neighboring active spans separated by a short enough gap, and discard spans shorter than the minimum. Return half-open sample intervals so slicing and timestamps share one coordinate system.
 
 ```figure
 pj-voice-note-transcriber-pipeline-2
 ```
 
-## Follow the mechanism
+## Work the example
 
-RMS distinguishes low energy frames from active frames. Merge short gaps so a brief pause does not create a new request, then remove regions shorter than the minimum duration. This detects acoustic activity, not language or speakers: a loud fan can pass the threshold and quiet speech can fail.
+At 1000 Hz, forty samples of amplitude 0.5, twenty silent samples and forty active samples merge into [0,100] when gap_ms is 40. The merged span lasts 100 ms. A 20 ms isolated burst is discarded when min_ms is 40.
 
-## Build it
+Write the returned fields and the expected side-effect count before coding. Keep a second input that should fail so the successful example cannot become a hard-coded answer.
 
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Build the contract
 
-```python
-def activity(samples,rate,frame_ms=20,threshold=.02,min_ms=40,gap_ms=40):
-    raise NotImplementedError("Implement the stage contract")
-```
+Implement `activity(samples, rate, frame_ms=20, threshold=0.02, min_ms=40, gap_ms=40) in activity.py` in your learner workspace. Preserve the exported names and continue using earlier stages rather than duplicating their policies.
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Reject nonfinite samples or parameters and invalid negative bounds. Acoustic energy does not identify words, language or speakers: a fan can pass and quiet speech can fail. The CLI sends the whole clip by default; --segment explicitly opts into this lossy energy-based split.
 
-## Run it
+## Hints
+
+Draw the active frame indices before merging. Separate the gap condition from the minimum-duration filter. Try a threshold just above and just below a frame's RMS and explain the changed output.
+
+## Verify your work
 
 ```bash
 python3 scripts/project_test.py voice-note-transcriber-pipeline --init my-voice-note-transcriber-pipeline
-python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 2 --path my-voice-note-transcriber-pipeline
+python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 2 --path my-voice-note-transcriber-pipeline --strict
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+Initialize once. Cumulative tests import your workspace and preserve your earlier source. A reference-solution run verifies the teaching implementation and never grants a learner certificate. Optional SDK checks require the dependencies and commands in the project README.
 
-## What you should see
+## Inspect the result
 
-Two active 40 ms regions separated by 20 ms silence merge into one 100 ms region. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+What information can be lost by removing quiet regions? How would you evaluate this detector on your own recording conditions?
 
-## Inspect the boundary
+The completed project produces audio.wav, captions.vtt, transcript.json and an HTML page with embedded playback and cue-seek buttons.
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+```bash
+cd projects/voice-note-transcriber-pipeline/solution
+python3 pipeline.py --input fixtures/repair-note.wav --transcript-file fixtures/reference.json --out voice-output
+```
 
-## Use it
+Replace the fixture with a small input from your own workflow. Keep expected outcomes and observed evidence together, then retain a separate set of cases for evaluation. Provider request tests establish serialization and control flow; they do not establish model quality.
 
-After all stages pass, run `python3 projects/voice-note-transcriber-pipeline/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
+## Primary reference
 
-## Primary references
-
-- [Reference 1](https://docs.python.org/3/library/wave.html)
-- [Reference 2](https://www.w3.org/TR/webvtt1/)
+[Official API documentation](https://docs.python.org/3/library/wave.html). The implementation, policy choices and examples are original.
