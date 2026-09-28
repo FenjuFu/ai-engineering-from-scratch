@@ -15,9 +15,10 @@
     "name": "AI Engineering from Scratch",
     "github": "rohitg00"
   },
-  "youWillBuild": "Audit sentence-level citations, test lexical support, and compare report revisions with a paired uncertainty interval.",
+  "youWillBuild": "An evidence-audit workbench showing uncertainty and claims requiring human review.",
   "usefulFor": [
-    "Inspect the local mechanism before integrating it into a larger agent."
+    "An evidence-audit workbench showing uncertainty and claims requiring human review.",
+    "The judge provides conservative lexical evidence checks."
   ],
   "skills": [
     "Parse claims and citation references",
@@ -25,7 +26,20 @@
     "Report precision coverage and source recall",
     "Compare paired revisions with bootstrap intervals"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Retrieval augmented generation",
+      "path": "phases/11-llm-engineering/06-rag"
+    },
+    {
+      "title": "Model evaluation",
+      "path": "phases/02-ml-fundamentals/09-model-evaluation"
+    },
+    {
+      "title": "Verification gates",
+      "path": "phases/14-agent-engineering/38-verification-gates"
+    }
+  ],
   "figures": true,
   "overviewFigure": "pj-report-judge-1",
   "languageWhy": {

@@ -21,7 +21,18 @@ def support(claim, source):
         re.findall(r"\d+(?:\.\d+)?", source)
     ):
         return {"score": 0.0, "reason": "number"}
-    return {"score": len(c & s) / len(c), "reason": "overlap"}
+    stop = {"a", "an", "the", "is", "of", "and"}
+    claim_order = [w for w in re.findall(r"\b\w+\b", claim.casefold()) if w not in stop]
+    source_order = [
+        w for w in re.findall(r"\b\w+\b", source.casefold()) if w not in stop
+    ]
+    if c <= s:
+        remaining = iter(source_order)
+        if not all(
+            any(word == candidate for candidate in remaining) for word in claim_order
+        ):
+            return {"score": 0.0, "reason": "order_requires_review"}
+    return {"score": len(c & s) / len(c), "reason": "lexical_overlap"}
 
 
 def judge_claim(claim, evidence, threshold=0.8):

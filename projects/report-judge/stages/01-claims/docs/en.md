@@ -1,56 +1,47 @@
 # Parse claims and citation references
 
-> One [S1]. Two [S2]. becomes two independently auditable claims.
+**Stage 1 of 4.** Python. Plan about 2 hours.
 
-**Type:** Build
-**Languages:** Python
-**Stage:** 1 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Implement `claims.py`: `parse_claims`. This artifact is stage 1 of Report Judge. It consumes explicit inputs and returns an inspectable result that the next stage can use.
+A citation parser identifies references without deciding whether they are true. Deduplicate markers within each sentence, preserve the claim text, and ignore markdown headings. This deliberately narrow grammar handles one paragraph per line; it does not pretend to parse arbitrary markdown or abbreviations.
 
 ```figure
 pj-report-judge-1
 ```
 
-## Follow the mechanism
-
-A citation parser identifies references without deciding whether they are true. Deduplicate markers within each sentence, preserve the claim text, and ignore markdown headings. This deliberately narrow grammar handles one paragraph per line; it does not pretend to parse arbitrary markdown or abbreviations.
-
-## Build it
-
-Read the starter signatures and the tests before implementing the transformation. Keep validation at the input boundary, make output order deterministic, and preserve the distinction between empty input and invalid input. Use the preceding stages where the imports name them; avoid duplicating their logic.
+## Implementation boundary
 
 ```python
 def parse_claims(text):
     raise NotImplementedError("Implement the stage contract")
 ```
 
-The five tests exercise successful results and failure boundaries. Explain why each failing input should be rejected before changing its assertion. An implementation that returns a canned demo result cannot satisfy the varied inputs.
+Primary reference: [Reference 1](https://www.rfc-editor.org/rfc/rfc8259).
 
-## Run it
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py report-judge --init my-report-judge
-python3 scripts/project_test.py report-judge --stage 1 --path my-report-judge
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md).
+
+Audit each factual sentence separately. Orchard has a sourced retry limit and an unrelated deployment claim; one valid marker must not make the whole paragraph pass.
+
+```text
+Worker A invokes worker B [S1]. Retry limit is 99 [S2].
+claim 1 -> cites [S1]
+claim 2 -> cites [S2]
 ```
 
-Initialize once. Later stages accumulate their source files in the same workspace and rerun the earlier tests.
+## Build and inspect
 
-## What you should see
+Extract markers before removing them from the claim text. Deduplicate repeated markers without discarding sentence identity.
 
-One [S1]. Two [S2]. becomes two independently auditable claims. This stage has five deterministic tests. A fresh workspace reports a clear implementation failure; the reference solution passes this stage and all preceding stages.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Inspect the boundary
+```bash
+python3 scripts/project_test.py report-judge --init learning-artifacts/report-judge
+python3 scripts/project_test.py report-judge --stage 1 --path learning-artifacts/report-judge
+```
 
-Predict what happens for empty input and for an input that violates the stage contract. Which result would be unsafe to pass to the next stage? Which information would be lost if the stage returned only a boolean?
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Use it
+## Investigate next
 
-After all stages pass, run `python3 projects/report-judge/solution/demo.py` for an offline reference demonstration. To run your own modules, copy that small driver into your workspace and keep its imports pointed at your implementations.
-
-## Primary references
-
-- [Reference 1](https://www.rfc-editor.org/rfc/rfc8259)
+What should happen when [S2] is absent from the evidence map?
