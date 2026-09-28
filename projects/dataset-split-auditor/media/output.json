@@ -1,0 +1,16 @@
+{
+  "title": "Dataset Split Auditor / actual output",
+  "recordedAt": "2026-09-28T16:11:20Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/dataset-split-auditor/solution",
+      "exitCode": 0,
+      "output": "{\n  \"assignments\": {\n    \"train\": [\n      \"2\",\n      \"3\",\n      \"4\",\n      \"5\",\n      \"6\",\n      \"7\",\n      \"8\",\n      \"9\",\n      \"12\",\n      \"13\",\n      \"14\",\n      \"15\",\n      \"16\",\n      \"17\"\n    ],\n    \"test\": [\n      \"0\",\n      \"1\",\n      \"10\",\n      \"11\",\n      \"18\",\n      \"19\"\n    ]\n  },\n  \"report\": {\n    \"train_rows\": 14,\n    \"test_rows\": 6,\n    \"train_groups\": 7,\n    \"test_groups\": 3,\n    \"audit\": {\n      \"content_leaks\": [],\n      \"group_leaks\": [],\n      \"clean\": true\n    },\n    \"usable\": true\n  }\n}\n",
+      "durationMs": 30
+    }
+  ]
+}
