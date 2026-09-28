@@ -1,0 +1,48 @@
+{
+  "title": "Voice Note Transcriber Pipeline / initialize and test",
+  "recordedAt": "2026-09-28T16:12:35Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "voice-note-transcriber-pipeline",
+        "--init",
+        "my-voice-note-transcriber-pipeline"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-voice-note-transcriber-pipeline\n  created  pcm.py\n  created  activity.py\n  created  transcribe.py\n  created  captions.py\nnext: python3 scripts/project_test.py voice-note-transcriber-pipeline --stage 1 --path /privatemy-voice-note-transcriber-pipeline\n",
+      "durationMs": 58
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "voice-note-transcriber-pipeline",
+        "--stage",
+        "1",
+        "--path",
+        "my-voice-note-transcriber-pipeline"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Voice Note Transcriber Pipeline: grading learner\n  FAIL stage 1: Decode and validate PCM WAV samples (5 tests)\n       not implemented yet: Stage 1: implement encode_wav\n",
+      "durationMs": 109
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "voice-note-transcriber-pipeline",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Voice Note Transcriber Pipeline: grading solution\n  PASS stage 1: Decode and validate PCM WAV samples (5 tests)\n  PASS stage 2: Segment speech candidates with RMS energy (5 tests)\n  PASS stage 3: Call an injected transcriber with bounded retries (5 tests)\n  PASS stage 4: Export validated WebVTT captions (5 tests)\n",
+      "durationMs": 266
+    }
+  ]
+}

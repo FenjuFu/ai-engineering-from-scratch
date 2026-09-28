@@ -1,0 +1,121 @@
+{
+  "id": "voice-note-transcriber-pipeline",
+  "title": "Voice Note Transcriber Pipeline",
+  "level": 3,
+  "levelName": "Engineer",
+  "tagline": "Decode real PCM WAV bytes, segment activity by energy, and assemble timestamped transcripts through an injected transcription provider.",
+  "summary": "Decode real PCM WAV bytes, segment activity by energy, and assemble timestamped transcripts through an injected transcription provider.",
+  "hours": 8,
+  "languages": [
+    "Python"
+  ],
+  "status": "ready",
+  "source": "core",
+  "author": {
+    "name": "AI Engineering from Scratch",
+    "github": "rohitg00"
+  },
+  "youWillBuild": "Decode real PCM WAV bytes, segment activity by energy, and assemble timestamped transcripts through an injected transcription provider.",
+  "usefulFor": [
+    "Inspect the local mechanism before integrating it into a larger agent."
+  ],
+  "skills": [
+    "Decode and validate PCM WAV samples",
+    "Segment speech candidates with RMS energy",
+    "Call an injected transcriber with bounded retries",
+    "Export validated WebVTT captions"
+  ],
+  "prerequisites": [],
+  "figures": true,
+  "overviewFigure": "pj-voice-note-transcriber-pipeline-1",
+  "languageWhy": {
+    "Python": "Stdlib data structures, explicit algorithms and deterministic local tests."
+  },
+  "demo": {
+    "command": [
+      "python3",
+      "demo.py"
+    ],
+    "cwd": "solution"
+  },
+  "stages": [
+    {
+      "id": "01-pcm",
+      "title": "Decode and validate PCM WAV samples",
+      "summary": "The bytes encoding [0, 0.5, -0.5] decode to those exact normalized values.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "starter",
+      "figure": "pj-voice-note-transcriber-pipeline-1",
+      "concepts": [
+        "decode",
+        "and",
+        "validate",
+        "pcm"
+      ]
+    },
+    {
+      "id": "02-activity",
+      "title": "Segment speech candidates with RMS energy",
+      "summary": "Two active 40 ms regions separated by 20 ms silence merge into one 100 ms region.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "core",
+      "figure": "pj-voice-note-transcriber-pipeline-2",
+      "concepts": [
+        "segment",
+        "speech",
+        "candidates",
+        "with"
+      ]
+    },
+    {
+      "id": "03-transcribe",
+      "title": "Call an injected transcriber with bounded retries",
+      "summary": "A provider timeout followed by success records attempts=2 and the segment audio hash.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "core",
+      "figure": "pj-voice-note-transcriber-pipeline-3",
+      "concepts": [
+        "call",
+        "an",
+        "injected",
+        "transcriber"
+      ]
+    },
+    {
+      "id": "04-captions",
+      "title": "Export validated WebVTT captions",
+      "summary": "A 1.234-second offset renders as 00:00:01.234, and malformed cue order is rejected.",
+      "language": "python",
+      "languageWhy": "Python standard-library collections, bytes and file operations expose this stage directly.",
+      "hours": 2,
+      "difficulty": "stretch",
+      "figure": "pj-voice-note-transcriber-pipeline-4",
+      "concepts": [
+        "export",
+        "validated",
+        "webvtt",
+        "captions"
+      ]
+    }
+  ],
+  "demos": [
+    {
+      "gif": "media/run.gif",
+      "poster": "media/run.png",
+      "title": "Initialize and grade",
+      "caption": "Recorded starter failure followed by all reference-solution stages passing. Reference passes do not earn learner certificates."
+    },
+    {
+      "gif": "media/output.gif",
+      "poster": "media/output.png",
+      "title": "Inspect the output",
+      "caption": "Actual output from the local deterministic demo command. See the README for fixture and live-adapter limits."
+    }
+  ]
+}
