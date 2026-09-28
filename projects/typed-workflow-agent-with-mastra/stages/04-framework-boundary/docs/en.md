@@ -1,68 +1,57 @@
-# Compare the scratch runtime with Mastra
+# Persist real Mastra approval state and resume it
 
-> A read ticket returns the same answer through the scratch runtime and a real Mastra workflow. An unapproved write reaches a failed framework state before invoking its tool.
+> Start the authored workshop update and observe status=suspended with zero tool calls. Close the local LibSQL store, create a fresh workflow over the same SQLite file and resume by runId. Matching approval produces success and exactly one observed local tool call in the recovery test; a wrong hash fails with zero calls.
 
 **Type:** Build
-**Languages:** TypeScript
 **Stage:** 4 of 4
-**Time:** ~2 hours
+**Time:** About 2 hours
 
-## What you build
+## The useful boundary
 
-Build `optional-mastra/adapter.ts` in your learner workspace. Export `createTicketWorkflow(tool, approved = false)`, which returns a committed Mastra workflow supporting `createRun()` and `run.start({ inputData: ticket })`.
-
-Define Zod input and output schemas for three steps: classify the ticket, construct its plan, and execute that plan. Compose the steps with `then` and `commit`. Reuse the scratch runtime through imports from `../main.ts`; a framework should not silently change your approval contract.
-
-The adapter translates the scratch runtime's `complete` result into the workflow's successful output. It throws when the scratch runtime returns `suspended` or `failed`, so this comparison exposes a failed Mastra run for unapproved writes. It does not implement Mastra's own durable suspension and resume facility.
-
-## Why this language
-
-TypeScript carries the step contracts across the real `createStep` and `createWorkflow` APIs. Zod validates runtime data because Node's type stripping does not check types or validate external input. The optional packages are pinned to Mastra 1.71.0 and Zod 4.3.6.
-
-## Predict
-
-For `{ id: "T-1", message: "Find billing policy" }`, a tool returning `Refunds require a receipt.` should produce `{ ticketId: "T-1", answer: "Refunds require a receipt.", calls: 1 }`.
-
-Predict the tool-call count for an empty ticket, an unapproved update, and a tool that always returns an empty string. The expected counts are zero, zero, and two. Explain why schema validation, approval, and bounded retries stop each run at a different boundary.
-
-## Interactive lab
+Compose three real Mastra steps with Zod contracts: classify, plan and execute. The execution step calls Mastra suspend with ticketId, planHash, plan and reason when an update lacks approval. On resume, it validates approved, ticketId and planHash against the stored plan before calling the shared scratch executor.
 
 ```figure
 pj-typed-workflow-agent-with-mastra-4
 ```
 
-Step through classify, plan, and execute. Follow the same ticket through the scratch runtime and framework adapter, then compare the business result and terminal state separately.
+## Work the example
 
-## Build
+Start the authored workshop update and observe status=suspended with zero tool calls. Close the local LibSQL store, create a fresh workflow over the same SQLite file and resume by runId. Matching approval produces success and exactly one observed local tool call in the recovery test; a wrong hash fails with zero calls.
 
-Keep the core `runTicket` and `executePlan` contracts passing. Implement the initialized adapter scaffold and supply the same injected tool to the execution step. Configure `maxCalls: 3` and `maxAttempts: 2`, and pass the factory's approval flag into `executePlan`.
+Write the returned fields and the expected side-effect count before coding. Keep a second input that should fail so the successful example cannot become a hard-coded answer.
 
-The optional framework tests live outside the learner workspace in this stage's `tests-framework/` directory. They import `PROJECT_WORKSPACE/optional-mastra/adapter.ts` and `PROJECT_WORKSPACE/main.ts`. Editing a reference adapter or a learner-owned test cannot substitute for implementing your workspace.
+## Build the contract
 
-## Verify
+Implement `createTicketWorkflow, planHash, persistentWorkflow in optional-mastra/adapter.ts` in your learner workspace. Preserve the exported names and continue using earlier stages rather than duplicating their policies.
 
-From the repository root, initialize once and run the offline core:
+The default factory uses InMemoryStore for lightweight tests. persistentWorkflow requires an explicit file: URL and @mastra/libsql 1.23.3 alongside @mastra/core 1.71.0 and Zod 4.3.6. The CLI writes approval.json with approved=false. Inspect the stored plan, explicitly edit approval and run the separate resume command. A false decision remains suspended.
+
+## Hints
+
+Run instructor-owned optional tests through project_test.py --optional --strict. The adapter invokes actual SDK suspension and resume; do not throw merely because the scratch policy would pause. Use the returned run ID, never start a new input to imitate a resume.
+
+## Verify your work
 
 ```bash
-python3 scripts/project_test.py typed-workflow-agent-with-mastra --init learning-artifacts/typed-workflow-agent-with-mastra
-python3 scripts/project_test.py typed-workflow-agent-with-mastra --path learning-artifacts/typed-workflow-agent-with-mastra --strict
+python3 scripts/project_test.py typed-workflow-agent-with-mastra --init my-typed-workflow-agent-with-mastra
+python3 scripts/project_test.py typed-workflow-agent-with-mastra --stage 4 --path my-typed-workflow-agent-with-mastra --strict
 ```
 
-Install the optional packages at the workspace root, where the grader probes them, then select the real framework runner:
+Initialize once. Cumulative tests import your workspace and preserve your earlier source. A reference-solution run verifies the teaching implementation and never grants a learner certificate. Optional SDK checks require the dependencies and commands in the project README.
+
+## Inspect the result
+
+Which state survives a process restart and which external effects still need idempotency? How would you connect an authenticated review UI without trusting a model to approve its own plan?
+
+The completed project produces a scratch HTML/JSON workflow review and a real Mastra run stored in SQLite with a plan-bound approval document.
 
 ```bash
-npm install --prefix learning-artifacts/typed-workflow-agent-with-mastra --ignore-scripts --package-lock=false --save-exact @mastra/core@1.71.0 zod@4.3.6
-python3 scripts/project_test.py typed-workflow-agent-with-mastra --path learning-artifacts/typed-workflow-agent-with-mastra --optional --strict
+cd projects/typed-workflow-agent-with-mastra/solution
+node --experimental-strip-types cli.ts --ticket fixtures/ticket.json --out workflow-output
 ```
 
-The tools are deterministic local functions; these tests make no provider calls. For a reference run, install at `projects/typed-workflow-agent-with-mastra/solution` and replace `--path ...` with `--solution`.
+Replace the fixture with a small input from your own workflow. Keep expected outcomes and observed evidence together, then retain a separate set of cases for evaluation. Provider request tests establish serialization and control flow; they do not establish model quality.
 
-## What you see
+## Primary reference
 
-The default run executes 24 core tests. The optional run adds five tests and reports 11 tests for stage 4, 29 in total. Those five cases cover read parity, invalid input, blocked writes, approved writes, and empty-output retry exhaustion.
-
-A missing package prints `SKIP` and an installation hint. `--optional --strict` exits unsuccessfully for that result. Default completion evidence describes only the core; selecting the optional runner also requires it to pass. Reference runs never earn learner certificates.
-
-## Ship it
-
-Keep your adapter and scratch implementation together under `learning-artifacts/typed-workflow-agent-with-mastra/`. Record an input you invented, its business result, and the terminal status from each runtime. Identify the distinction between your explicit approval flag and a durable human-approval system before connecting a tool with real side effects.
+[Official API documentation](https://mastra.ai/docs/workflows/suspend-and-resume). The implementation, policy choices and examples are original.
