@@ -101,3 +101,31 @@ Stage 5 passes 9 Python tests, and all preceding stages still pass. All six pois
 
 - Add a model judge behind the `Model` protocol for sentences whose lexical score falls between 0.4 and 0.6, and record its answers in a cassette.
 - Write three new poisoned drafts that fool your critic, then fix the critic.
+
+## Worked Orchard case
+
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 4](../../04-write-with-citations/docs/en.md) first.
+
+Verification checks lexical support, numbers and negation under a finite work budget. The critic can reject a changed timeout, but it cannot prove that a source is true or current in the real world.
+
+```text
+source timeout=15; draft timeout=60 -> reject number
+no evidence -> failed or needs_review according to verdict state
+budget exhausted -> named terminal state
+```
+
+## Build and inspect
+
+Charge work before starting the next operation. Preserve rejected claims in the trace rather than erasing the reason a report became shorter.
+
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
+
+```bash
+python3 scripts/project_test.py research-report-agent --stage 5 --path learning-artifacts/research-report-agent
+```
+
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
+
+## Investigate next
+
+What independent check would you add before acting on a deployment recommendation?
