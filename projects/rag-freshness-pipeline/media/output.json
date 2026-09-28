@@ -1,0 +1,16 @@
+{
+  "title": "RAG Freshness Pipeline / actual output",
+  "recordedAt": "2026-09-28T16:12:34Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "demo.py"
+      ],
+      "cwd": "projects/rag-freshness-pipeline/solution",
+      "exitCode": 0,
+      "output": "{\n  \"insert\": [\n    \"policy\"\n  ],\n  \"update\": [],\n  \"refresh\": [],\n  \"delete\": [],\n  \"unchanged\": []\n}\n[\n  {\n    \"id\": \"policy\",\n    \"score\": 1.0,\n    \"age\": 20,\n    \"hash\": \"83bab9d33e49e01e73d372adb87ddf4af61eeda8ec924b4fd0c5a7998609cdd6\"\n  }\n]\n",
+      "durationMs": 28
+    }
+  ]
+}
