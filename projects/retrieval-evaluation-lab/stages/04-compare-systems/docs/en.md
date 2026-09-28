@@ -1,20 +1,6 @@
 # Compare systems query by query
 
-> Produce per-query metrics and macro means for each named system, with unjudged result counts..
-
-**Type:** Build
-**Languages:** Python
-**Stage:** 4 of 4
-**Time:** ~120 minutes
-
-## Learning objectives
-
-- Implement `compare_systems` against the stated contract.
-- Predict the boundary case before running the code.
-- Keep earlier behavior intact when adding this stage.
-- Explain which measured result is useful and which claim it cannot support.
-
-## The mechanism
+**Stage 4 of 4.** Python. Plan about 2 hours.
 
 Macro averaging gives each query equal weight, preventing a query with hundreds of judgments from dominating the benchmark. Retain per-query metrics alongside the mean so regressions remain visible.
 
@@ -24,54 +10,39 @@ Require all judged queries to appear in every system, including an explicit empt
 pj-retrieval-evaluation-lab-4
 ```
 
-## Predict first
+Primary reference: [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-ranked-retrieval-results-1.html).
 
-Should a system improve its score by omitting its hardest query?
+## Worked Orchard case
 
-Write your prediction before opening the reference implementation. Trace a normal input and one empty or adversarial input by hand. The distinction is part of the interface, not an optional error message.
+Before coding, review [Python data structures](https://docs.python.org/3/tutorial/datastructures.html) and [Retrieval augmented generation](../../../../../phases/11-llm-engineering/06-rag/docs/en.md). Complete [stage 3](../../03-rank-sensitive-metrics/docs/en.md) first.
 
-## Your task
+The supplied three-query fixture improves release and café retrieval while making restore retrieval worse. Sort query-level deltas so the lost recovery evidence appears before the aggregate.
 
-Implement `compare_systems` in `main.py` in your learner workspace. Produce per-query metrics and macro means for each named system, with unjudged result counts.
-
-Keep the data contract small enough to inspect. Reject malformed inputs before computing a score; a plausible number computed from invalid evidence is harder to debug than an explicit error.
-
-## Run and inspect
-
-From the repository root, initialize once, then run the cumulative grader:
-
-```bash
-python3 scripts/project_test.py retrieval-evaluation-lab --init my-retrieval-evaluation-lab
-python3 scripts/project_test.py retrieval-evaluation-lab --stage 4 --path my-retrieval-evaluation-lab
+```text
+release: improved
+cafe: improved
+restore: regressed
+--fail-on-regression -> exit 1
 ```
 
-The starter raises `NotImplementedError` until you supply the functions. Initialization keeps existing files, so you can repeat it safely. Do not add `--solution` while grading your own work.
+## Build and inspect
 
-## What you should see
+Align systems on the judgment query ids. Save before/after ranked ids with each delta; a number alone does not identify the moved source.
 
-Both baseline and candidate appear in the JSON report on exactly the same query ids.
-
-The grader reports this stage as PASS only when its tests run successfully. To inspect the finished reference artifact separately:
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
 ```bash
-cd projects/retrieval-evaluation-lab/solution
-python3 demo.py
+python3 scripts/project_test.py retrieval-evaluation-lab --stage 4 --path learning-artifacts/retrieval-evaluation-lab
 ```
 
-## Debug with evidence
+After the cumulative stages pass, run your artifact on the original sample input from the repository root:
 
-Compare the failing assertion with the intermediate values shown in the figure. Check empty inputs, duplicate identifiers, and boundary values before changing the main algorithm. Never weaken the test to make the reference output pass.
+```bash
+python3 learning-artifacts/retrieval-evaluation-lab/cli.py projects/retrieval-evaluation-lab/examples/baseline.json projects/retrieval-evaluation-lab/examples/candidate.json projects/retrieval-evaluation-lab/examples/judgments.json --out retrieval-diff.json
+```
 
-## Check yourself
+Metrics apply to supplied labels. Unjudged documents receive zero gain and remain counted as unjudged. Use --fail-on-regression to return exit 1 for any query with lower NDCG.
 
-Which invariant does this stage preserve? Give one input that violates it and explain the resulting error. How would you detect a regression in an earlier stage?
+## Investigate next
 
-## Going further
-
-Use this artifact to inspect a real local dataset before connecting a model or an external service. Add a fixture from that use case, state the expected behavior first, and retain a separate evaluation set. Published fixtures are reviewable examples, not a secret benchmark.
-
-## Sources
-
-- [Primary technical reference](https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-ranked-retrieval-results-1.html)
-
-The code and examples in this project are original. The source explains the mechanism; no implementation is copied.
+Which query deserves review first if average NDCG rises?
