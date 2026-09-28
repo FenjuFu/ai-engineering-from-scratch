@@ -21,17 +21,25 @@
     "Approve and select scoped rules",
     "Persist rules across sessions"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Turn repeated, sourced corrections into scoped rules, persist them atomically, and enforce only explicitly approved rules.",
+  "prerequisites": [
+    {
+      "title": "Repository memory and state",
+      "path": "phases/14-agent-engineering/34-repo-memory-and-state"
+    },
+    {
+      "title": "Verification gates",
+      "path": "phases/14-agent-engineering/38-verification-gates"
+    }
+  ],
+  "youWillBuild": "A correction ledger showing why a rule exists, what it changed and how to undo it.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "A correction ledger showing why a rule exists, what it changed and how to undo it.",
+    "capture, inspect, approve, retire and emit are file-based commands."
   ],
   "demo": {
     "command": [
       "node",
-      "main.ts",
-      "--demo"
+      "demo.ts"
     ],
     "cwd": "solution"
   },
@@ -39,7 +47,7 @@
     {
       "id": "01-corrections",
       "title": "Capture corrections with provenance",
-      "summary": "Require a correction id, session id, scope, rule and source excerpt. Normalize rule whitespace and case for comparison while preserving source evidence. Reject oversized values and obvious credential-shaped content. This heuristic is not a complete secret scanner: callers must redact source data before ingestion.",
+      "summary": "Preserve case-sensitive rule text and source excerpts with stable locators.",
       "hours": 2,
       "language": "typescript",
       "languageWhy": "TypeScript expresses the boundary between raw hook input and a validated correction.",

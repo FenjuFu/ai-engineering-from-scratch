@@ -14,6 +14,7 @@ export type Correction = {
   scope: string;
   rule: string;
   source: string;
+  locator?: string;
 };
 export type Rule = {
   key: string;
@@ -21,6 +22,7 @@ export type Rule = {
   text: string;
   sourceIds: string[];
   sessions: string[];
+  evidence?: { id: string; session: string; source: string; locator: string }[];
   state: "candidate" | "approved" | "retired";
 };
 export function normalize(text: string): string {
@@ -36,7 +38,11 @@ export function ingest(raw: unknown): Correction {
     throw new Error("too large");
   if (/(?:sk-|ghp_)[a-z0-9]{12,}/i.test(c.rule + " " + c.source))
     throw new Error("credential-like content");
-  return { ...c, rule: normalize(c.rule), scope: normalize(c.scope) };
+  return {
+    ...c,
+    rule: c.rule.trim().replace(/\s+/g, " "),
+    scope: normalize(c.scope),
+  };
 }
 export function consolidate(corrections: Correction[]): Rule[] {
   const groups = new Map<string, Rule>();
@@ -59,11 +65,18 @@ export function consolidate(corrections: Correction[]): Rule[] {
         text: c.rule,
         sourceIds: [],
         sessions: [],
+        evidence: [],
         state: "candidate",
       };
       groups.set(key, r);
     }
     r.sourceIds.push(c.id);
+    r.evidence!.push({
+      id: c.id,
+      session: c.session,
+      source: c.source,
+      locator: c.locator ?? `session:${c.session}#${c.id}`,
+    });
     if (!r.sessions.includes(c.session)) r.sessions.push(c.session);
   }
   return [...groups.values()].sort((a, b) => a.key.localeCompare(b.key));
@@ -83,7 +96,11 @@ export function transition(
 export function hook(
   rules: Rule[],
   scope: string,
-): { rules: string[]; sources: string[] } {
+): {
+  rules: string[];
+  sources: string[];
+  evidence: NonNullable<Rule["evidence"]>;
+} {
   const selected = rules.filter(
     (r) =>
       r.state === "approved" &&
@@ -91,6 +108,7 @@ export function hook(
   );
   return {
     rules: selected.map((r) => r.text),
+    evidence: selected.flatMap((r) => r.evidence ?? []),
     sources: [...new Set(selected.flatMap((r) => r.sourceIds))],
   };
 }
