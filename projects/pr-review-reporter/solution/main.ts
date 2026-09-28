@@ -57,7 +57,10 @@ export function inspect(lines: AddedLine[]): Finding[] {
   ];
   return lines.flatMap((line) =>
     rules
-      .filter(([pattern]) => pattern.test(line.text))
+      .filter(
+        ([pattern]) =>
+          !/^\s*(?:\/\/|\*|#)/.test(line.text) && pattern.test(line.text),
+      )
       .map(([, rule, severity, message]) => ({
         ...line,
         quote: line.text,

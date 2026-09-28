@@ -3,13 +3,10 @@
   "title": "PR Review Reporter",
   "level": 2,
   "levelName": "Builder",
-  "tagline": "Parse real unified diffs in Python, anchor TypeScript review findings to added lines, and publish an escaped local report.",
-  "summary": "Parse real unified diffs in Python, anchor TypeScript review findings to added lines, and publish an escaped local report.",
+  "tagline": "A local patch-review artifact that preserves Git line evidence and can enter CI as SARIF.",
+  "summary": "A local patch-review artifact that preserves Git line evidence and can enter CI as SARIF. Use --diff - for stdin, --repo /path --base REF --head REF for a read-only Git diff, or --candidates recorded-findings.json to validate another reviewer's findings against the supplied patch.",
   "hours": 8,
-  "languages": [
-    "Python",
-    "TypeScript"
-  ],
+  "languages": ["Python", "TypeScript"],
   "status": "ready",
   "source": "core",
   "author": {
@@ -22,19 +19,28 @@
     "Verify and merge findings",
     "Publish a local escaped report"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Parse real unified diffs in Python, anchor TypeScript review findings to added lines, and publish an escaped local report.",
+  "prerequisites": [
+    "Node22.18+, Python3 and Git only for --repo mode",
+    "unified diff counters, JSON, exact source quotes and HTML escaping."
+  ],
+  "youWillBuild": "A local patch-review artifact that preserves Git line evidence and can enter CI as SARIF.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "Use --diff - for stdin, --repo /path --base REF --head REF for a read-only Git diff, or --candidates recorded-findings.json to validate another reviewer's findings against the supplied patch."
   ],
   "demo": {
+    "cwd": "solution",
     "command": [
       "node",
-      "main.ts",
-      "--demo"
-    ],
-    "cwd": "solution"
+      "cli.ts",
+      "--diff",
+      "samples/change.diff",
+      "--output",
+      "review.json",
+      "--html",
+      "review.html",
+      "--sarif",
+      "review.sarif"
+    ]
   },
   "stages": [
     {
@@ -44,9 +50,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Python handles a streaming text grammar while TypeScript consumes a typed JSON boundary.",
-      "concepts": [
-        "parseDiff"
-      ],
+      "concepts": ["parseDiff"],
       "difficulty": "starter",
       "runner": [
         "node",
@@ -54,10 +58,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-pr-review-reporter-1"
     },
@@ -68,9 +69,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Typed findings require a source quote, location and rule id before entering the report pipeline.",
-      "concepts": [
-        "inspect"
-      ],
+      "concepts": ["inspect"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -78,10 +77,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-pr-review-reporter-2"
     },
@@ -92,10 +88,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "A typed verification result keeps rejected model suggestions out of the renderer.",
-      "concepts": [
-        "verify",
-        "merge"
-      ],
+      "concepts": ["verify", "merge"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -103,10 +96,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-pr-review-reporter-3"
     },
@@ -117,21 +107,16 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "TypeScript joins verified data to HTML while escaping every untrusted string.",
-      "concepts": [
-        "escapeHTML",
-        "render"
-      ],
+      "concepts": ["escapeHTML", "render"],
       "difficulty": "core",
       "runner": [
         "node",
         "--experimental-strip-types",
         "--test",
-        "{tests}/stage.test.ts"
+        "{tests}/stage.test.ts",
+        "{tests}/integration.test.ts"
       ],
-      "requires": [
-        "node",
-        "python3"
-      ],
+      "requires": ["node", "python3"],
       "timeout": 90,
       "figure": "pj-pr-review-reporter-4"
     }
