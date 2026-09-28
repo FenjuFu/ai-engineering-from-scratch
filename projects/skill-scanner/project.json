@@ -6,10 +6,10 @@
   "tagline": "Find risky instruction patterns with exact source evidence.",
   "summary": "Build an offline advisory scanner that preserves UTF-8 offsets, reports explicit policy patterns, scores distinct findings and emits a review gate. It is a transparent heuristic, not a malware detector or a promise that unflagged skills are safe.",
   "usefulFor": [
-    "Find risky instruction patterns with exact source evidence.",
-    "Offline experiments with explicit failure cases and limits"
+    "A skill-change review assistant quoting newly introduced capabilities.",
+    "The scanner emits versioned JSON with file paths, exact UTF-8 byte spans and advisory rules."
   ],
-  "youWillBuild": "Build an offline advisory scanner that preserves UTF-8 offsets, reports explicit policy patterns, scores distinct findings and emits a review gate. It is a transparent heuristic, not a malware detector or a promise that unflagged skills are safe.",
+  "youWillBuild": "A skill-change review assistant quoting newly introduced capabilities.",
   "hours": 8,
   "languages": [
     "Rust"
@@ -26,7 +26,16 @@
     "Score distinct evidence without inflation",
     "Build an explicit review gate"
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "title": "Data management",
+      "path": "phases/00-setup-and-tooling/09-data-management"
+    },
+    {
+      "title": "Security and secrets audit",
+      "path": "phases/17-infrastructure-and-production/25-security-secrets-audit"
+    }
+  ],
   "inspiredBy": [],
   "demo": {
     "command": [

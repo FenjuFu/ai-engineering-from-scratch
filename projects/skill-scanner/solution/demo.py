@@ -1,9 +1,19 @@
 from pathlib import Path
-import subprocess
-import tempfile
+import json, subprocess, tempfile, sys, shutil
 
 root = Path(__file__).resolve().parent
-with tempfile.TemporaryDirectory(prefix="project-demo-") as temp:
-    binary = Path(temp) / "demo"
-    subprocess.run(["rustc", "--edition", "2021", "-Awarnings", str(root / "main.rs"), "-o", str(binary)], check=True)
-    subprocess.run([str(binary)], check=True)
+examples = root.parent / "examples"
+with tempfile.TemporaryDirectory(prefix="native-demo-") as folder:
+    binary = Path(folder) / "app"
+    subprocess.run(
+        ["rustc", "--edition=2021", str(root / "cli.rs"), "-o", str(binary)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    args = ["examples/reviewable", "3"]
+    args = [
+        str(root.parent / value) if value.startswith("examples/") else value
+        for value in args
+    ]
+    subprocess.run([str(binary), *args], check=True)
