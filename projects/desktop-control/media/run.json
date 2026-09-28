@@ -1,0 +1,48 @@
+{
+  "title": "Desktop Control Backend / initialize and test",
+  "recordedAt": "2026-09-28T16:20:08Z",
+  "records": [
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "desktop-control",
+        "--init",
+        "my-desktop-control"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "workspace  /privatemy-desktop-control\n  created  demo.py\n  created  main.rs\n  created  stage-2.md\n  created  stage-3.md\n  created  stage-4.md\nnext: python3 scripts/project_test.py desktop-control --stage 1 --path /privatemy-desktop-control\n",
+      "durationMs": 58
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "desktop-control",
+        "--stage",
+        "1",
+        "--path",
+        "my-desktop-control"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 1,
+      "output": "Desktop Control Backend: grading learner\n  FAIL stage 1: Validate frames and coordinate spaces (6 tests)\n       tests failed; rerun with --verbose\n",
+      "durationMs": 669
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/project_test.py",
+        "desktop-control",
+        "--all",
+        "--solution",
+        "--strict"
+      ],
+      "cwd": "<repo>",
+      "exitCode": 0,
+      "output": "Desktop Control Backend: grading solution\n  PASS stage 1: Validate frames and coordinate spaces (6 tests)\n  PASS stage 2: Render and manipulate a fixture scene (6 tests)\n  PASS stage 3: Reject stale observations and exhausted budgets (6 tests)\n  PASS stage 4: Build an opt-in native boundary (6 tests)\n",
+      "durationMs": 1448
+    }
+  ]
+}
