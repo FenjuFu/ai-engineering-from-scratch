@@ -1,0 +1,17 @@
+{
+  "title": "Cross-Agent Skill Installer / actual output",
+  "recordedAt": "2026-09-28T16:15:38Z",
+  "records": [
+    {
+      "command": [
+        "node",
+        "main.ts",
+        "--demo"
+      ],
+      "cwd": "projects/skill-installer/solution",
+      "exitCode": 0,
+      "output": "{\n  \"agent\": \"codex\",\n  \"name\": \"review-checklist\",\n  \"digest\": \"ec0ce61d12a9640752743c6b099dfad3cf635039f714e72ecadc4608db569a6d\",\n  \"files\": [\n    \"SKILL.md\",\n    \"references/checks.md\"\n  ],\n  \"destination\": \".agents/skills/review-checklist\"\n}\n",
+      "durationMs": 121
+    }
+  ]
+}
