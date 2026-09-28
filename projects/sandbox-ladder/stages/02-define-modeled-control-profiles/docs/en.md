@@ -1,55 +1,45 @@
 # Define modeled control profiles
 
-> container-fixture: filesystem yes, network yes, kernel no
-
-**Type:** Build
-**Languages:** Rust
-**Stage:** 2 of 4
-**Time:** ~2 hours
-
-## What you build
-
-Choose isolation controls from an explicit capability requirement. This stage implements `profiles, satisfies` in `stage2.rs`. The finished behavior feeds the next stage through a typed contract.
-
-## Why it matters
+**Stage 2 of 4.** Rust. Plan about 2 hours.
 
 Model process, filesystem, container-network and microVM boundaries as data. A profile name alone proves nothing; match each required control against its boolean capability. The profiles deliberately assume correct operator configuration and leave deployment verification to a real runtime.
-
-## Work through one case
-
-container-fixture: filesystem yes, network yes, kernel no. Follow the figure one step at a time and predict the next state before advancing. Record which validation fails first and whether the caller-owned data should change.
 
 ```figure
 pj-sandbox-ladder-2
 ```
 
-## Your task
+## Implementation boundary
 
 ```rust
 pub fn profiles()->Vec<Profile>
 pub fn satisfies(n:&Needs,p:&Profile)->bool
 ```
 
-Implement these public signatures in your workspace. Keep invalid input separate from a budget limit or state conflict. Preserve the original evidence or input record whenever an operation fails. Tests load your workspace directly, so implementing a different function in the checked-in solution does not advance your stage.
+Primary reference: [Official reference](https://docs.docker.com/engine/security/).
 
-## Run the tests
+## Worked Orchard case
 
-```bash
-python3 scripts/project_test.py sandbox-ladder --stage 2 --path /tmp/sandbox-ladder-work
+Before coding, review [Rust ownership and Result](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) and [Docker for AI](../../../../../phases/00-setup-and-tooling/07-docker-for-ai/docs/en.md). Complete [stage 1](../../01-parse-the-capability-request/docs/en.md) first.
+
+Profiles are modeled capabilities with illustrative costs. A process boundary has no filesystem or network isolation in this model; the container profile models both but shares its host kernel.
+
+```text
+process: filesystem=false, network=false, kernel=false
+container: filesystem=true, network=true, kernel=false
 ```
 
-The stage checks four, trusted, filesystem, network, kernel. Use the failing case to locate the invariant you violated. Passing the normal example alone does not establish the boundary behavior.
+## Build and inspect
 
-## Check yourself
+Test requirements independently. A low cost is irrelevant when one required capability is absent.
 
-1. Which input reaches a different terminal state without changing the previous result?
-2. What does this implementation prove, and which guarantee remains outside its stated scope?
-3. Construct an unseen boundary case before reading the reference implementation.
+Implement the stage in your learner workspace. The CLI helpers are provided adapters and import your functions; they do not substitute the reference solution.
 
-## Going further
+```bash
+python3 scripts/project_test.py sandbox-ladder --stage 2 --path learning-artifacts/sandbox-ladder
+```
 
-Change one declared limit, run the suite again, and explain which cases should change. Add an integration case that crosses this stage and the next without bypassing either validation boundary.
+Predict the intermediate state above, then run the stage. A fresh stub fails; a passing reference run does not establish completion of your learner workspace.
 
-## Sources and scope
+## Investigate next
 
-[Official reference](https://docs.docker.com/engine/security/). Build a policy simulator for four isolation profiles, requirement matching and residual-risk reports. Profiles are modeled fixtures. This project does not start containers or virtual machines and does not provide operating-system isolation.
+Why is the model not evidence that a running container has these settings?
