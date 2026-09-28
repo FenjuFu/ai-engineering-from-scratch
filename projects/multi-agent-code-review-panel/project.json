@@ -3,12 +3,10 @@
   "title": "Multi-Agent Code Review Panel",
   "level": 3,
   "levelName": "Engineer",
-  "tagline": "Run independent reviewer functions with cost reservations and deadlines, verify evidence, and expose agreement without double-counting one reviewer.",
-  "summary": "Run independent reviewer functions with cost reservations and deadlines, verify evidence, and expose agreement without double-counting one reviewer.",
+  "tagline": "A review disagreement workbench that measures when quorum helps and when it hides findings.",
+  "summary": "A review disagreement workbench that measures when quorum helps and when it hides findings. Input files maps names to text or lines. Optional reviewers contain id,cost,findings recordings. Expected labels use {file,line,rule}; the report records the source fingerprint and per-reviewer versus consensus metrics.",
   "hours": 8,
-  "languages": [
-    "TypeScript"
-  ],
+  "languages": ["TypeScript"],
   "status": "ready",
   "source": "core",
   "author": {
@@ -21,19 +19,26 @@
     "Reserve costs and enforce deadlines",
     "Measure panel precision and recall"
   ],
-  "prerequisites": [],
-  "youWillBuild": "Run independent reviewer functions with cost reservations and deadlines, verify evidence, and expose agreement without double-counting one reviewer.",
+  "prerequisites": [
+    "Node22.18+ and Python3 for the grader",
+    "TypeScript objects, sets, promises, AbortSignal and precision/recall."
+  ],
+  "youWillBuild": "A review disagreement workbench that measures when quorum helps and when it hides findings.",
   "usefulFor": [
-    "A deterministic baseline you can inspect before connecting a model",
-    "A reusable local artifact with tested failure behavior"
+    "Input files maps names to text or lines. Optional reviewers contain id,cost,findings recordings. Expected labels use {file,line,rule}; the report records the source fingerprint and per-reviewer versus consensus metrics."
   ],
   "demo": {
+    "cwd": "solution",
     "command": [
       "node",
-      "main.ts",
-      "--demo"
-    ],
-    "cwd": "solution"
+      "cli.ts",
+      "--input",
+      "samples/review.json",
+      "--output",
+      "panel.json",
+      "--html",
+      "panel.html"
+    ]
   },
   "stages": [
     {
@@ -43,9 +48,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Unknown reviewer output must become a typed finding only after runtime validation.",
-      "concepts": [
-        "validateFinding"
-      ],
+      "concepts": ["validateFinding"],
       "difficulty": "starter",
       "runner": [
         "node",
@@ -53,9 +56,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-multi-agent-code-review-panel-1"
     },
@@ -66,9 +67,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Sets make reviewer identity and per-review deduplication explicit.",
-      "concepts": [
-        "aggregate"
-      ],
+      "concepts": ["aggregate"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -76,9 +75,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-multi-agent-code-review-panel-2"
     },
@@ -89,9 +86,7 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Promises and AbortSignal allow parallel reviewer calls with explicit terminal states.",
-      "concepts": [
-        "runPanel"
-      ],
+      "concepts": ["runPanel"],
       "difficulty": "core",
       "runner": [
         "node",
@@ -99,9 +94,7 @@
         "--test",
         "{tests}/stage.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-multi-agent-code-review-panel-3"
     },
@@ -112,19 +105,16 @@
       "hours": 2,
       "language": "typescript",
       "languageWhy": "Small pure metrics let deterministic fixtures establish a baseline before model integrations.",
-      "concepts": [
-        "evaluate"
-      ],
+      "concepts": ["evaluate"],
       "difficulty": "core",
       "runner": [
         "node",
         "--experimental-strip-types",
         "--test",
-        "{tests}/stage.test.ts"
+        "{tests}/stage.test.ts",
+        "{tests}/integration.test.ts"
       ],
-      "requires": [
-        "node"
-      ],
+      "requires": ["node"],
       "timeout": 90,
       "figure": "pj-multi-agent-code-review-panel-4"
     }
