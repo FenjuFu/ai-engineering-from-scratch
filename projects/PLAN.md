@@ -18,7 +18,7 @@ Python handles parsing, model-facing coordination, and evaluation. Rust handles 
 
 Projects are scoped learning artifacts, not claims of production completeness. Estimates reflect the supplied stages; production hardening and live integrations are separate work.
 
-## Catalog
+## Ready catalog
 
 | Project | Level | Languages | Stages | Estimate |
 |---|---|---|---|---|
@@ -70,6 +70,10 @@ Projects are scoped learning artifacts, not claims of production completeness. E
 | [Browser Agent](browser-agent/) | 5 | TypeScript, Python | 4 | ~8h |
 | [Distributed Eval Farm Coordinator](distributed-eval-farm/) | 5 | Go | 4 | ~8h |
 | [Self-Improving Skill Loop](self-improving-skill-loop/) | 5 | Python | 4 | ~8h |
+
+## Planned expansion
+
+The catalog now has 100 entries: 48 ready projects and 52 planned projects across the same five levels. [ROADMAP.md](ROADMAP.md) contains each planned project's useful outcome, prerequisite path, original first-demo concept and four proposed milestones. `roadmap.json` supplies the planned cards on the website. Plans become ready only after satisfying the implementation, lesson, test, figure and recording contract.
 
 ## Research Report Agent pilot
 

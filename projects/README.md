@@ -1,8 +1,8 @@
 # Projects
 
-Build useful AI engineering tools from scratch, one tested stage at a time. This catalog contains 48 original projects across Python, Rust, TypeScript, and Go.
+Build useful AI engineering tools from scratch, one tested stage at a time. The catalog covers 100 projects across Python, Rust, TypeScript, and Go: 48 ready to build and 52 on the [roadmap](ROADMAP.md).
 
-Each project includes a working reference implementation, a learner starter, cumulative stage tests, mechanism diagrams, explanations, and recorded run/output GIFs. Core tests use local fixtures and require no model credentials. Optional framework comparisons use real SDKs with deterministic fake models.
+Each ready project includes a working reference implementation, a learner starter, cumulative stage tests, mechanism diagrams, explanations, and recorded run/output GIFs. Core tests use local fixtures and require no model credentials. Optional framework comparisons use real SDKs with deterministic fake models. Planned projects have proposed outcomes and learning milestones; their implementations and completion tests are still to come.
 
 ## Start
 
@@ -33,7 +33,7 @@ python3 scripts/project_test.py semantic-notes-search --all --strict --path my-s
 
 Import `completion.json` on the project page and enter your name to download a printable HTML certificate. Every stage must pass with nonzero tests and no skips. Reference solutions, partial runs, and outdated manifests cannot qualify. The certificate is a local, self-attested community course record, not a proctored or vendor credential. Optional SDK verification is separate from core completion.
 
-## Catalog
+## Ready catalog
 
 | Project | Level | Languages | Stages | Estimate |
 |---|---|---|---|---|
@@ -86,6 +86,10 @@ Import `completion.json` on the project page and enter your name to download a p
 | [Distributed Eval Farm Coordinator](distributed-eval-farm/) | 5 | Go | 4 | ~8h |
 | [Self-Improving Skill Loop](self-improving-skill-loop/) | 5 | Python | 4 | ~8h |
 
+## Roadmap
+
+The [52 planned projects](ROADMAP.md) extend all five levels with practical applications, data and multimodal workflows, developer tooling, DevOps, and agent systems. Each brief names its deliverable, prerequisites, first demo and four proposed milestones. The website marks these cards as planned; they do not count toward completed stages or certificates.
+
 ## Build an application you can use
 
 The application track adds eight projects: CSV Question Workbench, Document Extraction Review Desk, Calendar Focus Planner, Feedback Theme Board, Inbox Triage Desk, Source-Grounded Study Coach, Visual Evidence Library and Web Change Brief. Each accepts your own input and exports a reviewable artifact such as HTML, JSON, iCalendar or unsent email drafts.
@@ -104,4 +108,4 @@ Published fixtures are reviewable, not secret. Evaluation scores describe those 
 
 ## Contribute
 
-Read [AUTHORING.md](AUTHORING.md) and [SUBMITTING.md](SUBMITTING.md). Copy [_template/](_template/), write an original useful artifact, and add stages that test learner code. No trading, crypto, or financial-advice projects.
+Read [AUTHORING.md](AUTHORING.md) and [SUBMITTING.md](SUBMITTING.md). Copy [_template/](_template/), write an original useful artifact, and add stages that test learner code.

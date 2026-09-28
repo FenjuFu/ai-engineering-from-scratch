@@ -6,7 +6,7 @@ Build an artifact somebody can use after finishing the course. Teach it through 
 
 Good projects deliver a report generator, evidence index, skill validator, memory service, workflow tool, protocol server, or evaluation harness. Bound the scope honestly. A fixture backend teaches a desktop protocol; label it clearly rather than describing it as an operating-system integration.
 
-Projects must use original implementations and lessons. Cite official documentation, specifications, and research papers for technical facts. Do not submit trading or crypto products, financial advice, personal-data scraping, security-control evasion, or a hosted-model call with no substantive engineering exercise.
+Projects must use original implementations and lessons. Cite official documentation, specifications, and research papers for technical facts. Avoid personal-data scraping, security-control evasion, or a hosted-model call with no substantive engineering exercise.
 
 ## Create the project
 

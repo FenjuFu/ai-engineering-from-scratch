@@ -2,6 +2,12 @@
 
 Each project teaches a useful artifact through four to eight incremental stages. Each stage adds a distinct behavior, explains a concrete example, and tests the learner's implementation. Reference solutions and demonstrations run offline with standard libraries. A policy simulator must identify itself as a simulator; never claim it provides operating-system isolation.
 
+## Planned projects
+
+Keep unbuilt ideas in `projects/roadmap.json` under `planned`. Give each a unique `id`, `title`, `level`, `languages`, `source`, `tagline`, `summary`, concrete `output`, four proposed `milestones`, and `prerequisiteProjects` IDs. Add `distinctFrom` and `firstDemo` to explain its independent teaching focus. A starter plan may have no project prerequisite. Planned prerequisite links must resolve and must not form cycles.
+
+Keep the readable briefs in [ROADMAP.md](ROADMAP.md) aligned with that metadata. Use `status: "planned"`; do not create empty reference implementations or completion claims. When a real project satisfies the ready contract, its ready manifest replaces the planned card in the built catalog.
+
 ## Files and metadata
 
 `projects/<id>/project.json` owns the catalog metadata. `id` matches the directory and uses lowercase words separated by hyphens. Required fields are `title`, `tagline`, `summary`, `level` (1 through 5), `hours`, `languages`, `status` (`draft` or `ready`), `source` (`core` or `community`), and a nonempty `stages` array. Stage IDs are unique. README, solution, each stage's documentation, tests, and starter files must exist before `ready` is accepted. Draft projects never appear as ready.
