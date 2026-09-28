@@ -1,16 +1,16 @@
 {
-  "title": "Desktop Control Backend / actual output",
-  "recordedAt": "2026-09-28T16:20:08Z",
+  "title": "Desktop Control Backend | Actual artifact output",
+  "recordedAt": "2026-09-28T19:26:16Z",
   "records": [
     {
       "command": [
-        "python3",
+        "python3.12",
         "demo.py"
       ],
-      "cwd": "projects/desktop-control/solution",
+      "cwd": "/tmp/aiefs-recorded-artifacts/desktop-control/solution",
       "exitCode": 0,
-      "output": "backend=fixture-scene native_verified=false\ncapture generation=0\nclick 50,70\ntype 12 bytes\ncapture generation=2\nclick 230,160\ncapture generation=3\ncomplete=true artifact=desktop-frame.ppm calls=6\n",
-      "durationMs": 436
+      "output": "backend=fixture complete=true calls=6 frames=/private/tmp/aiefs-recorded-artifacts/desktop-control/solution/desktop-frames native_verified=false\n",
+      "durationMs": 682
     }
   ]
 }

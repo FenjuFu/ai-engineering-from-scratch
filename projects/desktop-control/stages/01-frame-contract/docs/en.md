@@ -1,58 +1,54 @@
 # Validate frames and coordinate spaces
 
-> A screenshot has physical pixel dimensions while native desktop clicks may use logical coordinates.
+Stage 1 of 4. Read the [project prerequisites](../../../README.md) before starting; this stage builds on the preceding contracts.
 
-**Type:** Build
-**Languages:** Rust
-**Stage:** 1 of 4
-**Time:** ~2 hours
-
-## What you build
+## What changes
 
 A screenshot has physical pixel dimensions while native desktop clicks may use logical coordinates. Validate positive bounded dimensions and a finite display scale, then reject points outside the frame before converting by floor division. The frame generation identifies which observation justified an action.
 
-## Why Rust
+## Work through one concrete case
 
-Rust makes ownership of the backend, file handles and action state explicit. Return `Result` for invalid inputs and system-call errors, then preserve the failure at the CLI boundary. The implementation uses the standard library and compiles with `rustc --edition 2021`; no package installation is required.
-
-## Predict
-
-Choose an accepted input and a rejected input before changing code. Write down the exact output or error you expect. Identify the first side effect and the checks that must run before it.
-
-## Interactive lab
+A screenshot is640x400 physical pixels at scale 2. Pixel(200,100) maps to logical(100,50). Pixel(640,100) is already outside the image and must not become a plausible logical coordinate through division.
 
 ```figure
 pj-desktop-control-1
 ```
 
-Advance through the contract, state transition and observable result. An invalid input must stop before the transition. Explain which piece of state prevents the next action after a failure.
+Change the lab inputs and calculate the result before reading its metrics. The figure computes from those inputs; the implementation tests below remain the source of completion evidence.
 
-## Build
+## Implement the contract
 
 Implement `Frame.validate, Frame.logical_point` in your workspace `main.rs`. Keep earlier stages working. Read the function signatures and tests first, then implement one boundary at a time. The fixture is a deterministic test backend, and its results do not establish native operating-system behavior.
 
-A pixel at 200,100 on a scale-two display maps to logical point 100,50; a point exactly on the right boundary is rejected.
+Use the [public API contract](../../../API.md) and the typed starter signatures. Return values from core functions and let the supplied driver own file input, argument parsing and presentation.
 
-## Verify
+Validate bounds in physical space first; then floor each coordinate divided by scale. Check finiteness before converting floats to unsigned integers.
+
+## Verify and inspect
+
+From the repository root, initialize once with `python3 scripts/project_test.py desktop-control --init learning-artifacts/desktop-control`. Then grade cumulatively:
 
 ```bash
-python3 scripts/project_test.py desktop-control --init learning-artifacts/desktop-control
 python3 scripts/project_test.py desktop-control --stage 1 --path learning-artifacts/desktop-control --strict
 ```
 
-Initialize only once. The grader compiles tests against the learner path through `PROJECT_WORKSPACE`. Missing functions or intentional starter failures must fail; reference code is never imported as a fallback.
-
-## What you see
-
-A pixel at 200,100 on a scale-two display maps to logical point 100,50; a point exactly on the right boundary is rejected.
-
-The stage suite covers ordinary input, boundary conditions and rejected behavior. After completing all stages, compile and run the actual program:
+A fresh workspace should fail until you implement the contract. After every stage is complete, run your actual artifact from the supplied sample:
 
 ```bash
-rustc --edition 2021 learning-artifacts/desktop-control/main.rs -o /tmp/desktop-control
-/tmp/desktop-control --demo
+cd learning-artifacts/desktop-control
+rustc --edition 2021 cli.rs -o desktop-cli
+./desktop-cli samples/actions.tsv desktop-frames
 ```
 
-## Ship it
+## Investigate the failure boundary
 
-Keep a fixture you wrote and a short explanation of one rejected action in your learner workspace. State whether you tested only the fixture or an optional native adapter. Preserve that distinction in any demonstration or scorecard.
+Try NaN, negative coordinates and scale 0. Each error must occur before Backend.click is called.
+
+
+
+
+## References
+
+[Rust process commands](https://doc.rust-lang.org/std/process/struct.Command.html)
+[AppleScript language guide](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/)
+[PNG specification](https://www.w3.org/TR/png-3/)
