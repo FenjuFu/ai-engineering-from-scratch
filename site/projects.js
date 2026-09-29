@@ -11,6 +11,7 @@
   var root = document.documentElement;
   var PROGRESS_KEY = 'aifs.projects.progress.v1';
   var SOURCE_KEY = 'aifs.projects.source.v1';
+  var scriptVersion = document.currentScript ? new URL(document.currentScript.src, window.location.href).searchParams.get('v') : '';
 
   function esc(value) {
     return String(value == null ? '' : value)
@@ -371,7 +372,7 @@
       return previous.then(function () {
         return new Promise(function (resolve, reject) {
           var script = document.createElement('script');
-          script.src = source;
+          script.src = source + (scriptVersion ? (source.indexOf('?') === -1 ? '?' : '&') + 'v=' + encodeURIComponent(scriptVersion) : '');
           script.onload = resolve;
           script.onerror = reject;
           document.head.appendChild(script);
@@ -424,9 +425,12 @@
     if (overview && (project.overviewFigure || demos)) {
       overview.hidden = false;
       overview.innerHTML =
-        (project.overviewFigure ? '<div class="pj-overview-fig"><div class="pj-eyebrow">HOW IT FITS TOGETHER</div><div class="lesson-figure" data-figure="' + esc(project.overviewFigure) + '"></div></div>' : '') +
-        (demos ? '<div class="pj-demos"><div class="pj-eyebrow">SEE IT RUN</div><div class="pj-demo-grid">' + demos + '</div></div>' : '');
-      mountFigures(overview);
+        '<details class="pj-context"><summary>Project overview and recordings</summary><div class="pj-context-body">' +
+        (project.overviewFigure ? '<div class="pj-overview-fig"><div class="pj-eyebrow">PROJECT OVERVIEW</div><p class="pj-small">This example introduces the project. The selected lesson has its own mechanism.</p><div class="lesson-figure" data-figure="' + esc(project.overviewFigure) + '"></div></div>' : '') +
+        (demos ? '<div class="pj-demos"><div class="pj-eyebrow">PROJECT RECORDINGS</div><div class="pj-demo-grid">' + demos + '</div></div>' : '') + '</div></details>';
+      document.getElementById('pjWorkspace').insertAdjacentElement('afterend', overview);
+      var context = overview.querySelector('details');
+      context.addEventListener('toggle', function () { if (context.open) mountFigures(overview); });
     }
 
     document.getElementById('pjWorkspace').hidden = false;
@@ -485,8 +489,8 @@
         '<div class="pj-run-card"><div><div class="pj-eyebrow">RUN THIS STAGE</div>' +
           (stage.number === 1 ? commandBlock('python3 scripts/project_test.py ' + project.id + ' --init my-' + project.id) : '') +
           commandBlock(testCmd) + '</div></div>' +
-        (stage.demo ? demoFigure(stage.demo, project.contentBase || project.path) : '') +
         '<div class="pj-doc" id="pjDoc"><p class="pj-loading">Loading the lesson…</p></div>' +
+        (stage.demo ? '<details class="pj-context pj-stage-recording"><summary>Watch the stage ' + stage.number + ' recording</summary>' + demoFigure(stage.demo, project.contentBase || project.path) + '</details>' : '') +
         '<footer class="pj-stage-foot">' +
           '<button type="button" class="pj-action' + (isDone ? ' secondary' : '') + '" id="pjToggleDone">' + (isDone ? 'Mark as not done' : 'Mark stage complete') + '</button>' +
           '<div class="pj-stage-nav">' +
@@ -523,7 +527,7 @@
       drawRail();
       drawStage();
       var title = document.getElementById('pjStageTitle');
-      if (push && title) title.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (push && title) title.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
     }
 
     document.getElementById('pjWorkspace').addEventListener('click', function (event) {

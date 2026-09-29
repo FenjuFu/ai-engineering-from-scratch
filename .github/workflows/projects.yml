@@ -40,8 +40,11 @@ jobs:
           cache: false
       - name: Verify Rust toolchain
         run: rustc --version
-      - name: Validate site and grader contracts
-        run: node --test site/test_projects_data.js site/test_project_certificates.js
+      - name: Validate site, grader and interactive figure contracts
+        run: >-
+          node --test site/test_projects_data.js site/test_project_certificates.js
+          site/test_project_figure_runtime.js site/test_dataset_project_figures.js
+          site/test_budget_project_figures.js
       - name: Validate complete project manifests and media
         run: node site/build-projects.js --strict
       - name: Run all offline reference stages
