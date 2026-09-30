@@ -155,8 +155,25 @@ def attention_params_per_layer(config: dict) -> int:
     return q_proj + kv_proj + out_proj + gate
 
 
+LAYER_TYPES = ("full_attention", "sliding_attention")
+
+
 def layer_types(config: dict) -> list[str]:
-    return config.get("layer_types", ["full_attention"] * config["num_hidden_layers"])
+    n_layers = config["num_hidden_layers"]
+    kinds = config.get("layer_types")
+    if kinds is None:
+        return ["full_attention"] * n_layers
+    # Same rule HuggingFace applies when it loads a config: one entry per layer.
+    if len(kinds) != n_layers:
+        raise ValueError(
+            f"layer_types has {len(kinds)} entries but num_hidden_layers is {n_layers}"
+        )
+    unknown = sorted(set(kinds) - set(LAYER_TYPES))
+    if unknown:
+        raise ValueError(f"unsupported layer_types: {', '.join(unknown)}")
+    if "sliding_attention" in kinds and not config.get("sliding_window"):
+        raise ValueError("layer_types has sliding_attention layers but no sliding_window")
+    return list(kinds)
 
 
 def cached_tokens_per_layer(config: dict) -> list[int]:
@@ -304,10 +321,11 @@ def fmt_billions(x: int) -> str:
 
 
 def fmt_bytes(b: int) -> str:
+    # Decimal units, matching the GB figures in the lesson text.
     for unit in ["B", "KB", "MB", "GB", "TB"]:
-        if b < 1024:
+        if b < 1000:
             return f"{b:.1f}{unit}"
-        b /= 1024
+        b /= 1000
     return f"{b:.1f}PB"
 
 

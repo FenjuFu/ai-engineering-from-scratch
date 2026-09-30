@@ -226,7 +226,7 @@ kv_cache = 2 * num_kv_heads * head_dim * bytes_per_element
            * (full_layers * max_seq_len + sliding_layers * min(W, max_seq_len))
 ```
 
-Spark-X2.5 4B runs three sliding-window layers (W = 512) for every full-attention layer: 9 full and 27 sliding out of 36. At its 1M-token context that is about 36 GB per sequence in BF16. If all 36 layers cached the full context it would be 144 GB. The full layers carry nearly the whole cost, which is why the ratio of full to sliding layers is the number to read first on a long-context model.
+Spark-X2.5 4B runs three sliding-window layers (W = 512) for every full-attention layer: 9 full and 27 sliding out of 36. At its 1M-token context that is about 38.7 GB (36 GiB) per sequence in BF16. If all 36 layers cached the full context it would be 154.6 GB (144 GiB). The full layers carry nearly the whole cost, which is why the ratio of full to sliding layers is the number to read first on a long-context model.
 
 ### When Each Model Wins
 
