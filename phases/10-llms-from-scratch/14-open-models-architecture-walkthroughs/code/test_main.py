@@ -1,4 +1,9 @@
-"""Tests for the open model architecture calculator."""
+"""Tests for the open model architecture calculator.
+Lesson: phases/10-llms-from-scratch/14-open-models-architecture-walkthroughs/docs/en.md
+Sources: https://arxiv.org/abs/2407.21783
+https://arxiv.org/abs/2408.00118
+https://huggingface.co/XHToken/Spark-X2.5-4B/blob/main/config.json
+"""
 
 from __future__ import annotations
 
